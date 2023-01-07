@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ComputedRef } from 'vue';
+import { computed, ComputedRef, ref, Ref } from 'vue';
 import { useCounterStore } from '@/stores/counter';
 
 const counterStore = useCounterStore();
@@ -9,6 +9,7 @@ defineProps<{ msg: string }>();
 const count: ComputedRef<number> = computed(() => {
   return counterStore.getCount;
 });
+const value: Ref<boolean> = ref(false);
 
 const onClickCount = () => {
   counterStore.addCounter();
@@ -17,6 +18,8 @@ const onClickCount = () => {
 </script>
 
 <template>
+  <q-toggle v-model="value" color="green" />
+
   <h1>{{ msg }}</h1>
 
   <div class="card">
