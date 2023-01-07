@@ -1,10 +1,16 @@
 <script setup lang="ts">
-import { computed, ComputedRef, ref, Ref } from 'vue';
+import { computed, ComputedRef, ref, Ref, onBeforeMount } from 'vue';
 import { useCounterStore } from '@/stores/counter';
+import { useGroupStore } from '@/stores/group';
 
 const counterStore = useCounterStore();
+const groupStore = useGroupStore();
 
 defineProps<{ msg: string }>();
+
+onBeforeMount(() => {
+  groupStore.getGroups();
+});
 
 const count: ComputedRef<number> = computed(() => {
   return counterStore.getCount;
@@ -20,7 +26,7 @@ const onClickCount = () => {
 <template>
   <q-toggle v-model="value" color="green" />
 
-  <div class="text-3xl text-blue-700 text-bold">{{ msg }}</div>
+  <div class="text-3xl text-blue-700 text-bold">{{ msg }} ({{ groupStore.groups.length }})</div>
 
   <div class="card">
     <button type="button" @click="onClickCount">count is {{ count }}</button>
