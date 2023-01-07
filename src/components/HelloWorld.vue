@@ -20,7 +20,7 @@ const onClickCount = () => {
 <template>
   <q-toggle v-model="value" color="green" />
 
-  <h1>{{ msg }}</h1>
+  <div class="text-3xl text-blue-700 text-bold">{{ msg }}</div>
 
   <div class="card">
     <button type="button" @click="onClickCount">count is {{ count }}</button>
