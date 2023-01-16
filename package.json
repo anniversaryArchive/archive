@@ -11,6 +11,7 @@
   "dependencies": {
     "@quasar/extras": "^1.15.9",
     "graphql-tag": "^2.12.6",
+    "lodash": "^4.17.21",
     "pinia": "^2.0.28",
     "quasar": "^2.11.4",
     "villus": "^2.1.0",
@@ -30,6 +31,7 @@
     "eslint": "^8.31.0",
     "eslint-config-prettier": "^8.6.0",
     "eslint-plugin-vue": "^9.8.0",
+    "moment": "^2.29.3",
     "postcss": "^8.4.21",
     "prettier": "^2.8.1",
     "sass": "^1.32.12",
