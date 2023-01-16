@@ -23,7 +23,7 @@ export interface CommonMapList {
     [p: string]: unknown;
 }
 
-export interface CmmnCode extends CommonRowData {
+export interface CommonCode extends CommonRowData {
     codeGroup: string,
     codeValue: string,
     codeNm: string,

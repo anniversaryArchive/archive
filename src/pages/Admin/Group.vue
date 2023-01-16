@@ -17,8 +17,8 @@ import ccobject from '@/composables/createComObject';
 import cinitial from '@/composables/comInitialize';
 import cscript from '@/composables/comScripts';
 // import {useQuasar} from 'quasar';
-import DatePicker from '../components/common/dataPicker.vue';
-import SelectBox from  '../components/common/selectBox.vue';
+import DatePicker from '@/components/common/datePicker.vue';
+import SelectBox from '@/components/common/selectBox.vue';
 import {GroupParams, GroupParamsType} from '@/types/Group';
 
 export default defineComponent({

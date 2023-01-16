@@ -1,6 +1,6 @@
 // @ts-ignore
 import _ from 'lodash';
-import {CommonMapList, CommonSelect, CmmnCode} from 'src/types/CommonTypes';
+import {CommonMapList, CommonSelect, CommonCode} from '@/types/CommonTypes';
 
 export default {
     /**
@@ -23,7 +23,7 @@ export default {
      *            text   콤보 표시 명 변경. ex) { label: 'refrn1Value' }
      *            value  콤보 선택 값 변경. ex) { value: 'refrn2Value' }
      */
-    $getComboOptions: async function $getComboOptions(listItems: CommonMapList[] | CmmnCode[], options = {
+    $getComboOptions: async function $getComboOptions(listItems: CommonMapList[] | CommonCode[], options = {
         label: '', value: '',
     }) {
         //	원본 배열 복사
