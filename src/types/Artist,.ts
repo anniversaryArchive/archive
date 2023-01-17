@@ -1,5 +1,6 @@
-export interface ArtistParams {
+export interface Artist {
     name        : string,
+    _id         : string,
     debutDate   : string,
     birthDay    : string,
     group?      : string,
@@ -9,7 +10,7 @@ export interface ArtistParams {
     color?      : string
 }
 
-const ArtistParamsType: { [key: string]: string } = {
+const ArtistType: { [key: string]: string } = {
     name        : 'string',
     debutDate   : 'string',
     birthDay    : 'string',
@@ -20,4 +21,4 @@ const ArtistParamsType: { [key: string]: string } = {
     color       : 'string'
 }
 
-export {ArtistParamsType};
+export {ArtistType};

@@ -9,8 +9,8 @@ export default {
         const selectBoxOptions = ref({} as { [key: string]: CommonSelectBox });
 
         if (names.length > 0) {
-            _.forEach(names, (x: string) => {
-                selectBoxOptions.value[x] = {} as CommonSelectBox;
+            _.forEach(names, (name: string) => {
+                selectBoxOptions.value[name] = {} as CommonSelectBox;
             });
         }
         return {selectBoxOptions};

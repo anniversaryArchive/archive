@@ -1,5 +1,6 @@
-export interface GroupParams {
+export interface Group {
     name        : string,
+    _id         : string,
     debutDate   : string,
     logo        : string,
     englishName? : string,
@@ -9,7 +10,7 @@ export interface GroupParams {
     artist?      : string
 }
 
-const GroupParamsType: { [key: string]: string } = {
+const GroupType: { [key: string]: string } = {
     name        : 'string',
     debutDate   : 'string',
     logo        : 'string',
@@ -19,4 +20,4 @@ const GroupParamsType: { [key: string]: string } = {
     color       : 'string'
 }
 
-export {GroupParamsType};
+export {GroupType};

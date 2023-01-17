@@ -19,18 +19,18 @@ import cscript from '@/composables/comScripts';
 // import {useQuasar} from 'quasar';
 import DatePicker from '@/components/common/datePicker.vue';
 import SelectBox from '@/components/common/selectBox.vue';
-import {GroupParams, GroupParamsType} from '@/types/Group';
+import {Group, GroupType} from '@/types/Group';
 
 export default defineComponent({
     name        : 'Group',
     components  : {DatePicker, SelectBox},
     setup(){
         // const $q = useQuasar();
-        const groupParams = ref({} as GroupParams);
+        const groupParams = ref({} as Group);
         const {selectBoxOptions: selectBoxOptions} = ccobject.$createSelectAll(['artist']);
 
         // 데이터 초기화
-        groupParams.value = cinitial.$inItData('', GroupParamsType) as unknown as GroupParams;
+        groupParams.value = cinitial.$inItData('', GroupType) as unknown as Group;
 
         (async () => {
             // 아티스트 정보 가져오기
