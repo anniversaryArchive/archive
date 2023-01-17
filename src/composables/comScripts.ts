@@ -1,4 +1,3 @@
-// @ts-ignore
 import _ from 'lodash';
 import {CommonMapList, CommonSelect, CommonCode} from '@/types/CommonTypes';
 

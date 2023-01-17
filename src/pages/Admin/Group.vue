@@ -16,7 +16,6 @@ import {defineComponent, ref} from 'vue';
 import ccobject from '@/composables/createComObject';
 import cinitial from '@/composables/comInitialize';
 import cscript from '@/composables/comScripts';
-// import {useQuasar} from 'quasar';
 import DatePicker from '@/components/common/datePicker.vue';
 import SelectBox from '@/components/common/selectBox.vue';
 import {Group, GroupType} from '@/types/Group';
@@ -25,7 +24,6 @@ export default defineComponent({
     name        : 'Group',
     components  : {DatePicker, SelectBox},
     setup(){
-        // const $q = useQuasar();
         const groupParams = ref({} as Group);
         const {selectBoxOptions: selectBoxOptions} = ccobject.$createSelectAll(['artist']);
 

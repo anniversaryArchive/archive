@@ -1,4 +1,3 @@
-// @ts-ignore
 import _ from 'lodash';
 
 /*
@@ -8,12 +7,8 @@ import _ from 'lodash';
 * */
 export default {
     $inItData: function inItData(gb: string, sendType: { [key: string]: string }) {
-        // const _ = require('lodash');
-
         const tempData: { [key: string]: string | number | boolean | [] | object } = {};
-
         const type = sendType;
-        // console.log('gb : ', gb, 'type : ', type);
 
         _.forEach(Object.keys(type), (x: string) => {
             if (type[x] === 'string') {
