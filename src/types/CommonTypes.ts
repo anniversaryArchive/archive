@@ -43,25 +43,9 @@ export interface AuthButtons {
     create: boolean;
     delete: boolean;
     save: boolean;
-    excel: boolean;
-    skll1: boolean;
-    skll2: boolean;
-    skll3: boolean;
 }
 
 export interface ButtonAuths extends AuthButtons {
     menuId: string;
     authorGroup: string;
 }
-
-const AuthButtonsType: { [key: string]: string } = {
-    inquire: ' boolean',
-    create : ' boolean',
-    delete : ' boolean',
-    save   : ' boolean',
-    excel  : ' boolean',
-    skll1  : ' boolean',
-    skll2  : ' boolean',
-    skll3  : ' boolean',
-};
-export {AuthButtonsType};
