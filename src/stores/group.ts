@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { QueryExecutionOpts, useQuery } from 'villus';
+// @ts-ignore
 import getGroups from '@/graphql/getGroups.query.gql';
 
 interface FetchFunc {
