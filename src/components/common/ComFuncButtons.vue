@@ -24,7 +24,7 @@ export default defineComponent({
                 case 'save'     :	//	저장
                     btnClassName = 'btn-' + props.type;
                     break;
-                //	그 외에는 type 을 class 명 으로 받음
+                // 그 외에는 type을 class명으로 받음
                 default :
                     btnClassName = props.type;
                     break;

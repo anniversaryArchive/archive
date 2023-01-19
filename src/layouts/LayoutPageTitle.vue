@@ -19,25 +19,19 @@
 
 <script lang="ts">
 import {defineComponent, ref} from 'vue';
-import ComFuncButtons from '@/components/common/ComFuncButtons.vue';
 import {useRoute} from 'vue-router';
-import cinitial from '@/composables/comInitialize';
-import {AuthButtons, AuthButtonsType, ButtonAuths, FuncButtons } from '@/types/CommonTypes';
+import ComFuncButtons from '@/components/common/ComFuncButtons.vue';
+import { ButtonAuths, FuncButtons } from '@/types/CommonTypes';
 
 export default defineComponent({
     name      : 'LayoutPageTitle',
     components: {ComFuncButtons},
-    props     : ['fnCallFunc', 'disableBtns', 'hideBtns'],
+    props     : ['fnCallFunc'],
     setup(props) {
         const route = useRoute();
         const funcButtons = ref(<FuncButtons[]>[]);
-        const disableBtns = ref({} as AuthButtons);
-        const hideBtns = ref({} as AuthButtons);
         const fnCallFunc = ref(props.fnCallFunc);
         const pageTitle = route.meta.title;
-
-        disableBtns.value = cinitial.$inItData('rowData', AuthButtonsType) as unknown as AuthButtons;
-        hideBtns.value = cinitial.$inItData('rowData', AuthButtonsType) as unknown as AuthButtons;
 
         (async () => {
             pushFucnButtons('inquire', '조회', 'inquire', true, false, false);
@@ -50,12 +44,12 @@ export default defineComponent({
         function pushFucnButtons(id: string, name: string, type: string, stat: boolean, dis: boolean, hide: boolean) {
             if (stat) {
                 funcButtons.value.push({
-                    id    : id
-                    , name: name
-                    , type: type
-                    , stat: stat
-                    , dis : dis
-                    , hide: hide,
+                    id   : id,
+                    name : name,
+                    type : type,
+                    stat : stat,
+                    dis  : dis,
+                    hide : hide,
                 });
             }
         }
@@ -90,7 +84,6 @@ export default defineComponent({
                     btnAuth = false;
                     return;
             }
-
             fnCallFunc.value(id, ev);
         }
 
