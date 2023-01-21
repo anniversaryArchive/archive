@@ -2,7 +2,7 @@
     <div class="page_tit">
         {{pageTitle}}
     </div>
-    <div id='cmmnBtns' class="comm_btn">
+    <div id='comBtns' class="com_btn">
         <com-func-buttons
                 v-for="btn in funcButtons"
                 v-show="! btn.hide"
@@ -95,4 +95,4 @@ export default defineComponent({
     }
 });
 
-</script>b
+</script>
