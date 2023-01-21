@@ -1,28 +1,26 @@
 <template>
     <div>
-        Group Page
+        <layout-page-title
+                :fnCallFunc="fnCallFunc"
+        />
         <br>
         <date-picker :id="groupParams.debutDate" v-model='groupParams.debutDate' :clearable='true'/>
         <br>
-        <select-box id="artist" v-model='groupParams.artist'
-                        v-bind='selectBoxOptions.artist' />
-        <br>
-        {{groupParams}}
+        <select-box id="artist" v-model='groupParams.artist' v-bind='selectBoxOptions.artist' />
     </div>
 </template>
 
 <script lang="ts">
 import {defineComponent, ref} from 'vue';
+import mixinPageCommon from '@/pages/mixin/mixinPageCommon';
 import ccobject from '@/composables/createComObject';
 import cinitial from '@/composables/comInitialize';
 import cscript from '@/composables/comScripts';
-import DatePicker from '@/components/common/datePicker.vue';
-import SelectBox from '@/components/common/selectBox.vue';
 import {Group, GroupType} from '@/types/Group';
 
 export default defineComponent({
     name        : 'Group',
-    components  : {DatePicker, SelectBox},
+    mixins: [mixinPageCommon],
     setup(){
         const groupParams = ref({} as Group);
         const {selectBoxOptions: selectBoxOptions} = ccobject.$createSelectAll(['artist']);
@@ -35,6 +33,9 @@ export default defineComponent({
             const tempList = [{
                 'codeNm': '김원필',
                 'codeValue': '940428'
+            },{
+                'codeNm': '윤도운',
+                'codeValue': '950825'
             }];
 
             // 아티스트 셀렉트 옵션
@@ -46,7 +47,23 @@ export default defineComponent({
             selectBoxOptions.value.artist.data = await cscript.$getComboOptions(tempList);
         })();
 
+        function fnCallFunc(id: string) {
+            switch (id) {
+                case 'inquire'  :   // 조회
+                    break;
+                case 'create'   :   // 신규
+                    break;
+                case 'delete'   :   // 삭제
+                    break;
+                case 'save'     :   // 저장
+                    break;
+                default:
+                    break;
+            }
+        }
+
         return{
+            fnCallFunc,
             groupParams,
             selectBoxOptions
         };

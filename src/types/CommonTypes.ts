@@ -28,3 +28,24 @@ export interface CommonCode extends CommonRowData {
     codeValue: string,
     codeNm: string,
 }
+
+export interface FuncButtons {
+    id: string;
+    name: string;
+    type: string;
+    stat: boolean;
+    dis: boolean;
+    hide: boolean;
+}
+
+export interface AuthButtons {
+    inquire: boolean;
+    create: boolean;
+    delete: boolean;
+    save: boolean;
+}
+
+export interface ButtonAuths extends AuthButtons {
+    menuId: string;
+    authorGroup: string;
+}
