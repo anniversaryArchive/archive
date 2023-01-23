@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import {AllCommunityModules} from '@ag-grid-community/all-modules';
 
 /*
 * 데이터를 타입 정의에 맞게 초기화
@@ -25,5 +26,19 @@ export default {
         });
 
         return tempData;
+    },
+
+    $comGridOption: {
+        modules                : AllCommunityModules,
+        defaultColDef          : {
+            editable    : false, // 입력가능
+            sortable    : false, // 정렬가능
+            resizable   : false, // 사이즈조절가능
+            filter      : true, // 필터 *현황은 필수
+            lockPosition: true, // 컬럼 드래그 방지
+            width       : 100,
+        },
+        localeText             : {noRowsToShow: '조회 결과가 없습니다.'},
+        enableCellTextSelection: true,
     },
 }
