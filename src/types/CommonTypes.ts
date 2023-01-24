@@ -1,3 +1,6 @@
+import {GridOptions} from '@ag-grid-community/core';
+import {AllCommunityModules} from '@ag-grid-community/all-modules';
+
 export interface CommonSelect {
     label: string;
     value: string;
@@ -48,4 +51,29 @@ export interface AuthButtons {
 export interface ButtonAuths extends AuthButtons {
     menuId: string;
     authorGroup: string;
+}
+
+export interface ToSaveData {
+    [p: string]: unknown;
+}
+
+export interface ResultModel {
+    name: string;
+    successCnt: number;
+    errorCnt: number;
+    retMsg: string;
+    retCode: string;
+}
+
+export interface CommonGrdProps extends GridOptions {
+    name: string,
+    modules: typeof AllCommunityModules,
+    //columnDefs: ColDef[],
+    //defaultColDef: ColDef,
+    style: string,
+    //pagination: boolean,       // pagination properties
+    //paginationPageSize?: number,
+    // columnTypes?: {
+    //   [key: string]: ColDef;
+    // },
 }

@@ -1,6 +1,6 @@
 <template>
     <div>
-        <q-input ref="inputRef" v-model="val" :clearable="clearable" :dense="true"
+        <q-input ref="inputRef" v-model="val" :clearable="clearable" :dense="true" outlined
                  :mask='maskFormat' :readonly="readonly" >
             <template v-slot:append>
                 <q-icon class="cursor-pointer" name="event">
