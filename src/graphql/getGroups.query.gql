@@ -2,5 +2,15 @@ query {
   groups {
     _id
     name
+    artists {
+      _id
+      name
+    }
+    englishName
+    debutDate
+    color
+    logo {
+      name
+    }
   }
 }

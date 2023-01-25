@@ -18,13 +18,18 @@ interface GroupState {
 
 export const useGroupStore = defineStore({
   id: 'group',
-  state : (): GroupState => ({ groups: [] }),
+  // state : (): GroupState => ({ groups: [] }),
+  state: ():GroupState => {
+    return {
+      groups: [],
+  }},
   getters: {},
   actions: {
     getGroups () {
       useQuery({ query: getGroups }).then(({ data }) => {
         this.groups = data.value?.groups || [];
       });
+      return this. groups;
     }
-  },
+  }
 });

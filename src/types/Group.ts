@@ -1,13 +1,15 @@
+import {Artist} from '@/types/Artist';
+
 export interface Group {
     name        : string,
     _id         : string,
     debutDate   : string,
-    logo        : string,
+    logo        : string | null,
     englishName? : string,
     createdAt?   : string,
     updatedAt?   : string,
     color?       : string
-    artist?      : string
+    artists?      : [Artist] | null,
 }
 
 const GroupType: { [key: string]: string } = {

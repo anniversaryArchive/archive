@@ -78,6 +78,7 @@
                             v-bind='grdMstProps'
                             class='ag-theme-balham'
                             @grid-ready="onGridReady"
+                            @cell-focused="onMstCellFocused"
                             @pagination-changed="onPaginationChanged"
                     />
                 </div>
@@ -87,18 +88,18 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, ref} from 'vue';
+import {defineComponent, ref, defineProps,} from 'vue';
 import { useQuasar } from 'quasar';
 import _ from 'lodash';
 import mixinPageCommon from '../mixin/mixinPageCommon';
 import ccobject from '@/composables/createComObject';
 import cinitial from '@/composables/comInitialize';
 import cscript from '@/composables/comScripts';
-// import apis from '@/composables/axiosUtils';
-import caggrid from '@/composables/customAgGridUtils';
+import caggrid, { DateFormatter } from '@/composables/customAgGridUtils';
 import {Group, GroupType} from '@/types/Group';
-import { ToSaveData } from '@/types/CommonTypes';
-import { GetRowIdParams, GridOptions } from '@ag-grid-community/core';
+import {CommonMapList, ToSaveData } from '@/types/CommonTypes';
+import {CellFocusedEvent, GetRowIdParams, GridOptions, RowNode } from '@ag-grid-community/core';
+import {useGroupStore} from '@/stores/group';
 
 export default defineComponent({
     name        : 'Group',
@@ -115,6 +116,9 @@ export default defineComponent({
         // 아티스트 멀티 셀렉트박스 배열 변수
         const artistList = ref([] as string[]);
         const artistListOrgData = ref([] as string[]);
+
+        const groupStore = useGroupStore();
+        defineProps<{msg : string}>();
 
         let pCurMstRowKey = -1;
 
@@ -157,9 +161,9 @@ export default defineComponent({
             name                         : 'grdMstProps',
             columnDefs                   : [
                 {headerName: 'No', valueGetter: 'node.rowIndex + 1', width: 60, sortable: true},
-                {headerName: '그룹명', field: 'name', width: 150, cellStyle : {textAlign: 'left'}},
-                {headerName: '영문 그룹명', field: 'englishName', width: 150, cellStyle : {textAlign: 'left'}},
-                {headerName: '데뷔일', field: 'debutDate', width: 150, cellStyle : {textAlign: 'left'}},
+                {headerName: '그룹명', field: 'name', cellStyle : {textAlign: 'left'}, flex: 1},
+                {headerName: '영문 그룹명', field: 'englishName', cellStyle : {textAlign: 'left'}, flex: 1},
+                {headerName: '데뷔일', field: 'debutDate', cellStyle : {textAlign: 'left'}, flex: 1},
                 {headerName: 'ID', field: '_id', hide: true}
             ],
             rowData                      : [],
@@ -171,6 +175,52 @@ export default defineComponent({
             rowSelection      : 'single',
         } as GridOptions) as unknown as typeof grdMstProps.value;
 
+        // 그리드 셀 포커스
+        async function onMstCellFocused(event: CellFocusedEvent) {
+            // 포커스 셀 변경시 해당셀의 행 선택
+            let focusedNodes = _.find(grdApi.value.getRenderedNodes(), (x: RowNode) => x.childIndex === event.rowIndex);
+            if (!cscript.$isEmpty(focusedNodes)){
+                focusedNodes!.setSelected(true, true);
+            }
+
+            // 변경사항 체크
+            const msg = '변경된 내용이 있습니다. 신규 작성시 변경 내용이 사라집니다.계속 하시겠습니까?';
+            if ((await checkDiffData()) && !confirm(msg)) {
+                return;
+            }
+
+            // 선택 셀 상세 셋팅
+            await detailSetting(focusedNodes!);
+        }
+
+        async function detailSetting(n: RowNode){
+            // 아티스트 초기화
+            artistList.value.splice(0, artistList.value.length);
+            artistListOrgData.value = _.cloneDeep(artistList.value);
+
+            // 현재 그리드 rowIndex 기억 (선택된 행 구분시 사용)
+            pCurMstRowKey = n.rowIndex ?? -1;
+
+            // 그룹 입력 form 할당
+            groupParams.value = _.cloneDeep(n.data);
+            // 비교 대상 제외를 위해 null 처리
+            groupParams.value.artists = null;
+            groupParams.value.logo = null;
+            groupParamsOrgData.value = _.cloneDeep(groupParams.value);
+
+            // 사실은 그룹 안에 있는 아티스트는 전 멤버가 할당된 것이 아니기 때문에 따로 아티스트 조회가 필요함
+            const artistsData = <CommonMapList[]>[];
+            _.forEach(n.data.artists, (node: RowNode) => {
+                let jsonNode = JSON.parse(JSON.stringify(node));
+                artistsData.push(jsonNode);
+                artistList.value.push(jsonNode._id);
+            });
+            selectBoxOptions.value.artist.data = await cscript.$getComboOptions(artistsData);
+
+            // 아티스트 셀렉트 박스 할당
+            artistListOrgData.value = _.cloneDeep(artistList.value);
+        }
+
         // 로고 파일 업로드 제한
         function onRejected(){
             alert('.jpg, .png 파일만 업로드 가능합니다.');
@@ -181,11 +231,15 @@ export default defineComponent({
             let diffMst = false;
 
             const compResult = await cscript.$compareDatas<Group>(groupParams.value, groupParamsOrgData.value);
-            // console.log("compResult : ", compResult);
+            console.log('groupParams.value : ', groupParams.value);
+            console.log('groupParamsOrgData.value : ', groupParamsOrgData.value);
+            console.log("compResult : ", compResult);
 
             if (compResult.length != 0) {
                 diffMst = true; // 변경 사항 있음.
             }
+
+            // 아티스트 체크 추가 예정
 
             return diffMst;
         }
@@ -223,6 +277,10 @@ export default defineComponent({
             grdApi.value.deselectAll();
             pCurMstRowKey = -1;
 
+            // 그룹 초기화
+            groupParams.value = {} as Group;
+            groupParamsOrgData.value = _.cloneDeep(groupParams.value);
+
             // 아티스트 초기화
             artistList.value.splice(0, artistList.value.length);
             artistListOrgData.value = _.cloneDeep(artistList.value);
@@ -243,6 +301,13 @@ export default defineComponent({
             // 그리드 데이터 초기화
             grdReset();
 
+            // 데이터 호출
+            const groupList = groupStore.getGroups();
+
+            // 그리드 데이터 셋팅
+            await grdApi.value.setRowData(groupList);
+            // grdMstCnt 셋팅
+            grdMstCnt.value = grdApi.value.getDisplayedRowCount();
         }
 
         async function fnNew() {
@@ -325,6 +390,7 @@ export default defineComponent({
             grdMstCnt,
             grdMstProps,
             onGridReady,
+            onMstCellFocused,
             onPaginationChanged,
             groupParams,
             selectBoxOptions,

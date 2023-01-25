@@ -34,8 +34,8 @@ export default {
         }
         await _.forEach(listItems as CommonMapList[], (item: CommonMapList) => {
             const row = {
-                label : !this.$isEmpty(options.label) ? String(item[options.label]) : item.codeNm,
-                value : !this.$isEmpty(options.value) ? String(item[options.value]) : item.codeValue,
+                label : !this.$isEmpty(options.label) ? String(item[options.label]) : item.name,
+                value : !this.$isEmpty(options.value) ? String(item[options.value]) : item._id,
             };
             cpListItems.push(row as CommonSelect);
         });
