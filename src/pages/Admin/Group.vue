@@ -97,15 +97,15 @@ import cinitial from '@/composables/comInitialize';
 import cscript from '@/composables/comScripts';
 import caggrid, { DateFormatter } from '@/composables/customAgGridUtils';
 import {Group, GroupType} from '@/types/Group';
-import {CommonMapList, ToSaveData } from '@/types/CommonTypes';
+import {ToSaveData } from '@/types/CommonTypes';
 import {CellFocusedEvent, GetRowIdParams, GridOptions, RowNode } from '@ag-grid-community/core';
 import {useGroupStore} from '@/stores/group';
+import {useArtistStore} from '@/stores/artist';
 
 export default defineComponent({
     name        : 'Group',
     mixins: [mixinPageCommon],
     setup(){
-        const $q = useQuasar()
         const groupParams = ref({} as Group);
         const groupParamsOrgData = ref({} as Group);
         const {selectBoxOptions: selectBoxOptions} = ccobject.$createSelectAll(['artist']);
@@ -117,7 +117,9 @@ export default defineComponent({
         const artistList = ref([] as string[]);
         const artistListOrgData = ref([] as string[]);
 
+        // 그룹 + 아티스트 목록
         const groupStore = useGroupStore();
+        const artistStore = useArtistStore();
         defineProps<{msg : string}>();
 
         let pCurMstRowKey = -1;
@@ -137,24 +139,7 @@ export default defineComponent({
             onPaginationChanged,
         } = ccobject.$createComGrd<Group>();
 
-        (async () => {
-            // 아티스트 정보 가져오기
-            const tempList = [{
-                'codeNm': '김원필',
-                'codeValue': '940428'
-            },{
-                'codeNm': '윤도운',
-                'codeValue': '950825'
-            }];
-
-            // 아티스트 셀렉트 옵션
-            selectBoxOptions.value.artist = {
-                name     : 'artistStatusOptions',
-                clearable: true,
-                style    : 'width: 250px',
-            };
-            selectBoxOptions.value.artist.data = await cscript.$getComboOptions(tempList);
-        })();
+        // (async () => {})();
 
         grdMstCnt.value = 0;
         grdMstProps.value = Object.assign({}, cinitial.$comGridOption, {
@@ -163,7 +148,7 @@ export default defineComponent({
                 {headerName: 'No', valueGetter: 'node.rowIndex + 1', width: 60, sortable: true},
                 {headerName: '그룹명', field: 'name', cellStyle : {textAlign: 'left'}, flex: 1},
                 {headerName: '영문 그룹명', field: 'englishName', cellStyle : {textAlign: 'left'}, flex: 1},
-                {headerName: '데뷔일', field: 'debutDate', cellStyle : {textAlign: 'left'}, flex: 1},
+                {headerName: '데뷔일', field: 'debutDate', cellStyle : {textAlign: 'left'}, flex: 1, valueFormatter: DateFormatter},
                 {headerName: 'ID', field: '_id', hide: true}
             ],
             rowData                      : [],
@@ -208,16 +193,11 @@ export default defineComponent({
             groupParams.value.logo = null;
             groupParamsOrgData.value = _.cloneDeep(groupParams.value);
 
-            // 사실은 그룹 안에 있는 아티스트는 전 멤버가 할당된 것이 아니기 때문에 따로 아티스트 조회가 필요함
-            const artistsData = <CommonMapList[]>[];
+            // 아티스트 셀렉트 박스 할당
             _.forEach(n.data.artists, (node: RowNode) => {
                 let jsonNode = JSON.parse(JSON.stringify(node));
-                artistsData.push(jsonNode);
                 artistList.value.push(jsonNode._id);
             });
-            selectBoxOptions.value.artist.data = await cscript.$getComboOptions(artistsData);
-
-            // 아티스트 셀렉트 박스 할당
             artistListOrgData.value = _.cloneDeep(artistList.value);
         }
 
@@ -227,21 +207,37 @@ export default defineComponent({
         }
 
         // 변경사항 체크
-        async function checkDiffData() {
+        async function checkDiffData(gridGb = 'All') {
             let diffMst = false;
+            let artistDiff = false;
 
-            const compResult = await cscript.$compareDatas<Group>(groupParams.value, groupParamsOrgData.value);
-            console.log('groupParams.value : ', groupParams.value);
-            console.log('groupParamsOrgData.value : ', groupParamsOrgData.value);
-            console.log("compResult : ", compResult);
+            if (gridGb == 'Mst' || gridGb == 'All') {
+                const compResult = await cscript.$compareDatas<Group>(groupParams.value, groupParamsOrgData.value);
+                console.log('groupParams.value : ', groupParams.value);
+                console.log('groupParamsOrgData.value : ', groupParamsOrgData.value);
+                console.log("compResult : ", compResult);
 
-            if (compResult.length != 0) {
-                diffMst = true; // 변경 사항 있음.
+                if (compResult.length != 0) {
+                    diffMst = true; // 변경 사항 있음.
+                }
             }
 
-            // 아티스트 체크 추가 예정
+            // 아티스트 비교
+            if (gridGb == 'DtlArt' || gridGb == 'All') {
+                if (artistList.value.length !== artistListOrgData.value.length){
+                    artistDiff = true;
+                }
 
-            return diffMst;
+                // 배열 순서 없이 비교
+                const uniqueValues = new Set([...artistList.value, ...artistListOrgData.value]);
+                for (const v of uniqueValues) {
+                    const aCount = artistList.value.filter(e => e === v).length;
+                    const bCount = artistListOrgData.value.filter(e => e === v).length;
+                    if (aCount !== bCount) artistDiff = true;
+                }
+            }
+
+            return gridGb == 'Mst' ? diffMst : gridGb === 'DtlArt' ? artistDiff : ((diffMst || artistDiff));
         }
 
         // 필수 입력 항목 체크
@@ -304,10 +300,26 @@ export default defineComponent({
             // 데이터 호출
             const groupList = groupStore.getGroups();
 
+            // 아티스트 데이터 호출
+            await getArtist();
+
             // 그리드 데이터 셋팅
             await grdApi.value.setRowData(groupList);
             // grdMstCnt 셋팅
             grdMstCnt.value = grdApi.value.getDisplayedRowCount();
+        }
+
+        async function getArtist() {
+            // 아티스트 데이터 호출
+            const artistList = artistStore.getArtists();
+
+            // 아티스트 셀렉트 옵션
+            selectBoxOptions.value.artist = {
+                name     : 'artistStatusOptions',
+                clearable: true,
+                style    : 'width: 250px',
+            };
+            selectBoxOptions.value.artist.data = await cscript.$getComboOptions(artistList);
         }
 
         async function fnNew() {
@@ -329,6 +341,12 @@ export default defineComponent({
         }
 
         async function fnDelete() {
+            const msg = '조회 후 삭제할 그룹을 선택하세요.'
+            if(!groupParams.value._id){
+                alert(msg);
+                return;
+            }
+
             await deleteRowData();
         }
 
@@ -340,11 +358,10 @@ export default defineComponent({
 
         async function fnSave(){
             // 변경사항 체크
-            const groupDiff = await checkDiffData();
+            const groupDiff = await checkDiffData('Mst');
+            const artistDiff = await checkDiffData('DtlArt');
 
-            console.log('groupDiff : ', groupDiff);
-
-            if (!groupDiff) {
+            if (!(groupDiff || artistDiff)) {
                 alert('변경 사항이 없습니다.')
                 return;
             }
@@ -354,12 +371,33 @@ export default defineComponent({
             }
 
             // 저장 데이터 생성
-            const toSaveData = Object.assign({} as ToSaveData, groupParams.value);
-            // console.log('toSaveData', toSaveData);
+            let artistListSave : any[] = [];
+            Object.entries(artistList.value).forEach(([, val]) => {
+                let artist = {
+                    _id: val,
+                };
+                artistListSave.push(artist);
+            });
+
+            const toSaveInfo = {
+                id          : (groupParams.value._id ? groupParams.value._id : null),
+                name        : groupParams.value.name,
+                englishName : groupParams.value.englishName,
+                debutDate   : groupParams.value.debutDate,
+                artists     : artistListSave,
+                logo        : groupParams.value.logo,
+                color       : groupParams.value.color
+            }
+
+            const toSaveData = Object.assign({} as ToSaveData, toSaveInfo);
             await saveRowData(toSaveData);
         }
 
         async function saveRowData(toSaveData: ToSaveData) {
+            // 신규 구분
+            console.log("toSaveData._id : ", toSaveData._id);
+            console.log('toSaveData', toSaveData);
+
             const url = '';
             // const saveResult = await apis.$saveData(url, toSaveData);
             // alert('저장 완료하였습니다.');
