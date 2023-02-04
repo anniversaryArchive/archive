@@ -32,7 +32,7 @@ export const useArtistStore = defineStore({
   },
   actions: {
     getArtists () {
-      query(getArtists).then(({ data, error, execute }) => {
+      query(getArtists, {}, false).then(({ data, error, execute }) => {
         this.data = {
           list: computed(() => {
             return data.value?.artist?.data || [];
@@ -43,8 +43,14 @@ export const useArtistStore = defineStore({
       });
     },
 
-    removeArtist(id: string) {
-      mutate(removeArtist, { id });
+    async removeArtist(id: string): Promise<boolean> {
+      try {
+        const { data } = await mutate(removeArtist, { id });
+        const success: boolean = data?.success || false;
+        if (success) { this.data?.fetch(); }
+        return success;
+      } catch (error) { console.error(error); }
+      return false;
     },
   },
 });

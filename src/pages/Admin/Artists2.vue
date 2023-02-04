@@ -159,15 +159,34 @@ const fnCallFunc = (id: string) => {
     case 'create'   :   // 신규
       fnNew();
       break;
-    case 'delete'   :   // 삭제
-      fnDelete();
-      break;
+    // 삭제
+    case 'delete': return onClickDeleteBtn();
     case 'save'     :   // 저장
       fnSave();
       break;
     default:
       break;
   }
+}
+
+function getSelectedArtist (): Artist | undefined {
+  const selectedRows = grdApi.value.getSelectedRows();
+
+  // 선택한 아티스트가 없는 경우 
+  if (!selectedRows.length) {
+    return alert('아티스트를 선택해주세요!');
+  }
+
+  return selectedRows[0];
+}
+
+// 삭제
+function onClickDeleteBtn () {
+  const artist: Artist | undefined = getSelectedArtist();
+  if (!artist) { return; }
+  const confirmResult: boolean = confirm('정말 삭제하시겠습니까?');
+  if (!confirmResult) { return; }
+  artistStore.removeArtist(artist._id);
 }
 
 const onRejected = () => {
