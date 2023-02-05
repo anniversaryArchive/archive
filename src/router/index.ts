@@ -20,7 +20,7 @@ const routes: Array<RouteRecordRaw> = [
       }, {
         path: 'artist',
         meta: { title: '아티스트 추가 화면' },
-        component: () => import('@/pages/Admin/Artists2.vue'),
+        component: () => import('@/pages/Admin/Artists.vue'),
       }
     ],
   }

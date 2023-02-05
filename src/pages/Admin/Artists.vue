@@ -1,6 +1,6 @@
 <template>
   <div>
-    <layout-page-title :fnCallFunc="fnCallFunc" />
+    <LayoutPageTitle :fnCallFunc="fnCallFunc" />
 
     <div class='form_table'>
       <table>
@@ -23,42 +23,51 @@
         -->
 
         <tbody>
+          <!-- 필수 -->
           <tr>
-            <th>로고 파일</th>
+            <th>아티스트명</th>
             <td colspan="3">
-              <q-file :ref='el => { refs["logo"] = el }' outlined v-model="inputArtist.logo" accept=".jpg, .png, image/*" @rejected="onRejected">
+              <q-input :ref='el => { refs["name"] = el }' v-model="inputArtist.name" :dense="true" maxlength="100" outlined/>
+            </td>
+          </tr>
+
+          <tr>
+            <th>생일</th>
+            <td colspan="3">
+              <DatePicker :ref='el => { refs["birthDay"] = el }' :id="inputArtist.birthDay" v-model='inputArtist.birthDay' :clearable='true'/>
+            </td>
+          </tr>
+
+          <tr>
+            <th>데뷔일</th>
+            <td colspan="3">
+              <DatePicker :ref='el => { refs["debutDate"] = el }' :id="inputArtist.debutDate" v-model='inputArtist.debutDate' :clearable='true'/>
+            </td>
+          </tr>
+
+          <tr>
+            <th>이미지</th>
+            <td colspan="3">
+              <q-file :ref='el => { refs["image"] = el }' outlined v-model="inputArtist.image" accept=".jpg, .png, image/*" @rejected="onRejected">
                 <template v-slot:prepend>
                   <q-icon name="attach_file" />
                 </template>
               </q-file>
             </td>
           </tr>
+
+          <!-- 선택 -->
           <tr>
-            <th>그룹명</th>
-            <td>
-              <q-input :ref='el => { refs["name"] = el }' v-model="inputArtist.name" :dense="true" maxlength="100" outlined/>
-            </td>
-            <th>영문 그룹명</th>
-            <td>
-              <q-input :ref='el => { refs["englishName"] = el }' v-model="inputArtist.englishName" :dense="true" maxlength="100" outlined/>
-            </td>
-          </tr>
-          <tr>
-            <th>데뷔일</th>
-            <td colspan="3">
-              <date-picker :ref='el => { refs["debutDate"] = el }' :id="inputArtist.debutDate" v-model='inputArtist.debutDate' :clearable='true'/>
-            </td>
-          </tr>
-          <tr>
-            <th>아티스트</th>
+            <th>소속된 그룹</th>
             <td colspan="3">
               <!--
-              <select-box id="artist" v-model='artistList'
+              <SelectBox id="artist" v-model='artistList'
                 v-bind='selectBoxOptions.artist' style="width: 100%;"
                 :multiplied='true' use-chips />
               -->
             </td>
           </tr>
+
           <tr>
             <th>공식 컬러</th>
             <td colspan="3">
@@ -84,7 +93,7 @@
       </div>
       <div id='grdMstArea' class="grid_edge">
         <div class='default-list'>
-          <ag-grid-vue
+          <AgGridVue
             id='grdMst'
             ref='grdMst'
             v-bind='grdMstProps'
@@ -98,15 +107,16 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, onBeforeMount, ref, Ref, computed, ComputedRef, watch } from 'vue';
+<script setup lang="ts">
+import { LayoutPageTitle, DatePicker, SelectBox, AgGridVue } from '../mixin/mixinPageCommonTest';
+
+import { ref, Ref, computed, ComputedRef, watch, onBeforeMount } from 'vue';
 import ccobject from '@/composables/createComObject';
 import cinitial from '@/composables/comInitialize';
 import cscript from '@/composables/comScripts';
 import caggrid from '@/composables/customAgGridUtils';
 import { Artist, ArtistType } from '@/types/Artist';
 import { useArtistStore } from '@/stores/artist';
-import mixinPageCommon from '../mixin/mixinPageCommon';
 
 const gridFields: { key: string, text: string }[] = [
   { key: 'name', text: '아티스트명' },
@@ -114,6 +124,79 @@ const gridFields: { key: string, text: string }[] = [
   { key: 'group.name', text: '그룹' },
 ];
 
+const artistStore = useArtistStore();
+
+const { grdApi, grdMstKey, grdMstProps, onGridReady, onPaginationChanged } = initGrid();
+
+const total: ComputedRef<number> = computed(() => artistStore.total);
+
+const refs: Ref<string, any> = ref({});
+const inputArtist: Ref<Artist> = ref(cinitial.$inItData('', ArtistType) as Artist);
+const inputArtistOrg: Ref<Artist> = ref(JSON.parse(JSON.stringify(inputArtist.value)));
+
+watch(() => artistStore.artists, () => {
+  grdApi.value.setRowData(artistStore.artists);
+});
+
+onBeforeMount(() => {
+  initialize();
+});
+
+const initialize = () => {
+  artistStore.getArtists();
+}
+
+/**
+ * =================================
+ * 상단 버튼(Action) 관련 Functions .. 
+ * =================================
+ */
+const fnCallFunc = (id: string) => {
+  switch (id) {
+    case 'inquire'  :   // 조회
+      fnInquire();
+      break;
+    case 'create'   :   // 신규
+      fnNew();
+      break;
+    // 삭제
+    case 'delete': return onClickDeleteBtn();
+    case 'save'     :   // 저장
+      fnSave();
+      break;
+    default:
+      break;
+  }
+}
+
+function getSelectedArtist (): Artist | undefined {
+  const selectedRows = grdApi.value.getSelectedRows();
+
+  // 선택한 아티스트가 없는 경우 
+  if (!selectedRows.length) {
+    return alert('아티스트를 선택해주세요!');
+  }
+
+  return selectedRows[0];
+}
+
+// 삭제
+function onClickDeleteBtn () {
+  const artist: Artist | undefined = getSelectedArtist();
+  if (!artist) { return; }
+  const confirmResult: boolean = confirm('정말 삭제하시겠습니까?');
+  if (!confirmResult) { return; }
+  artistStore.removeArtist(artist._id);
+}
+
+const onRejected = () => {
+}
+
+/**
+ * =================================
+ * Grid 관련 변수 및 Functions .. 
+ * =================================
+ */
 function initGrid () {
   const {
     grdApi,
@@ -142,70 +225,6 @@ function initGrid () {
   } as GridOptions) as unknown as typeof grdMstProps.value;
   return { grdApi, grdMstKey, grdMstProps, onGridReady, onPaginationChanged };
 }
-
-export default defineComponent({
-  mixins: [ mixinPageCommon ],
-  setup () {
-    const refs: Ref<string, any> = ref({});
-
-    const { grdApi, grdMstKey, grdMstProps, onGridReady, onPaginationChanged } = initGrid();
-
-    const artistStore = useArtistStore();
-    onBeforeMount(() => artistStore.getArtists());
-
-    watch(() => artistStore.artists, () => {
-      grdApi.value.setRowData(artistStore.artists);
-    });
-
-    const total: ComputedRef<number> = computed(() => artistStore.total);
-
-   const inputArtist: Ref<Artist> = ref(cinitial.$inItData('', ArtistType) as Artist);
-   const inputArtistOrg: Ref<Artist> = ref(JSON.parse(JSON.stringify(inputArtist.value)));
-
-    return {
-      refs,
-      inputArtist,
-      inputArtistOrg,
-      grdMstProps,
-      onGridReady,
-      onPaginationChanged,
-      total,
-    };
-  },
-  methods: {
-    // Input Box 에서의 데이터 변경 여부 체크
-    checkDiffData () {
-      let diff: boolean = false;
-
-      return true;
-    },
-
-    fnCallFunc (id: string) {
-      switch (id) {
-        case 'inquire'  :   // 조회
-          // fnInquire();
-          break;
-        // 신규
-        case 'create': return this.resetInputBox();
-        case 'delete'   :   // 삭제
-          // fnDelete();
-          break;
-        case 'save'     :   // 저장
-          // fnSave();
-          break;
-        default:
-            break;
-      }
-    },
-    // Artist 데이터 입력 박스를 초기화
-    resetInputBox () {
-
-    },
-    onRejected () { // 로고 파일 업로드 제한
-      alert('.jpg, .png 파일만 업로드 가능합니다.');
-    },
-  },
-})
 </script>
 
 <style scoped>
