@@ -2,7 +2,7 @@ import { computed, ComputedRef } from 'vue';
 import { defineStore } from 'pinia';
 import { QueryExecutionOpts } from 'villus';
 import { Artist } from '@/types/Artist';
-import { query, mutate } from '@/composables/graphqlUntils';
+import { query, mutate } from '@/composables/graphqlUtils';
 
 // @ts-ignore
 import getArtists from '@/graphql/getArtists.query.gql';
