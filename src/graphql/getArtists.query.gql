@@ -1,6 +1,20 @@
-query {
-    artists {
+query ($page: Int, $perPage: Int, $filter: FilterOption) {
+  artist: ArtistPagination (page: $page, perPage: $perPage, filter: $filter) {
+    data {
+      _id
+      name
+      birthDay
+      debutDate
+      color
+      group {
         _id
         name
+      }
+      image {
+        _id
+        path
+      }
     }
+    total
+  }
 }
