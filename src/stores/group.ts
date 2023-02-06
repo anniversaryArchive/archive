@@ -1,11 +1,13 @@
 import { defineStore } from 'pinia';
 import { QueryExecutionOpts } from 'villus';
 import {Group} from '@/types/Group';
-import {query} from '@/composables/graphqlUtils';
+import {mutate, query} from '@/composables/graphqlUtils';
 import {computed, ComputedRef} from 'vue';
 
 // @ts-ignore
 import getGroups from '@/graphql/getGroups.query.gql';
+// @ts-ignore
+import removeGroup from '@/graphql/removeGroup.mutate.gql';
 
 interface FetchFunc {
   (overrideOpts?: Partial<QueryExecutionOpts<any>>): Promise<any>
@@ -46,6 +48,16 @@ export const useGroupStore = defineStore({
           fetch: execute,
         };
       });
+    },
+
+    async removeGroup(id: string): Promise<boolean> {
+      try {
+        const { data, error } = await mutate(removeGroup, { id });
+        const success: boolean = data?.success || false;
+        if (success) { this.data?.fetch(); }
+        return success;
+      } catch (error) { console.error(error); }
+      return false;
     },
   }
 });

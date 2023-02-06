@@ -151,7 +151,6 @@ export default defineComponent({
 
         watch(() => artistStore.artists, async () => {
             const artistList = JSON.parse(JSON.stringify(artistStore.artists));
-            console.log('artistList : ', artistList);
 
             selectBoxOptions.value.artist = {
                 name     : 'artistStatusOptions',
@@ -315,7 +314,7 @@ export default defineComponent({
         // 그리드 조회
         async function getMstList(pkKey?: string | number) {
             // 그리드 데이터 초기화
-            grdReset();
+            await grdReset();
 
             // 그리드 데이터 셋팅
             await grdApi.value.setRowData(groupStore.groups);
@@ -347,18 +346,18 @@ export default defineComponent({
         }
 
         async function fnDelete() {
-            const msg = '조회 후 삭제할 그룹을 선택하세요.'
             if(!groupParams.value._id){
-                alert(msg);
+                alert('조회 후 삭제할 그룹을 선택하세요.');
                 return;
             }
 
-            await deleteRowData();
-        }
+            const confirmResult: boolean = confirm('정말 삭제하시겠습니까?');
+            if (!confirmResult) { return; }
 
-        async function deleteRowData() {
-            // const saveResult = await apis.$deleteData(url);
-            // alert('저장 완료하였습니다.');
+            await groupStore.removeGroup(groupParams.value._id);
+
+            alert('삭제되었습니다.');
+            await getMstList();
         }
 
         async function fnSave(){
