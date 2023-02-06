@@ -133,6 +133,9 @@ export default defineComponent({
             onPaginationChanged,
         } = ccobject.$createComGrd<Group>();
 
+        // 그리드 키 컬럼 명 변경 => 기본 id
+        grdMstKey.value = '_id';
+
         // 그룹 + 아티스트 목록
         const groupStore = useGroupStore();
         const artistStore = useArtistStore();
@@ -314,13 +317,15 @@ export default defineComponent({
             // 그리드 데이터 초기화
             grdReset();
 
-            // 데이터 호출
-            // console.log('groupStore.groups : ', groupStore.groups);
-
             // 그리드 데이터 셋팅
             await grdApi.value.setRowData(groupStore.groups);
             // grdMstCnt 셋팅
             grdMstCnt.value = grdApi.value.getDisplayedRowCount();
+
+            // 그리드 포커스
+            const findRowIndex = !cscript.$isEmpty(pkKey) ? _.findIndex(groupStore.groups, (x: { [x: string]: any; }) => String(x[grdMstKey.value]) === pkKey) : 0;
+            // console.log('findRowIndex :  ', findRowIndex);
+            grdApi.value.setFocusedCell(findRowIndex, grdMstKey.value);
         }
 
         async function fnNew() {
@@ -352,7 +357,6 @@ export default defineComponent({
         }
 
         async function deleteRowData() {
-            const url = '';
             // const saveResult = await apis.$deleteData(url);
             // alert('저장 완료하였습니다.');
         }
@@ -397,9 +401,7 @@ export default defineComponent({
         async function saveRowData(toSaveData: ToSaveData) {
             // 신규 구분
             // console.log("toSaveData._id : ", toSaveData._id);
-            // console.log('toSaveData', toSaveData);
-
-            const url = '';
+            console.log('toSaveData', toSaveData);
             // const saveResult = await apis.$saveData(url, toSaveData);
             // alert('저장 완료하였습니다.');
         }
