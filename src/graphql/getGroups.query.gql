@@ -1,16 +1,19 @@
-query {
-  groups {
-    _id
-    name
-    artists {
+query ($page: Int, $perPage: Int, $filter: FilterOption) {
+  groups: GroupPagination (page: $page, perPage: $perPage, filter: $filter) {
+    data {
       _id
       name
+      artists {
+        _id
+        name
+      }
+      englishName
+      debutDate
+      color
+      logo {
+        name
+      }
     }
-    englishName
-    debutDate
-    color
-    logo {
-      name
-    }
+    total
   }
 }

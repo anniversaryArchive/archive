@@ -88,8 +88,7 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, ref, defineProps,} from 'vue';
-import { useQuasar } from 'quasar';
+import {defineComponent, ref, onBeforeMount, watch} from 'vue';
 import _ from 'lodash';
 import mixinPageCommon from '../mixin/mixinPageCommon';
 import ccobject from '@/composables/createComObject';
@@ -117,11 +116,6 @@ export default defineComponent({
         const artistList = ref([] as string[]);
         const artistListOrgData = ref([] as string[]);
 
-        // 그룹 + 아티스트 목록
-        const groupStore = useGroupStore();
-        const artistStore = useArtistStore();
-        defineProps<{msg : string}>();
-
         let pCurMstRowKey = -1;
 
         // 데이터 초기화
@@ -139,7 +133,30 @@ export default defineComponent({
             onPaginationChanged,
         } = ccobject.$createComGrd<Group>();
 
-        // (async () => {})();
+        // 그룹 + 아티스트 목록
+        const groupStore = useGroupStore();
+        const artistStore = useArtistStore();
+
+        onBeforeMount(() => {
+            initialize();
+        });
+
+        const initialize = () => {
+            groupStore.getGroups();
+            artistStore.getArtists();
+        }
+
+        watch(() => artistStore.artists, async () => {
+            const artistList = JSON.parse(JSON.stringify(artistStore.artists));
+            console.log('artistList : ', artistList);
+
+            selectBoxOptions.value.artist = {
+                name     : 'artistStatusOptions',
+                clearable: true,
+                style    : 'width: 250px',
+            };
+            selectBoxOptions.value.artist.data = await cscript.$getComboOptions(artistList);
+        });
 
         grdMstCnt.value = 0;
         grdMstProps.value = Object.assign({}, cinitial.$comGridOption, {
@@ -213,9 +230,9 @@ export default defineComponent({
 
             if (gridGb == 'Mst' || gridGb == 'All') {
                 const compResult = await cscript.$compareDatas<Group>(groupParams.value, groupParamsOrgData.value);
-                console.log('groupParams.value : ', groupParams.value);
-                console.log('groupParamsOrgData.value : ', groupParamsOrgData.value);
-                console.log("compResult : ", compResult);
+                // console.log('groupParams.value : ', groupParams.value);
+                // console.log('groupParamsOrgData.value : ', groupParamsOrgData.value);
+                // console.log("compResult : ", compResult);
 
                 if (compResult.length != 0) {
                     diffMst = true; // 변경 사항 있음.
@@ -298,28 +315,12 @@ export default defineComponent({
             grdReset();
 
             // 데이터 호출
-            const groupList = groupStore.getGroups();
-
-            // 아티스트 데이터 호출
-            await getArtist();
+            // console.log('groupStore.groups : ', groupStore.groups);
 
             // 그리드 데이터 셋팅
-            await grdApi.value.setRowData(groupList);
+            await grdApi.value.setRowData(groupStore.groups);
             // grdMstCnt 셋팅
             grdMstCnt.value = grdApi.value.getDisplayedRowCount();
-        }
-
-        async function getArtist() {
-            // 아티스트 데이터 호출
-            const artistList = artistStore.getArtists();
-
-            // 아티스트 셀렉트 옵션
-            selectBoxOptions.value.artist = {
-                name     : 'artistStatusOptions',
-                clearable: true,
-                style    : 'width: 250px',
-            };
-            selectBoxOptions.value.artist.data = await cscript.$getComboOptions(artistList);
         }
 
         async function fnNew() {
@@ -395,8 +396,8 @@ export default defineComponent({
 
         async function saveRowData(toSaveData: ToSaveData) {
             // 신규 구분
-            console.log("toSaveData._id : ", toSaveData._id);
-            console.log('toSaveData', toSaveData);
+            // console.log("toSaveData._id : ", toSaveData._id);
+            // console.log('toSaveData', toSaveData);
 
             const url = '';
             // const saveResult = await apis.$saveData(url, toSaveData);
