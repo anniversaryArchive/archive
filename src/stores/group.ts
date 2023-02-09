@@ -9,6 +9,10 @@ import getGroups from '@/graphql/getGroups.query.gql';
 // @ts-ignore
 import removeGroup from '@/graphql/removeGroup.mutate.gql';
 
+// @ts-ignore
+import createGroup from '@/graphql/createGroup.mutate.gql';
+import {ToSaveData} from '@/types/CommonTypes';
+
 interface FetchFunc {
   (overrideOpts?: Partial<QueryExecutionOpts<any>>): Promise<any>
 }
@@ -53,6 +57,16 @@ export const useGroupStore = defineStore({
     async removeGroup(id: string): Promise<boolean> {
       try {
         const { data, error } = await mutate(removeGroup, { id });
+        const success: boolean = data?.success || false;
+        if (success) { this.data?.fetch(); }
+        return success;
+      } catch (error) { console.error(error); }
+      return false;
+    },
+
+    async createGroup(saveData: ToSaveData): Promise<boolean> {
+      try {
+        const { data, error } = await mutate(createGroup, {saveData});
         const success: boolean = data?.success || false;
         if (success) { this.data?.fetch(); }
         return success;

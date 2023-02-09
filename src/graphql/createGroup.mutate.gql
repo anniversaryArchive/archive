@@ -1,0 +1,11 @@
+mutation ($saveData: createGroupInput!) {
+    createGroup(input: $saveData) {
+        logo {
+            _id
+        }
+        name
+        englishName
+        debutDate
+        color
+    }
+}

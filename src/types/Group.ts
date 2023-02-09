@@ -4,7 +4,7 @@ export interface Group {
     name        : string,
     _id         : string,
     debutDate   : string,
-    logo        : string | null,
+    logo        : string,
     englishName? : string,
     createdAt?   : string,
     updatedAt?   : string,

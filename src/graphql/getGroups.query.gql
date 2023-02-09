@@ -12,6 +12,7 @@ query ($page: Int, $perPage: Int, $filter: FilterOption) {
       color
       logo {
         name
+        _id
       }
     }
     total

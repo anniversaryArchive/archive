@@ -96,10 +96,12 @@ import cinitial from '@/composables/comInitialize';
 import cscript from '@/composables/comScripts';
 import caggrid, { DateFormatter } from '@/composables/customAgGridUtils';
 import {Group, GroupType} from '@/types/Group';
-import {ToSaveData } from '@/types/CommonTypes';
+import {ToSaveData} from '@/types/CommonTypes';
 import {CellFocusedEvent, GetRowIdParams, GridOptions, RowNode } from '@ag-grid-community/core';
 import {useGroupStore} from '@/stores/group';
 import {useArtistStore} from '@/stores/artist';
+import axios from 'axios';
+import moment from 'moment';
 
 export default defineComponent({
     name        : 'Group',
@@ -206,10 +208,9 @@ export default defineComponent({
             pCurMstRowKey = n.rowIndex ?? -1;
 
             // 그룹 입력 form 할당
-            groupParams.value = _.cloneDeep(n.data);
+            groupParams.value = _.cloneDeep(JSON.parse(JSON.stringify(n.data)));
             // 비교 대상 제외를 위해 null 처리
             groupParams.value.artists = null;
-            groupParams.value.logo = null;
             groupParamsOrgData.value = _.cloneDeep(groupParams.value);
 
             // 아티스트 셀렉트 박스 할당
@@ -231,10 +232,8 @@ export default defineComponent({
             let artistDiff = false;
 
             if (gridGb == 'Mst' || gridGb == 'All') {
-                const compResult = await cscript.$compareDatas<Group>(groupParams.value, groupParamsOrgData.value);
-                // console.log('groupParams.value : ', groupParams.value);
-                // console.log('groupParamsOrgData.value : ', groupParamsOrgData.value);
-                // console.log("compResult : ", compResult);
+                const compResult = await cscript.$compareDatas<Group>(groupParams.value, groupParamsOrgData.value, ['logo']);
+                console.log("compResult : ", compResult);
 
                 if (compResult.length != 0) {
                     diffMst = true; // 변경 사항 있음.
@@ -279,7 +278,6 @@ export default defineComponent({
             }
             if (cscript.$isEmpty(groupParams.value.debutDate)) {
                 alert('데뷔일은 필수입니다.');
-                (divs.value.debutDate as HTMLInputElement).focus();
                 return false;
             }
             return true;
@@ -374,6 +372,22 @@ export default defineComponent({
                 return;
             }
 
+            // 로고 파일 저장
+            let jsonNode = JSON.parse(JSON.stringify(groupParams.value.logo));
+            console.log('groupParams.value.logo : ', groupParams.value.logo);
+
+            // 로고 파일 변경 확인
+            let logoId: string;
+            if(!jsonNode.name){
+                console.log(jsonNode);
+                console.log(groupParams.value.logo);
+
+                const result = await fileChange();
+                logoId = result.data._id;
+            }else {
+                logoId = jsonNode._id;
+            }
+
             // 저장 데이터 생성
             let artistListSave : any[] = [];
             Object.entries(artistList.value).forEach(([, val]) => {
@@ -383,14 +397,16 @@ export default defineComponent({
                 artistListSave.push(artist);
             });
 
+            console.log('groupParams.value._id : ', groupParams.value._id)
+
             const toSaveInfo = {
-                id          : (groupParams.value._id ? groupParams.value._id : null),
+                // _id          : (groupParams.value._id ? groupParams.value._id : null),
                 name        : groupParams.value.name,
                 englishName : groupParams.value.englishName,
-                debutDate   : groupParams.value.debutDate,
-                artists     : artistListSave,
-                logo        : groupParams.value.logo,
-                color       : groupParams.value.color
+                debutDate   : moment(groupParams.value.debutDate).format('YYYY-MM-DD'),
+                artists     : artistListSave ? artistListSave : null,
+                logo        : logoId,
+                color       : groupParams.value.color ? groupParams.value.color : null
             }
 
             const toSaveData = Object.assign({} as ToSaveData, toSaveInfo);
@@ -399,10 +415,37 @@ export default defineComponent({
 
         async function saveRowData(toSaveData: ToSaveData) {
             // 신규 구분
-            // console.log("toSaveData._id : ", toSaveData._id);
             console.log('toSaveData', toSaveData);
-            // const saveResult = await apis.$saveData(url, toSaveData);
-            // alert('저장 완료하였습니다.');
+
+            if(!toSaveData._id){ // 신규
+                await groupStore.createGroup(toSaveData);
+            }else { // 기존
+                // 추가 예정
+                // 기존 일 경우 그룹 _id 데이터 추가
+            }
+
+            alert('저장 완료하였습니다.');
+            // 저장 후 새로고침 및 조회
+            // await getMstList(리턴값 중 ID);
+        }
+
+        async function fileChange(){
+            const formData = new FormData();
+            formData.append("file", groupParams.value.logo);
+            let resultModel;
+            await axios.post('http://localhost:3000/file', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            }).then((response) => {
+                // console.log('response : ', response);
+                resultModel = response.data;
+            }).catch((error) => {
+                // console.log('e: ', error);
+                resultModel = error;
+            })
+
+            return resultModel;
         }
 
         function fnCallFunc(id: string) {
