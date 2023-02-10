@@ -1,0 +1,3 @@
+mutation ($id: ID!, $input: patchArtistInput!) {
+  success: patchArtist (id: $id, input: $input)
+}

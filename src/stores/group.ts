@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { QueryExecutionOpts, useQuery } from 'villus';
+
 // @ts-ignore
 import getGroups from '@/graphql/getGroups.query.gql';
 
@@ -24,6 +25,15 @@ export const useGroupStore = defineStore({
     getGroups () {
       useQuery({ query: getGroups }).then(({ data }) => {
         this.groups = data.value?.groups || [];
+      });
+    },
+
+    // TODO: 함수명 변경 !!!
+    getGroupsTest() {
+      return new Promise((resolve, reject) => {
+        useQuery({ query: getGroups }).then(({ data }) => {
+          resolve(data.value);
+        }).catch((error) => reject(error));
       });
     }
   },

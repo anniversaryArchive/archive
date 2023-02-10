@@ -65,6 +65,7 @@
                 v-bind='selectBoxOptions.artist' style="width: 100%;"
                 :multiplied='true' use-chips />
               -->
+              <ComboBox :options="groups" :value="artistGroup" />
             </td>
           </tr>
 
@@ -100,6 +101,7 @@
             class='ag-theme-balham'
             @grid-ready="onGridReady"
             @pagination-changed="onPaginationChanged"
+            @selection-changed="onSelectionChanged"
           />
         </div>
       </div>
@@ -109,6 +111,8 @@
 
 <script setup lang="ts">
 import { LayoutPageTitle, DatePicker, SelectBox, AgGridVue } from '../mixin/mixinPageCommonTest';
+import ComboBox from '@/components/common/comboBox.vue';
+import { ComboBoxModel } from '@/types/CommonTypes';
 
 import { ref, Ref, computed, ComputedRef, watch, onBeforeMount } from 'vue';
 import ccobject from '@/composables/createComObject';
@@ -116,6 +120,7 @@ import cinitial from '@/composables/comInitialize';
 import cscript from '@/composables/comScripts';
 import caggrid from '@/composables/customAgGridUtils';
 import { Artist, ArtistType } from '@/types/Artist';
+import { useGroupStore } from '@/stores/group';
 import { useArtistStore } from '@/stores/artist';
 
 const gridFields: { key: string, text: string }[] = [
@@ -124,26 +129,37 @@ const gridFields: { key: string, text: string }[] = [
   { key: 'group.name', text: '그룹' },
 ];
 
+const groupStore = useGroupStore();
 const artistStore = useArtistStore();
 
 const { grdApi, grdMstKey, grdMstProps, onGridReady, onPaginationChanged } = initGrid();
 
+// Artist List Table View 관련 변수
 const total: ComputedRef<number> = computed(() => artistStore.total);
-
-const refs: Ref<string, any> = ref({});
-const inputArtist: Ref<Artist> = ref(cinitial.$inItData('', ArtistType) as Artist);
-const inputArtistOrg: Ref<Artist> = ref(JSON.parse(JSON.stringify(inputArtist.value)));
-
 watch(() => artistStore.artists, () => {
   grdApi.value.setRowData(artistStore.artists);
 });
 
+// Artist Input Box 관련 변수
+const refs: Ref<string, any> = ref({});
+const inputArtist: Ref<Artist> = ref(cinitial.$inItData('', ArtistType) as Artist);
+const inputArtistOrg: Ref<Artist> = ref(JSON.parse(JSON.stringify(inputArtist.value)));
+
+// Groups 관련 변수
+const groups: ref<ComboBoxModel[]> = ref([]);
+const artistGroup: Ref<ComboBoxModel | undefiend> = ref();
+
 onBeforeMount(() => {
-  initialize();
+  getGroups();
 });
 
-const initialize = () => {
-  artistStore.getArtists();
+async function getGroups() {
+  try {
+    const data = await groupStore.getGroupsTest();
+    groups.value = (data.groups || []).map((group) => {
+      return { id: group._id, name: group.name, unavailable: false } as ComboBoxModel;
+    });
+  } catch (_) {}
 }
 
 /**
@@ -152,36 +168,58 @@ const initialize = () => {
  * =================================
  */
 const fnCallFunc = (id: string) => {
+  console.log('chloe test id : ', id);
   switch (id) {
-    case 'inquire'  :   // 조회
-      fnInquire();
-      break;
-    case 'create'   :   // 신규
-      fnNew();
-      break;
+    case 'inquire': return fnInquire(); // 조회
+    case 'create': return createArtist(); // 생성
     // 삭제
-    case 'delete': return onClickDeleteBtn();
-    case 'save'     :   // 저장
-      fnSave();
-      break;
-    default:
-      break;
+    case 'delete': return deleteSelectedArtist();
+    case 'save': return onClickSaveBtn(); // 저장
   }
 }
 
+// 저장 버튼 클릭 시 
+function onClickSaveBtn() {
+  if (inputArtist.value._id) {
+    updateArtist();
+  }
+}
+
+// Artist 리스트 조회(Server call)
+function fnInquire() {
+  artistStore.getArtists();
+}
+
+// 새로운 아티스트 생성
+function createArtist() {
+}
+
+// 현재 아티스트 업데이트
+async function updateArtist() {
+  console.log('artist : ', inputArtist);
+  const artist = Object.assign({}, inputArtist.value);
+  artist.group = artistGroup.value?.id;
+  artist.image = artist.image?._id;
+  delete artist._id;
+  try {
+    const success: boolean = await artistStore.updateArtist(inputArtist.value._id, artist);
+    console.log('success : ', success);
+  } catch (error) { console.error(error); }
+}
+
+// 선택한 Artist를 반환하는 함수, 없으면 undefined를 반환한다.
 function getSelectedArtist (): Artist | undefined {
   const selectedRows = grdApi.value.getSelectedRows();
-
   // 선택한 아티스트가 없는 경우 
   if (!selectedRows.length) {
-    return alert('아티스트를 선택해주세요!');
+    alert('아티스트를 선택해주세요!');
+    return;
   }
-
   return selectedRows[0];
 }
 
-// 삭제
-function onClickDeleteBtn () {
+// Grid에서 선택된 Artist를 삭제하는 함수
+function deleteSelectedArtist () {
   const artist: Artist | undefined = getSelectedArtist();
   if (!artist) { return; }
   const confirmResult: boolean = confirm('정말 삭제하시겠습니까?');
@@ -197,6 +235,14 @@ const onRejected = () => {
  * Grid 관련 변수 및 Functions .. 
  * =================================
  */
+function onSelectionChanged() {
+  const artist: Artist | undefiend = getSelectedArtist();
+  if (!artist) { return; }
+  inputArtist.value = artist;
+  const groupId: string | undefiend = artist.group?._id;
+  artistGroup.value = groupId && groups.value.find((group) => group.id === groupId);
+}
+
 function initGrid () {
   const {
     grdApi,
@@ -228,35 +274,5 @@ function initGrid () {
 </script>
 
 <style scoped>
-.form_table {
-  padding: 20px 10px;
-}
-
-.form_table table {
-  border-collapse : collapse;
-  border-spacing  : 0;
-  font-size       : 12px;
-  text-align      : center;
-  width           : 100%;
-  table-layout    : fixed;
-  border-top      : 1px solid #DDF1FF;
-  border-bottom   : 1px solid #DDF1FF;
-  letter-spacing  : -0.07em;
-}
-
-.form_table table thead tr th {
-  background    : rgba(79, 190, 159, 0.2);
-  height        : 26px;
-  border-bottom : 1px solid #CCEFF1;
-  padding       : 7px 0;
-}
-
-.form_table table tbody tr th {
-  background    : #DDF1FF;
-  height        : 26px;
-  border-bottom : 1px solid #A8E3F1;
-  text-align    : center;
-  padding       : 5px 0;
-  line-height   : 26px;
-}
+@import './style.css';
 </style>

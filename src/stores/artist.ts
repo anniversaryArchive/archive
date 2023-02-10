@@ -7,6 +7,8 @@ import { query, mutate } from '@/composables/graphqlUtils';
 // @ts-ignore
 import getArtists from '@/graphql/getArtists.query.gql';
 // @ts-ignore
+import patchArtist from '@/graphql/patchArtist.mutate.gql';
+// @ts-ignore
 import removeArtist from '@/graphql/removeArtist.mutate.gql';
 
 interface FetchFunc {
@@ -43,9 +45,19 @@ export const useArtistStore = defineStore({
       });
     },
 
+    async updateArtist(id: string, input: Record<string, any>): Promise<boolean> {
+      try {
+        const { data, error } = await mutate(patchArtist, { id, input });
+        const success: boolean = data?.success || false;
+        if (success) { this.data?.fetch(); }
+        return success;
+      } catch (error) { console.error(error); }
+      return false;
+    },
+
     async removeArtist(id: string): Promise<boolean> {
       try {
-        const { data } = await mutate(removeArtist, { id });
+        const { data, error } = await mutate(removeArtist, { id });
         const success: boolean = data?.success || false;
         if (success) { this.data?.fetch(); }
         return success;
