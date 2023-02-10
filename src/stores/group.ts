@@ -3,15 +3,17 @@ import { QueryExecutionOpts } from 'villus';
 import {Group} from '@/types/Group';
 import {mutate, query} from '@/composables/graphqlUtils';
 import {computed, ComputedRef} from 'vue';
+import {ToSaveData} from '@/types/CommonTypes';
 
 // @ts-ignore
 import getGroups from '@/graphql/getGroups.query.gql';
 // @ts-ignore
 import removeGroup from '@/graphql/removeGroup.mutate.gql';
-
 // @ts-ignore
 import createGroup from '@/graphql/createGroup.mutate.gql';
-import {ToSaveData} from '@/types/CommonTypes';
+// @ts-ignore
+import updateGroup from '@/graphql/updateGroup.mutate.gql';
+
 
 interface FetchFunc {
   (overrideOpts?: Partial<QueryExecutionOpts<any>>): Promise<any>
@@ -35,20 +37,13 @@ export const useGroupStore = defineStore({
     total (): number { return this.data?.total || 0 },
   },
   actions: {
-    /*getGroups () {
-      useQuery({ query: getGroups }).then(({ data }) => {
-        this.groups = data.value?.groups || [];
-      });
-      return this. groups;
-    },*/
-
     getGroups () {
       query(getGroups, {}, false).then(({ data, error, execute }) => {
         this.data = {
           list: computed(() => {
             return data.value?.groups?.data || [];
           }),
-          total: computed(() => { return data.value?.artist?.total || 0; }),
+          total: computed(() => { return data.value?.groups?.total || 0; }),
           fetch: execute,
         };
       });
@@ -56,7 +51,7 @@ export const useGroupStore = defineStore({
 
     async removeGroup(id: string): Promise<boolean> {
       try {
-        const { data, error } = await mutate(removeGroup, { id });
+        const { data } = await mutate(removeGroup, { id });
         const success: boolean = data?.success || false;
         if (success) { this.data?.fetch(); }
         return success;
@@ -66,8 +61,19 @@ export const useGroupStore = defineStore({
 
     async createGroup(saveData: ToSaveData): Promise<boolean> {
       try {
-        const { data, error } = await mutate(createGroup, {saveData});
-        const success: boolean = data?.success || false;
+        const { data } = await mutate(createGroup, {saveData});
+        console.log('data : ', data);
+        const success: boolean = data?.createGroup._id || false;
+        if (success) { this.data?.fetch(); }
+        return success;
+      } catch (error) { console.error(error); }
+      return false;
+    },
+
+    async updateGroup(updateGroupId: unknown, saveData: ToSaveData): Promise<boolean> {
+      try {
+        const { data } = await mutate(updateGroup, {updateGroupId, saveData});
+        const success: boolean = data?.updateGroup || false;
         if (success) { this.data?.fetch(); }
         return success;
       } catch (error) { console.error(error); }

@@ -233,7 +233,7 @@ export default defineComponent({
 
             if (gridGb == 'Mst' || gridGb == 'All') {
                 const compResult = await cscript.$compareDatas<Group>(groupParams.value, groupParamsOrgData.value, ['logo']);
-                console.log("compResult : ", compResult);
+                // console.log("compResult : ", compResult);
 
                 if (compResult.length != 0) {
                     diffMst = true; // 변경 사항 있음.
@@ -314,6 +314,8 @@ export default defineComponent({
             // 그리드 데이터 초기화
             await grdReset();
 
+            console.log('getMstList : ', groupStore.groups)
+
             // 그리드 데이터 셋팅
             await grdApi.value.setRowData(groupStore.groups);
             // grdMstCnt 셋팅
@@ -321,7 +323,6 @@ export default defineComponent({
 
             // 그리드 포커스
             const findRowIndex = !cscript.$isEmpty(pkKey) ? _.findIndex(groupStore.groups, (x: { [x: string]: any; }) => String(x[grdMstKey.value]) === pkKey) : 0;
-            // console.log('findRowIndex :  ', findRowIndex);
             grdApi.value.setFocusedCell(findRowIndex, grdMstKey.value);
         }
 
@@ -374,16 +375,12 @@ export default defineComponent({
 
             // 로고 파일 저장
             let jsonNode = JSON.parse(JSON.stringify(groupParams.value.logo));
-            console.log('groupParams.value.logo : ', groupParams.value.logo);
 
             // 로고 파일 변경 확인
             let logoId: string;
             if(!jsonNode.name){
-                console.log(jsonNode);
-                console.log(groupParams.value.logo);
-
                 const result = await fileChange();
-                logoId = result.data._id;
+                logoId = result!;
             }else {
                 logoId = jsonNode._id;
             }
@@ -397,10 +394,7 @@ export default defineComponent({
                 artistListSave.push(artist);
             });
 
-            console.log('groupParams.value._id : ', groupParams.value._id)
-
             const toSaveInfo = {
-                // _id          : (groupParams.value._id ? groupParams.value._id : null),
                 name        : groupParams.value.name,
                 englishName : groupParams.value.englishName,
                 debutDate   : moment(groupParams.value.debutDate).format('YYYY-MM-DD'),
@@ -410,23 +404,28 @@ export default defineComponent({
             }
 
             const toSaveData = Object.assign({} as ToSaveData, toSaveInfo);
-            await saveRowData(toSaveData);
+            await saveData(toSaveData);
         }
 
-        async function saveRowData(toSaveData: ToSaveData) {
-            // 신규 구분
-            console.log('toSaveData', toSaveData);
-
-            if(!toSaveData._id){ // 신규
-                await groupStore.createGroup(toSaveData);
+        async function saveData(toSaveData: ToSaveData) {
+            let saveResult, saveId;
+            if(!groupParams.value._id){ // 신규
+                saveResult = await groupStore.createGroup(toSaveData);
+                saveId = saveResult;
             }else { // 기존
-                // 추가 예정
-                // 기존 일 경우 그룹 _id 데이터 추가
+                saveResult = await groupStore.updateGroup(groupParams.value._id, toSaveData);
+                saveId = groupParams.value._id;
+            }
+
+            if(!saveResult){
+                alert('오류가 발생하였습니다.');
+                return;
             }
 
             alert('저장 완료하였습니다.');
+
             // 저장 후 새로고침 및 조회
-            // await getMstList(리턴값 중 ID);
+            // await getMstList(saveId);
         }
 
         async function fileChange(){
@@ -438,10 +437,8 @@ export default defineComponent({
                     'Content-Type': 'multipart/form-data'
                 }
             }).then((response) => {
-                // console.log('response : ', response);
-                resultModel = response.data;
+                resultModel = response.data.data._id;
             }).catch((error) => {
-                // console.log('e: ', error);
                 resultModel = error;
             })
 
