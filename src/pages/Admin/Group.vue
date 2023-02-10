@@ -162,9 +162,18 @@ export default defineComponent({
             selectBoxOptions.value.artist.data = await cscript.$getComboOptions(artistList);
         });
 
+        let findKey : string;
+
         // 생성/수정/삭제 이벤트 발생 시 변경된 groups를 watch하여 grid를 update 해준다.
         watch(() => groupStore.groups, async () => {
+            grdReset();
+
             await grdApi.value.setRowData(groupStore.groups);
+            grdMstCnt.value = grdApi.value.getDisplayedRowCount();
+
+            // 그리드 포커스
+            const findRowIndex = !cscript.$isEmpty(findKey) ? _.findIndex(groupStore.groups, (x: { [x: string]: any; }) => String(x[grdMstKey.value]) === findKey) : 0;
+            grdApi.value.setFocusedCell(findRowIndex, grdMstKey.value);
         });
 
         grdMstCnt.value = 0;
@@ -216,6 +225,7 @@ export default defineComponent({
             groupParams.value = _.cloneDeep(JSON.parse(JSON.stringify(n.data)));
             // 비교 대상 제외를 위해 null 처리
             groupParams.value.artists = null;
+            groupParams.value.debutDate = moment(groupParams.value.debutDate).format('YYYYMMDD');
             groupParamsOrgData.value = _.cloneDeep(groupParams.value);
 
             // 아티스트 셀렉트 박스 할당
@@ -224,6 +234,8 @@ export default defineComponent({
                 artistList.value.push(jsonNode._id);
             });
             artistListOrgData.value = _.cloneDeep(artistList.value);
+
+            console.log('n.data : ', n.data);
         }
 
         // 로고 파일 업로드 제한
@@ -235,6 +247,7 @@ export default defineComponent({
         async function checkDiffData(gridGb = 'All') {
             let diffMst = false;
             let artistDiff = false;
+            let logoDiff = false;
 
             if (gridGb == 'Mst' || gridGb == 'All') {
                 const compResult = await cscript.$compareDatas<Group>(groupParams.value, groupParamsOrgData.value, ['logo']);
@@ -260,7 +273,15 @@ export default defineComponent({
                 }
             }
 
-            return gridGb == 'Mst' ? diffMst : gridGb === 'DtlArt' ? artistDiff : ((diffMst || artistDiff));
+            // 로고 파일 변경 확인
+            if(gridGb == 'DtlLogo') {
+                let logoData = JSON.parse(JSON.stringify(groupParams.value.logo));
+                if(!logoData.name){
+                    logoDiff = true; // 변경 사항 있음.
+                }
+            }
+
+            return gridGb == 'Mst' ? diffMst : gridGb === 'DtlArt' ? artistDiff : gridGb === 'DtlLogo' ? logoDiff : ((diffMst || artistDiff || logoDiff));
         }
 
         // 필수 입력 항목 체크
@@ -319,8 +340,6 @@ export default defineComponent({
             // 그리드 데이터 초기화
             await grdReset();
 
-            console.log('getMstList : ', groupStore.groups)
-
             // 그리드 데이터 셋팅
             await grdApi.value.setRowData(groupStore.groups);
             // grdMstCnt 셋팅
@@ -345,6 +364,10 @@ export default defineComponent({
             artistList.value.splice(0, artistList.value.length);
             artistListOrgData.value = _.cloneDeep(artistList.value);
 
+            // 그리드 선택 해제 (포커스 먹으려면 await)
+            await grdApi.value.deselectAll();
+            pCurMstRowKey = -1;
+
             // 로고 파일 입력창에 포커스
             (divs.value.logo as HTMLInputElement).focus();
         }
@@ -368,8 +391,9 @@ export default defineComponent({
             // 변경사항 체크
             const groupDiff = await checkDiffData('Mst');
             const artistDiff = await checkDiffData('DtlArt');
+            const logoDiff = await checkDiffData('DtlLogo');
 
-            if (!(groupDiff || artistDiff)) {
+            if (!(groupDiff || artistDiff || logoDiff)) {
                 alert('변경 사항이 없습니다.')
                 return;
             }
@@ -379,24 +403,25 @@ export default defineComponent({
             }
 
             // 로고 파일 저장
-            let jsonNode = JSON.parse(JSON.stringify(groupParams.value.logo));
+            let logoData = JSON.parse(JSON.stringify(groupParams.value.logo));
 
             // 로고 파일 변경 확인
             let logoId: string;
-            if(!jsonNode.name){
+            if(!logoData.name){
                 const result = await fileChange();
                 logoId = result!;
             }else {
-                logoId = jsonNode._id;
+                logoId = logoData._id;
             }
 
             // 저장 데이터 생성
-            let artistListSave : any[] = [];
+            let artistListSave : unknown[] = [];
             Object.entries(artistList.value).forEach(([, val]) => {
-                let artist = {
+                /*let artist = {
                     _id: val,
                 };
-                artistListSave.push(artist);
+                artistListSave.push(artist);*/
+                artistListSave.push(val);
             });
 
             const toSaveInfo = {
@@ -409,18 +434,17 @@ export default defineComponent({
             }
 
             const toSaveData = Object.assign({} as ToSaveData, toSaveInfo);
-            await saveData(toSaveData);
+            console.log('toSaveData : ', toSaveData);
+
+            if(!groupParams.value._id){ // 신규
+                await createGroupData(toSaveData);
+            } else {
+                await updateGroupData(toSaveData);
+            }
         }
 
-        async function saveData(toSaveData: ToSaveData) {
-            let saveResult, saveId;
-            if(!groupParams.value._id){ // 신규
-                saveResult = await groupStore.createGroup(toSaveData);
-                saveId = saveResult;
-            }else { // 기존
-                saveResult = await groupStore.updateGroup(groupParams.value._id, toSaveData);
-                saveId = groupParams.value._id;
-            }
+        async function createGroupData(toSaveData: ToSaveData) {
+            const saveResult = await groupStore.createGroup(toSaveData);
 
             if(!saveResult){
                 alert('오류가 발생하였습니다.');
@@ -430,7 +454,21 @@ export default defineComponent({
             alert('저장 완료하였습니다.');
 
             // 저장 후 새로고침 및 조회
-            // await getMstList(saveId);
+            findKey = (String(saveResult));
+        }
+
+        async function updateGroupData(toSaveData: ToSaveData) {
+            const saveResult = await groupStore.updateGroup(groupParams.value._id, toSaveData);
+
+            if(!saveResult){
+                alert('오류가 발생하였습니다.');
+                return;
+            }
+
+            alert('저장 완료하였습니다.');
+
+            // 저장 후 새로고침 및 조회
+            findKey = groupParams.value._id;
         }
 
         async function fileChange(){
