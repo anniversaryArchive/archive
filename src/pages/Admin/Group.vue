@@ -162,6 +162,11 @@ export default defineComponent({
             selectBoxOptions.value.artist.data = await cscript.$getComboOptions(artistList);
         });
 
+        // 생성/수정/삭제 이벤트 발생 시 변경된 groups를 watch하여 grid를 update 해준다.
+        watch(() => groupStore.groups, async () => {
+            await grdApi.value.setRowData(groupStore.groups);
+        });
+
         grdMstCnt.value = 0;
         grdMstProps.value = Object.assign({}, cinitial.$comGridOption, {
             name                         : 'grdMstProps',
