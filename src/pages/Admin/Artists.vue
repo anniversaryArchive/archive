@@ -191,6 +191,8 @@ function resetInputBox() {
 function onClickSaveBtn() {
   if (inputArtist.value._id) {
     updateArtist();
+  } else {
+    createArtist();
   }
 }
 
@@ -201,6 +203,7 @@ function fnInquire() {
 
 // 새로운 아티스트 생성
 function createArtist() {
+  console.log('input : ', inputArtist.value);
 }
 
 // 현재 아티스트 업데이트
