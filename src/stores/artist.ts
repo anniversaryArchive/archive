@@ -7,6 +7,8 @@ import { query, mutate } from '@/composables/graphqlUtils';
 // @ts-ignore
 import getArtists from '@/graphql/getArtists.query.gql';
 // @ts-ignore
+import createArtist from '@/graphql/createArtist.mutate.gql';
+// @ts-ignore
 import patchArtist from '@/graphql/patchArtist.mutate.gql';
 // @ts-ignore
 import removeArtist from '@/graphql/removeArtist.mutate.gql';
@@ -43,6 +45,15 @@ export const useArtistStore = defineStore({
           fetch: execute,
         };
       });
+    },
+
+    async createArtist(input: Record<string, any>): Promise<boolean> {
+      try {
+        const { data, error } = await mutate(createArtist, { input });
+        const success: boolean = data?.artist?._id && true;
+        if (success) { this.data?.fetch(); }
+        return success;
+      } catch (_) { return false; }
     },
 
     async updateArtist(id: string, input: Record<string, any>): Promise<boolean> {

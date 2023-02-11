@@ -65,7 +65,8 @@
                 v-bind='selectBoxOptions.artist' style="width: 100%;"
                 :multiplied='true' use-chips />
               -->
-              <ComboBox :options="groups" :value="artistGroup" />
+              <ComboBox :options="groups" :value="artistGroup"
+                @change="onChangeGroup" />
             </td>
           </tr>
 
@@ -202,31 +203,40 @@ function fnInquire() {
   artistStore.getArtists();
 }
 
+async function getInput() {
+  const input = Object.assign({}, inputArtist.value);
+  input.group = artistGroup.value?.id;
+
+  try {
+    await uploadFile();
+  } finally {
+    input.image = inputArtist.value.image?._id;
+  }
+  delete input._id;
+
+  return input;
+}
+
 // 새로운 아티스트 생성
-function createArtist() {
+async function createArtist() {
   // TODO:
   // 1. 필수 필드들 입력됐는 지 확인하기 
   // 2. 이미지 업로드
   // 3. Artist 얻로드
-  console.log('input : ', inputArtist.value);
-  uploadFile();
+
+  try {
+    const input = await getInput();
+    const success: boolean = await artistStore.createArtist(input);
+    console.log('success : ', success);
+  } catch (error) { console.error(error); }
 }
 
 // 현재 아티스트 업데이트
 async function updateArtist() {
   // TODO: 필수 필드 값 다 넣었는 지 확인
-  console.log('artist : ', inputArtist);
-  const artist = Object.assign({}, inputArtist.value);
-  artist.group = artistGroup.value?.id;
-
-  // TODO: 이미지 업로드
   try {
-    await uploadFile();
-    artist.image = inputArtist.value.image?._id;
-  } catch (error) { console.error(error); }
-  delete artist._id;
-  try {
-    const success: boolean = await artistStore.updateArtist(inputArtist.value._id, artist);
+    const input = await getInput();
+    const success: boolean = await artistStore.updateArtist(inputArtist.value._id, input);
     console.log('success : ', success);
   } catch (error) { console.error(error); }
 }
@@ -254,6 +264,10 @@ function deleteSelectedArtist () {
 const onRejected = () => {
 }
 
+function onChangeGroup(event: ComboBoxModel) {
+  artistGroup.value = event;
+}
+
 /**
  * =================================
  * 파일 관련 로직
@@ -261,7 +275,7 @@ const onRejected = () => {
  */
 
 function uploadFile(): Promise<boolean> {
-  if (!inputArtist.value.image) { return true; }
+  if (!inputArtist.value.image || inputArtist.value.image._id) { return true; }
   const formData: FormData = new FormData();
   formData.append('file', inputArtist.value.image);
 
