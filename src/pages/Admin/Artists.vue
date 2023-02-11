@@ -60,13 +60,7 @@
           <tr>
             <th>소속된 그룹</th>
             <td colspan="3">
-              <!--
-              <SelectBox id="artist" v-model='artistList'
-                v-bind='selectBoxOptions.artist' style="width: 100%;"
-                :multiplied='true' use-chips />
-              -->
-              <ComboBox :options="groups" :value="artistGroup"
-                @change="onChangeGroup" />
+              <ComboBox :options="groups" v-model="artistGroup" />
             </td>
           </tr>
 
