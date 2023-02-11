@@ -170,12 +170,21 @@ async function getGroups() {
 const fnCallFunc = (id: string) => {
   console.log('chloe test id : ', id);
   switch (id) {
-    case 'inquire': return fnInquire(); // 조회
-    case 'create': return createArtist(); // 생성
+    // 조회
+    case 'inquire': return fnInquire();
+    // 신규
+    case 'create': return resetInputBox();
     // 삭제
     case 'delete': return deleteSelectedArtist();
-    case 'save': return onClickSaveBtn(); // 저장
+    // 저장
+    case 'save': return onClickSaveBtn();
   }
+}
+
+// 신규 버튼 클릭 시
+function resetInputBox() {
+  inputArtist.value = cinitial.$inItData('', ArtistType) as Artist;
+  inputArtistOrg.value = JSON.parse(JSON.stringify(inputArtist.value));
 }
 
 // 저장 버튼 클릭 시 
@@ -239,6 +248,7 @@ function onSelectionChanged() {
   const artist: Artist | undefiend = getSelectedArtist();
   if (!artist) { return; }
   inputArtist.value = artist;
+  inputArtistOrg.value = JSON.parse(JSON.stringify(inputArtist.value));
   const groupId: string | undefiend = artist.group?._id;
   artistGroup.value = groupId && groups.value.find((group) => group.id === groupId);
 }
