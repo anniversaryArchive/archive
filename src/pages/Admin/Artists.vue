@@ -115,6 +115,7 @@ import ComboBox from '@/components/common/comboBox.vue';
 import { ComboBoxModel } from '@/types/CommonTypes';
 
 import { ref, Ref, computed, ComputedRef, watch, onBeforeMount } from 'vue';
+import axios from 'axios';
 import ccobject from '@/composables/createComObject';
 import cinitial from '@/composables/comInitialize';
 import cscript from '@/composables/comScripts';
@@ -203,15 +204,26 @@ function fnInquire() {
 
 // 새로운 아티스트 생성
 function createArtist() {
+  // TODO:
+  // 1. 필수 필드들 입력됐는 지 확인하기 
+  // 2. 이미지 업로드
+  // 3. Artist 얻로드
   console.log('input : ', inputArtist.value);
+  uploadFile();
 }
 
 // 현재 아티스트 업데이트
 async function updateArtist() {
+  // TODO: 필수 필드 값 다 넣었는 지 확인
   console.log('artist : ', inputArtist);
   const artist = Object.assign({}, inputArtist.value);
   artist.group = artistGroup.value?.id;
-  artist.image = artist.image?._id;
+
+  // TODO: 이미지 업로드
+  try {
+    await uploadFile();
+    artist.image = inputArtist.value.image?._id;
+  } catch (error) { console.error(error); }
   delete artist._id;
   try {
     const success: boolean = await artistStore.updateArtist(inputArtist.value._id, artist);
@@ -240,6 +252,27 @@ function deleteSelectedArtist () {
 }
 
 const onRejected = () => {
+}
+
+/**
+ * =================================
+ * 파일 관련 로직
+ * =================================
+ */
+
+function uploadFile(): Promise<boolean> {
+  if (!inputArtist.value.image) { return true; }
+  const formData: FormData = new FormData();
+  formData.append('file', inputArtist.value.image);
+
+  return new Promise((rejolve, reject) => {
+    axios.post(`http://localhost:3000/file`, formData, {}).then((response) => {
+      const image = response.data?.data && response.data.data;
+      if (!image) { return rejolve(false); }
+      inputArtist.value.image = image;
+      return rejolve(true);
+    });
+  });
 }
 
 /**
