@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="px-4 py-6 text-center">
     <LayoutPageTitle :fnCallFunc="fnCallFunc" />
 
     <div class='form_table'>
@@ -23,14 +23,16 @@
           <tr>
             <th>생일</th>
             <td colspan="3">
-              <DatePicker :ref='el => { refs["birthDay"] = el }' :id="inputArtist.birthDay" v-model='inputArtist.birthDay' :clearable='true'/>
+              <DatePicker :ref='el => { refs["birthDay"] = el }' :id="inputArtist.birthDay"
+                v-model='inputArtist.birthDay' :clearable='true' returnDataFormat="YYYY.MM.DD" />
             </td>
           </tr>
 
           <tr>
             <th>데뷔일</th>
             <td colspan="3">
-              <DatePicker :ref='el => { refs["debutDate"] = el }' :id="inputArtist.debutDate" v-model='inputArtist.debutDate' :clearable='true'/>
+              <DatePicker :ref='el => { refs["debutDate"] = el }' :id="inputArtist.debutDate" 
+                v-model='inputArtist.debutDate' :clearable='true' returnDataFormat="YYYY.MM.DD" />
             </td>
           </tr>
 
@@ -95,7 +97,7 @@
 </template>
 
 <script setup lang="ts">
-import { LayoutPageTitle, DatePicker, SelectBox, AgGridVue } from '../mixin/mixinPageCommonTest';
+import { LayoutPageTitle, DatePicker, SelectBox, AgGridVue } from '../mixin/mixinPageCommon';
 import ComboBox from '@/components/common/comboBox.vue';
 import { ComboBoxModel } from '@/types/CommonTypes';
 
@@ -141,7 +143,7 @@ onBeforeMount(() => {
 
 async function getGroups() {
   try {
-    const data = await groupStore.getGroupsTest();
+    const data = await groupStore.getGroupsQuery();
     groups.value = (data.groups || []).map((group) => {
       return { id: group._id, name: group.name, unavailable: false } as ComboBoxModel;
     });
@@ -248,6 +250,11 @@ async function onClickSaveBtn() {
 async function getInput() {
   const input = Object.assign({}, inputArtist.value);
   input.group = artistGroup.value?.id;
+  for (const field of ['birthDay', 'debutDate']) {
+    if (!input[field]) { continue; }
+    console.log('~ ', field, input[field], new Date(input[field]));
+    input[field] = new Date(input[field]);
+  }
 
   try {
     await uploadFile();
@@ -255,7 +262,7 @@ async function getInput() {
     input.image = inputArtist.value.image?._id;
   }
   delete input._id;
-
+  
   return input;
 }
 
@@ -280,23 +287,26 @@ async function updateArtist(): Promise<boolean> {
 }
 
 // 선택한 Artist를 반환하는 함수, 없으면 undefined를 반환한다.
-function getSelectedArtist (): Artist | undefined {
+function getSelectedArtist (required: boolean = false): Artist | undefined {
   const selectedRows = grdApi.value.getSelectedRows();
   // 선택한 아티스트가 없는 경우 
   if (!selectedRows.length) {
-    alert('아티스트를 선택해주세요!');
+    if (required) { alert('아티스트를 선택해주세요!'); }
     return;
   }
   return selectedRows[0];
 }
 
 // Grid에서 선택된 Artist를 삭제하는 함수
-function deleteSelectedArtist () {
-  const artist: Artist | undefined = getSelectedArtist();
+async function deleteSelectedArtist () {
+  const artist: Artist | undefined = getSelectedArtist(true);
   if (!artist) { return; }
   const confirmResult: boolean = confirm('정말 삭제하시겠습니까?');
   if (!confirmResult) { return; }
-  artistStore.removeArtist(artist._id);
+  try {
+    const success: boolean = await artistStore.removeArtist(artist._id);
+    if (success) { setInputArtist(cinitial.$inItData('', ArtistType) as Artist); }
+  } catch (_) {}
 }
 
 const onRejected = () => {

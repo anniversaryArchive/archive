@@ -28,8 +28,7 @@ export const useGroupStore = defineStore({
       });
     },
 
-    // TODO: 함수명 변경 !!!
-    getGroupsTest() {
+    getGroupsQuery() {
       return new Promise((resolve, reject) => {
         useQuery({ query: getGroups }).then(({ data }) => {
           resolve(data.value);
