@@ -158,6 +158,11 @@ async function getGroups() {
   } catch (_) {}
 }
 
+function setnputArtist(value: Artist) {
+  inputArtist.value = value;
+  inputArtistOrg.value = JSON.parse(JSON.stringify(inputArtist.value));
+}
+
 /**
  * =================================
  * 상단 버튼(Action) 관련 Functions .. 
@@ -179,17 +184,7 @@ const fnCallFunc = (id: string) => {
 
 // 신규 버튼 클릭 시
 function resetInputBox() {
-  inputArtist.value = cinitial.$inItData('', ArtistType) as Artist;
-  inputArtistOrg.value = JSON.parse(JSON.stringify(inputArtist.value));
-}
-
-// 저장 버튼 클릭 시 
-function onClickSaveBtn() {
-  if (inputArtist.value._id) {
-    updateArtist();
-  } else {
-    createArtist();
-  }
+  setnputArtist(cinitial.$inItData('', ArtistType) as Artist);
 }
 
 // Artist 리스트 조회(Server call)
@@ -197,6 +192,58 @@ function fnInquire() {
   artistStore.getArtists();
 }
 
+/**
+ * =================================
+ * 저장 관련 함수들 (생성, 수정)
+ * =================================
+ */
+
+// 변경사항 체크
+async function checkDiffData(): Promise<boolean> {
+  try {
+    const compResult = await cscript.$compareDatas<Group>(inputArtist.value, inputArtistOrg.value);
+    return compResult.length != 0;
+  } catch (_) {}
+  return false;
+}
+
+// 필수 입력 항목 체크 - 생일, 이미지, 이름
+function isMstValid(): boolean {
+  const requireFields = [{ key: 'name', text: '이름' }, { key: 'image', text: '이미지' }, { key: 'birthDay', text: '생일' }];
+
+  for (const field of requireFields) {
+    if (cscript.$isEmpty(inputArtist.value[field.key])) {
+      alert(`${field.text}은(는) 필수입니다.`);
+      (refs.value[field.key] as HTMLInputElement).focus();
+      return false;
+    }
+  }
+  return true;
+}
+
+// 저장 버튼 클릭 시 
+async function onClickSaveBtn() {
+  if (inputArtist.value._id) {
+    try {
+      const diff: boolean = await checkDiffData();
+      if (!diff) {
+        alert('변경 사항이 없습니다.');
+        return;
+      }
+    } catch (_) { return; }
+  }
+
+  // 필수값 모두 입력됐는지 확인
+  if (!isMstValid()) { return; }
+
+  if (inputArtist.value._id) {
+    updateArtist();
+  } else {
+    createArtist();
+  }
+}
+
+// 생성 / 수정 시 mutation에 넘길 input을 만들어서 반환하는 함수
 async function getInput() {
   const input = Object.assign({}, inputArtist.value);
   input.group = artistGroup.value?.id;
@@ -213,11 +260,6 @@ async function getInput() {
 
 // 새로운 아티스트 생성
 async function createArtist() {
-  // TODO:
-  // 1. 필수 필드들 입력됐는 지 확인하기 
-  // 2. 이미지 업로드
-  // 3. Artist 얻로드
-
   try {
     const input = await getInput();
     const success: boolean = await artistStore.createArtist(input);
@@ -227,7 +269,6 @@ async function createArtist() {
 
 // 현재 아티스트 업데이트
 async function updateArtist() {
-  // TODO: 필수 필드 값 다 넣었는 지 확인
   try {
     const input = await getInput();
     const success: boolean = await artistStore.updateArtist(inputArtist.value._id, input);
@@ -291,8 +332,7 @@ function uploadFile(): Promise<boolean> {
 function onSelectionChanged() {
   const artist: Artist | undefiend = getSelectedArtist();
   if (!artist) { return; }
-  inputArtist.value = artist;
-  inputArtistOrg.value = JSON.parse(JSON.stringify(inputArtist.value));
+  setnputArtist(artist);
   const groupId: string | undefiend = artist.group?._id;
   artistGroup.value = groupId && groups.value.find((group) => group.id === groupId);
 }
