@@ -11,17 +11,6 @@
           <col style='width:auto'/>
         </colgroup>
 
-        <!--
-          TODO:
-          - name: 이름
-          - birthDay: 생일
-          - debutDate: 데뷔일자
-          - image: 이미지
-
-          - group: 그룹 ID
-          - color: 색상
-        -->
-
         <tbody>
           <!-- 필수 -->
           <tr>
@@ -48,7 +37,8 @@
           <tr>
             <th>이미지</th>
             <td colspan="3">
-              <q-file :ref='el => { refs["image"] = el }' outlined v-model="inputArtist.image" accept=".jpg, .png, image/*" @rejected="onRejected">
+              <q-file :ref='el => { refs["image"] = el }' outlined
+                v-model="inputArtist.image" accept=".jpg, .png, image/*" @rejected="onRejected">
                 <template v-slot:prepend>
                   <q-icon name="attach_file" />
                 </template>
@@ -158,7 +148,8 @@ async function getGroups() {
   } catch (_) {}
 }
 
-function setnputArtist(value: Artist) {
+function setInputArtist(value: Artist) {
+  value.image = value.image;
   inputArtist.value = value;
   inputArtistOrg.value = JSON.parse(JSON.stringify(inputArtist.value));
 }
@@ -169,7 +160,6 @@ function setnputArtist(value: Artist) {
  * =================================
  */
 const fnCallFunc = (id: string) => {
-  console.log('chloe test id : ', id);
   switch (id) {
     // 조회
     case 'inquire': return fnInquire();
@@ -184,7 +174,7 @@ const fnCallFunc = (id: string) => {
 
 // 신규 버튼 클릭 시
 function resetInputBox() {
-  setnputArtist(cinitial.$inItData('', ArtistType) as Artist);
+  setInputArtist(cinitial.$inItData('', ArtistType) as Artist);
 }
 
 // Artist 리스트 조회(Server call)
@@ -202,7 +192,9 @@ function fnInquire() {
 async function checkDiffData(): Promise<boolean> {
   try {
     const compResult = await cscript.$compareDatas<Group>(inputArtist.value, inputArtistOrg.value);
-    return compResult.length != 0;
+    const diff: boolean = compResult.length != 0;
+    if (diff) { return true; }
+    if (artistGroup.value?.id !== inputArtistOrg.value.group?._id) { return true; }
   } catch (_) {}
   return false;
 }
@@ -236,11 +228,20 @@ async function onClickSaveBtn() {
   // 필수값 모두 입력됐는지 확인
   if (!isMstValid()) { return; }
 
-  if (inputArtist.value._id) {
-    updateArtist();
-  } else {
-    createArtist();
+  let success: boolean = false;
+  try {
+    if (inputArtist.value._id) {
+      success = await updateArtist();
+    } else {
+      success = await createArtist();
+    }
+  } catch (error) { console.error(error); }
+
+  if (!success) {
+    alert('오류가 발생했습니다!');
+    return;
   }
+  alert('저장 완료했습니다!');
 }
 
 // 생성 / 수정 시 mutation에 넘길 input을 만들어서 반환하는 함수
@@ -259,21 +260,23 @@ async function getInput() {
 }
 
 // 새로운 아티스트 생성
-async function createArtist() {
+async function createArtist(): Promise<boolean> {
   try {
     const input = await getInput();
     const success: boolean = await artistStore.createArtist(input);
-    console.log('success : ', success);
+    return success;
   } catch (error) { console.error(error); }
+  return false;
 }
 
 // 현재 아티스트 업데이트
-async function updateArtist() {
+async function updateArtist(): Promise<boolean> {
   try {
     const input = await getInput();
     const success: boolean = await artistStore.updateArtist(inputArtist.value._id, input);
-    console.log('success : ', success);
+    return success;
   } catch (error) { console.error(error); }
+  return false;
 }
 
 // 선택한 Artist를 반환하는 함수, 없으면 undefined를 반환한다.
@@ -332,7 +335,7 @@ function uploadFile(): Promise<boolean> {
 function onSelectionChanged() {
   const artist: Artist | undefiend = getSelectedArtist();
   if (!artist) { return; }
-  setnputArtist(artist);
+  setInputArtist(artist);
   const groupId: string | undefiend = artist.group?._id;
   artistGroup.value = groupId && groups.value.find((group) => group.id === groupId);
 }

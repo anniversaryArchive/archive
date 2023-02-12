@@ -1,7 +1,7 @@
 <template>
   <Combobox :modelValue="modelValue" @update:modelValue="onChange">
     <div class="relative mt-1">
-      <div class="relative w-full overflow-hidden text-left bg-white rounded-lg shadow-md cursor-default focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 sm:text-sm">
+      <div class="relative w-full overflow-hidden text-left bg-white border border-gray-300 rounded shadow-md cursor-default focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 sm:text-sm">
         <ComboboxInput
           class="w-full py-2 pl-3 pr-10 text-sm leading-5 text-gray-900 border-none focus:ring-0"
           :displayValue="(option) => option.name"

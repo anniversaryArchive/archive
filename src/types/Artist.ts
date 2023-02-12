@@ -15,7 +15,7 @@ const ArtistType: { [key: string]: string } = {
     debutDate   : 'string',
     birthDay    : 'string',
     group       : 'string',
-    image       : 'string',
+    image       : 'image',
     color       : 'string'
 }
 
