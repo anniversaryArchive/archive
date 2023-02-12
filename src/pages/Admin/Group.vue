@@ -199,14 +199,15 @@ export default defineComponent({
         async function onMstCellFocused(event: CellFocusedEvent) {
             // 포커스 셀 변경시 해당셀의 행 선택
             let focusedNodes = _.find(grdApi.value.getRenderedNodes(), (x: RowNode) => x.childIndex === event.rowIndex);
-            if (!cscript.$isEmpty(focusedNodes)){
-                focusedNodes!.setSelected(true, true);
-            }
 
             // 변경사항 체크
             const msg = '변경된 내용이 있습니다. 신규 작성시 변경 내용이 사라집니다.계속 하시겠습니까?';
             if ((await checkDiffData()) && !confirm(msg)) {
                 return;
+            }
+
+            if (!cscript.$isEmpty(focusedNodes)){
+                focusedNodes!.setSelected(true, true);
             }
 
             // 선택 셀 상세 셋팅
@@ -234,8 +235,6 @@ export default defineComponent({
                 artistList.value.push(jsonNode._id);
             });
             artistListOrgData.value = _.cloneDeep(artistList.value);
-
-            console.log('n.data : ', n.data);
         }
 
         // 로고 파일 업로드 제한
@@ -275,9 +274,11 @@ export default defineComponent({
 
             // 로고 파일 변경 확인
             if(gridGb == 'DtlLogo') {
-                let logoData = JSON.parse(JSON.stringify(groupParams.value.logo));
-                if(!logoData.name){
-                    logoDiff = true; // 변경 사항 있음.
+                if(groupParams.value.logo) {
+                    let logoData = JSON.parse(JSON.stringify(groupParams.value.logo));
+                    if(!logoData.name){
+                        logoDiff = true; // 변경 사항 있음.
+                    }
                 }
             }
 
@@ -417,12 +418,9 @@ export default defineComponent({
             // 저장 데이터 생성
             let artistListSave : unknown[] = [];
             Object.entries(artistList.value).forEach(([, val]) => {
-                /*let artist = {
-                    _id: val,
-                };
-                artistListSave.push(artist);*/
                 artistListSave.push(val);
             });
+            // console.log('artistList.value : ', artistList.value);
 
             const toSaveInfo = {
                 name        : groupParams.value.name,
@@ -434,7 +432,7 @@ export default defineComponent({
             }
 
             const toSaveData = Object.assign({} as ToSaveData, toSaveInfo);
-            console.log('toSaveData : ', toSaveData);
+            // console.log('toSaveData : ', toSaveData);
 
             if(!groupParams.value._id){ // 신규
                 await createGroupData(toSaveData);
