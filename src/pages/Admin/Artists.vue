@@ -154,6 +154,8 @@ function setInputArtist(value: Artist) {
   value.image = value.image;
   inputArtist.value = value;
   inputArtistOrg.value = JSON.parse(JSON.stringify(inputArtist.value));
+  const groupId: string | undefiend = value.group?._id;
+  artistGroup.value = groupId && groups.value.find((group) => group.id === groupId);
 }
 
 /**
@@ -346,8 +348,6 @@ function onSelectionChanged() {
   const artist: Artist | undefiend = getSelectedArtist();
   if (!artist) { return; }
   setInputArtist(artist);
-  const groupId: string | undefiend = artist.group?._id;
-  artistGroup.value = groupId && groups.value.find((group) => group.id === groupId);
 }
 
 function initGrid () {
