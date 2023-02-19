@@ -62,7 +62,6 @@ export const useGroupStore = defineStore({
     async createGroup(saveData: ToSaveData): Promise<boolean> {
       try {
         const { data } = await mutate(createGroup, {saveData});
-        console.log('data : ', data);
         const success: boolean = data?.createGroup._id || false;
         if (success) { this.data?.fetch(); }
         return success;

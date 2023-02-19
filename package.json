@@ -18,7 +18,6 @@
     "quasar": "^2.11.4",
     "villus": "^2.1.0",
     "vue": "^3.2.45",
-    "vue-axios": "^3.5.2",
     "vue-router": "^4.1.6"
   },
   "devDependencies": {
