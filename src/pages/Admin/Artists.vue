@@ -106,7 +106,7 @@ import axios from 'axios';
 import ccobject from '@/composables/createComObject';
 import cinitial from '@/composables/comInitialize';
 import cscript from '@/composables/comScripts';
-import caggrid from '@/composables/customAgGridUtils';
+import caggrid, { DateFormatter } from '@/composables/customAgGridUtils';
 import { Artist, ArtistType } from '@/types/Artist';
 import { useGroupStore } from '@/stores/group';
 import { useArtistStore } from '@/stores/artist';
@@ -361,7 +361,13 @@ function initGrid () {
 
   const columnDefs = [
     { headerName: 'No', valueGetter: 'node.rowIndex + 1', width: 60, sortable: true },
-    ... gridFields.map((field) => ({ headerName: field.text, field: field.key, width: 150, cellStyle : {textAlign: 'left'} })),
+    ... gridFields.map((field) => {
+      const def = { headerName: field.text, field: field.key, width: 150, cellStyle : {textAlign: 'left'}, flex: 1 };
+      if (field.key === 'birthDay' || field.key === 'debutDate') {
+        def.valueFormatter = DateFormatter;
+      }
+      return def;
+    }),
     { headerName: 'ID', field: '_id', hide: true },
   ]
 
