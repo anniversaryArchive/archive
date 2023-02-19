@@ -1,3 +1,5 @@
+import {Artist} from '@/types/Artist';
+
 export interface Group {
     name        : string,
     _id         : string,
@@ -7,7 +9,7 @@ export interface Group {
     createdAt?   : string,
     updatedAt?   : string,
     color?       : string
-    artist?      : string
+    artists?      : [Artist] | null,
 }
 
 const GroupType: { [key: string]: string } = {

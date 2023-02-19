@@ -34,8 +34,8 @@ export default {
         }
         await _.forEach(listItems as CommonMapList[], (item: CommonMapList) => {
             const row = {
-                label : !this.$isEmpty(options.label) ? String(item[options.label]) : item.codeNm,
-                value : !this.$isEmpty(options.value) ? String(item[options.value]) : item.codeValue,
+                label : !this.$isEmpty(options.label) ? String(item[options.label]) : item.name,
+                value : !this.$isEmpty(options.value) ? String(item[options.value]) : item._id,
             };
             cpListItems.push(row as CommonSelect);
         });
@@ -72,9 +72,9 @@ export default {
         const tempKeyList = _.uniq((Object.keys(obj1 as any) as (keyof T)[]).concat(Object.keys(obj2 as any) as (keyof T)[]));
 
         await _.forEach(tempKeyList, (keyNm: keyof T) => {
-            //제외 키 인지 확인
+            // 제외 키 인지 확인
             const isXcptKey = _.includes(xcptKeyLists as any, keyNm);
-            //둘중 하나라도 값이 있고, 제외키가 아니고, 둘의 값이 일치하지 않을 때
+            // 둘중 하나라도 값이 있고, 제외키가 아니고, 둘의 값이 일치하지 않을 때
             if (!(this.$isEmpty(obj1[keyNm]) && this.$isEmpty(obj2[keyNm])) && !isXcptKey && obj1[keyNm] != obj2[keyNm]) {
                 rtnValue.push({
                     keyNm: keyNm as string,
