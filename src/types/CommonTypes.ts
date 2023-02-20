@@ -26,6 +26,10 @@ export interface CommonMapList {
     [p: string]: unknown;
 }
 
+export interface CommonSch {
+    schDateNm?: string;
+}
+
 export interface CommonCode extends CommonRowData {
     codeGroup: string,
     codeValue: string,
