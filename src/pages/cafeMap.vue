@@ -1,13 +1,7 @@
 <template>
   <div>
-    <!--
-    <naver-map
-        style="width: 80%; height: 1000px;"
-        :mapOptions="mapOptions"
-        :initLayers="initLayers"
-        @onLoad="onLoadMap($event)"
-    >
-    -->
+    <layout-header></layout-header>
+
     <naver-map style="width: 75%; height: 100vh; float: right;" :mapOptions="mapOptions">
       <naver-marker
           @click="isOpen = !isOpen"
@@ -31,10 +25,11 @@
 import {defineComponent, ref} from 'vue';
 import { NaverMap, NaverMarker, NaverInfoWindow } from "vue3-naver-maps";
 import mixinPageCommon from '@/pages/mixin/mixinPageCommon';
+import LayoutHeader from '@/layouts/LayoutHeader.vue';
 
 export default defineComponent({
   name        : 'cafeMap',
-  components: { NaverMap, NaverMarker, NaverInfoWindow },
+  components: { LayoutHeader, NaverMap, NaverMarker, NaverInfoWindow },
   mixins: [mixinPageCommon],
   setup(){
     const map = ref();
