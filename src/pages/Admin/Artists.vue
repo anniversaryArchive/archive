@@ -124,7 +124,7 @@ const artistStore = useArtistStore();
 
 // Grid 관련 변수
 const { grdApi, grdMstKey, grdMstProps, onGridReady, onPaginationChanged } = initGrid();
-const lastActionId: Ref<string | undefiend> = ref(); // 마지막으로 생성/수정한 Artist의 _id
+const lastActionId: Ref<string | undefined> = ref(); // 마지막으로 생성/수정한 Artist의 _id
 
 // Artist List Table View 관련 변수
 const total: ComputedRef<number> = computed(() => artistStore.total);
@@ -143,7 +143,7 @@ const inputArtistOrg: Ref<Artist> = ref(JSON.parse(JSON.stringify(inputArtist.va
 
 // Groups 관련 변수
 const groups: ref<ComboBoxModel[]> = ref([]);
-const artistGroup: Ref<ComboBoxModel | undefiend> = ref();
+const artistGroup: Ref<ComboBoxModel | undefined> = ref();
 
 onBeforeMount(() => {
   getGroups();
@@ -169,7 +169,7 @@ function setInputArtist(value: Artist) {
   }
   inputArtist.value = value;
   inputArtistOrg.value = JSON.parse(JSON.stringify(inputArtist.value));
-  const groupId: string | undefiend = value.group?._id;
+  const groupId: string | undefined = value.group?._id;
   artistGroup.value = groupId && groups.value.find((group) => group.id === groupId);
 }
 
@@ -284,13 +284,13 @@ async function onClickSaveBtn() {
   if (artistGroup.value) {
     const { id, name } = artistGroup.value;
     inputArtist.value.group = { _id: id, name };
-  } else { inputArtist.value.group = undefiend; }
+  } else { inputArtist.value.group = undefined; }
   setInputArtist(inputArtist.value);
   alert('저장 완료했습니다!');
 }
 
 // 생성 / 수정 시 mutation에 넘길 input을 만들어서 반환하는 함수
-async function getInput() {
+async function getInput(): Record<string, any> | undefined {
   const input = Object.assign({}, inputArtist.value);
   input.group = artistGroup.value?.id;
   for (const field of ['birthDay', 'debutDate']) {
@@ -299,7 +299,10 @@ async function getInput() {
   }
 
   try {
-    await uploadFile();
+    const success: boolean = await uploadFile();
+    if (!success) { return undefined; }
+  } catch (_) {
+    return undefined;
   } finally {
     input.image = inputArtist.value.image?._id;
   }
@@ -312,7 +315,8 @@ async function getInput() {
 async function createArtist(): Promise<boolean> {
   try {
     const input = await getInput();
-    const id: string | undefiend = await artistStore.createArtist(input);
+    if (!input) { return false; }
+    const id: string | undefined = await artistStore.createArtist(input);
     lastActionId.value = id;
     return id && true;
   } catch (error) { console.error(error); }
@@ -323,6 +327,7 @@ async function createArtist(): Promise<boolean> {
 async function updateArtist(): Promise<boolean> {
   try {
     const input = await getInput();
+    if (!input) { return false; }
     const success: boolean = await artistStore.updateArtist(inputArtist.value._id, input);
     if (success) { lastActionId.value = inputArtist.value._id; }
     return success;
@@ -377,7 +382,7 @@ function uploadFile(): Promise<boolean> {
       if (!image) { return rejolve(false); }
       inputArtist.value.image = image;
       return rejolve(true);
-    });
+    }).catch((error) => reject(error));
   });
 }
 
@@ -413,7 +418,7 @@ async function onCellFocused(event: CellFocusedEvent) {
     focusNode!.setSelected(true, true);
   }
 
-  const artist: Artist | undefiend = getSelectedArtist();
+  const artist: Artist | undefined = getSelectedArtist();
   if (!artist) { return; }
   setInputArtist(artist);
 }
