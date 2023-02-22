@@ -88,7 +88,6 @@
             class='ag-theme-balham'
             @grid-ready="onGridReady"
             @pagination-changed="onPaginationChanged"
-            @selection-changed="onSelectionChanged"
             @cell-focused="onCellFocused"
           />
         </div>
@@ -360,32 +359,27 @@ function uploadFile(): Promise<boolean> {
  * Grid 관련 변수 및 Functions .. 
  * =================================
  */
-function onSelectionChanged() {
-  /*
-  const artist: Artist | undefiend = getSelectedArtist();
-  if (!artist) { return; }
-  setInputArtist(artist);
-  */
-}
-
 // Grid Cell 포커스 
 async function onCellFocused(event: CellFocusedEvent) {
   // 포커스 셀 변경 시 해당 셀의 행 선택
-  // const focusedNodes = _.find(grdApi.value.getRenderedNodes(), (x: RowNode) => x.childIndex === event.rowIndex);
   const focusNode = grdApi.value.getRenderedNodes().find((node: RowNode) => {
     return node.childIndex === event.rowIndex;
   });
 
+  // 변경사항 체크 
   try {
     const diff = await checkDiffData();
-    console.log('diff : ', diff);
+    const msg = '변경된 내용이 있습니다. 신규 작성시 변경 내용이 사라집니다.계속 하시겠습니까?';
+    if (diff && !confirm(msg)) { return; }
   } catch (_) {}
 
-  // TODO:
+  if (!cscript.$isEmpty(focusNode)){
+    focusNode!.setSelected(true, true);
+  }
+
   const artist: Artist | undefiend = getSelectedArtist();
   if (!artist) { return; }
   setInputArtist(artist);
-  console.log('focus node : ', focusNode);
 }
 
 function initGrid () {
