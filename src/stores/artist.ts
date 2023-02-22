@@ -47,13 +47,13 @@ export const useArtistStore = defineStore({
       });
     },
 
-    async createArtist(input: Record<string, any>): Promise<boolean> {
+    async createArtist(input: Record<string, any>): Promise<string | undefined> {
       try {
         const { data, error } = await mutate(createArtist, { input });
-        const success: boolean = data?.artist?._id && true;
-        if (success) { this.data?.fetch(); }
-        return success;
-      } catch (_) { return false; }
+        const id: string | undefined = data?.artist?._id;
+        if (id) { this.data?.fetch(); }
+        return id;
+      } catch (_) { return; }
     },
 
     async updateArtist(id: string, input: Record<string, any>): Promise<boolean> {

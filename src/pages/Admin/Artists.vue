@@ -122,12 +122,18 @@ const gridFields: { key: string, text: string }[] = [
 const groupStore = useGroupStore();
 const artistStore = useArtistStore();
 
+// Grid 관련 변수
 const { grdApi, grdMstKey, grdMstProps, onGridReady, onPaginationChanged } = initGrid();
+const lastActionId: Ref<string | undefiend> = ref(); // 마지막으로 생성/수정한 Artist의 _id
 
 // Artist List Table View 관련 변수
 const total: ComputedRef<number> = computed(() => artistStore.total);
 watch(() => artistStore.artists, () => {
   grdApi.value.setRowData(artistStore.artists);
+  const rowIndex: number = lastActionId.value ? artistStore.artists.findIndex((artist) => {
+    return artist[grdMstKey.value] === lastActionId.value;
+  }) : 0;
+  grdApi.value.setFocusedCell(rowIndex, grdMstKey.value);
 });
 
 // Artist Input Box 관련 변수
@@ -186,12 +192,26 @@ const fnCallFunc = (id: string) => {
 }
 
 // 신규 버튼 클릭 시
-function resetInputBox() {
+async function resetInputBox() {
+  try {
+    const checked: boolean = await confirmDiffData();
+    if (!checked) { return; }
+  } catch (error) { console.error(error); }
+
   setInputArtist(cinitial.$inItData('', ArtistType) as Artist);
+
+  // 그리드 선택 해제 (포커스 먹으려면 await)
+  try {
+    await grdApi.value.deselectAll();
+  } catch (error) { console.error(error); }
 }
 
 // Artist 리스트 조회(Server call)
-function fnInquire() {
+async function fnInquire() {
+  try {
+    const checked: boolean = await confirmDiffData();
+    if (!checked) { return; }
+  } catch (error) { console.error(error); }
   artistStore.getArtists();
 }
 
@@ -204,7 +224,7 @@ function fnInquire() {
 // 변경사항 체크
 async function checkDiffData(): Promise<boolean> {
   // 그룹이 변경됐는 지 확인
-  const groupDiff = artistGroup.value.id !== inputArtistOrg.value.group?._id;
+  const groupDiff = artistGroup.value?.id !== inputArtistOrg.value.group?._id;
 
   // 이미지가 변경됐는 지 확인 
   const imageDiff = (inputArtist.value.image?._id || inputArtist.value.image?.name) !== (inputArtistOrg.value.image?._id || inputArtistOrg.value.image?.name);
@@ -212,9 +232,10 @@ async function checkDiffData(): Promise<boolean> {
   // inputArtist 데이터가 변경되었는 지
   let dataDiff: boolean = false;
   try {
-    const compResult = await cscript.$compareDatas<Artist>(inputArtist.value, inputArtistOrg.value, ['logo', 'group']);
+    const compResult = await cscript.$compareDatas<Artist>(inputArtist.value, inputArtistOrg.value, ['image', 'group']);
     dataDiff = compResult.length != 0;
   } catch (_) {}
+
   return dataDiff || groupDiff || imageDiff;
 }
 
@@ -260,6 +281,11 @@ async function onClickSaveBtn() {
     alert('오류가 발생했습니다!');
     return;
   }
+  if (artistGroup.value) {
+    const { id, name } = artistGroup.value;
+    inputArtist.value.group = { _id: id, name };
+  } else { inputArtist.value.group = undefiend; }
+  setInputArtist(inputArtist.value);
   alert('저장 완료했습니다!');
 }
 
@@ -269,7 +295,6 @@ async function getInput() {
   input.group = artistGroup.value?.id;
   for (const field of ['birthDay', 'debutDate']) {
     if (!input[field]) { continue; }
-    console.log('~ ', field, input[field], new Date(input[field]));
     input[field] = new Date(input[field]);
   }
 
@@ -287,8 +312,9 @@ async function getInput() {
 async function createArtist(): Promise<boolean> {
   try {
     const input = await getInput();
-    const success: boolean = await artistStore.createArtist(input);
-    return success;
+    const id: string | undefiend = await artistStore.createArtist(input);
+    lastActionId.value = id;
+    return id && true;
   } catch (error) { console.error(error); }
   return false;
 }
@@ -298,6 +324,7 @@ async function updateArtist(): Promise<boolean> {
   try {
     const input = await getInput();
     const success: boolean = await artistStore.updateArtist(inputArtist.value._id, input);
+    if (success) { lastActionId.value = inputArtist.value._id; }
     return success;
   } catch (error) { console.error(error); }
   return false;
@@ -359,6 +386,16 @@ function uploadFile(): Promise<boolean> {
  * Grid 관련 변수 및 Functions .. 
  * =================================
  */
+// 변경사항 체크 
+async function confirmDiffData(): Promise<boolean> {
+  try {
+    const diff = await checkDiffData();
+    const msg = '변경된 내용이 있습니다. 신규 작성시 변경 내용이 사라집니다.계속 하시겠습니까?';
+    if (diff && !confirm(msg)) { return false; }
+  } catch (_) {}
+  return true;
+}
+
 // Grid Cell 포커스 
 async function onCellFocused(event: CellFocusedEvent) {
   // 포커스 셀 변경 시 해당 셀의 행 선택
@@ -368,9 +405,8 @@ async function onCellFocused(event: CellFocusedEvent) {
 
   // 변경사항 체크 
   try {
-    const diff = await checkDiffData();
-    const msg = '변경된 내용이 있습니다. 신규 작성시 변경 내용이 사라집니다.계속 하시겠습니까?';
-    if (diff && !confirm(msg)) { return; }
+    const confirm: boolean = await confirmDiffData();
+    if (!confirm) { return; }
   } catch (_) {}
 
   if (!cscript.$isEmpty(focusNode)){
@@ -391,6 +427,7 @@ function initGrid () {
     onPaginationChanged,
   } = ccobject.$createComGrd<Artist>(); // 그리드 변수
 
+  grdMstKey.value = '_id';
   const columnDefs = [
     { headerName: 'No', valueGetter: 'node.rowIndex + 1', width: 60, sortable: true },
     ... gridFields.map((field) => {
