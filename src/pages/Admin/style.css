@@ -1,0 +1,31 @@
+.form_table {
+  padding: 20px 10px;
+}
+
+.form_table table {
+  border-collapse : collapse;
+  border-spacing  : 0;
+  font-size       : 12px;
+  text-align      : center;
+  width           : 100%;
+  table-layout    : fixed;
+  border-top      : 1px solid #DDF1FF;
+  border-bottom   : 1px solid #DDF1FF;
+  letter-spacing  : -0.07em;
+}
+
+.form_table table thead tr th {
+  background    : rgba(79, 190, 159, 0.2);
+  height        : 26px;
+  border-bottom : 1px solid #CCEFF1;
+  padding       : 7px 0;
+}
+
+.form_table table tbody tr th {
+  background    : #DDF1FF;
+  height        : 26px;
+  border-bottom : 1px solid #A8E3F1;
+  text-align    : center;
+  padding       : 5px 0;
+  line-height   : 26px;
+}

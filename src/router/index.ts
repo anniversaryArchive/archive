@@ -7,20 +7,23 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('@/pages/Home.vue'),
   },
   {
-    meta: {title: '관리자 화면'},
     path: '/admin',
-    component: () => import('@/pages/Admin/Admin.vue'),
-  },
-  {
-    meta: {title: '그룹 추가 화면'},
-    path: '/admin/group',
-    component: () => import('@/pages/Admin/Group.vue'),
-  },
-  {
-    meta: {title: '아티스트 추가 화면'},
-    path: '/admin/artists',
-    component: () => import('@/pages/Admin/Artists.vue'),
-  },
+    children: [
+      { 
+        path: '', 
+        meta: { title: '관리자 화면' }, 
+        component: () => import('@/pages/Admin/Admin.vue'),
+      }, {
+        path: 'group',
+        meta: { title: '그룹 추가 화면' },
+        component: () => import('@/pages/Admin/Group.vue'),
+      }, {
+        path: 'artist',
+        meta: { title: '아티스트 추가 화면' },
+        component: () => import('@/pages/Admin/Artists.vue'),
+      }
+    ],
+  }
 ];
 
 export default createRouter({

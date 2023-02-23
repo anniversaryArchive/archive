@@ -8,7 +8,7 @@ import {AllCommunityModules} from '@ag-grid-community/all-modules';
 * */
 export default {
     $inItData: function inItData(gb: string, sendType: { [key: string]: string }) {
-        const tempData: { [key: string]: string | number | boolean | [] | object } = {};
+        const tempData: { [key: string]: string | number | boolean | [] | object | undefined } = {};
         const type = sendType;
 
         _.forEach(Object.keys(type), (x: string) => {
@@ -22,6 +22,8 @@ export default {
                 tempData[x] = [];
             } else if (type[x] === 'object') {
                 tempData[x] = {};
+            } else if (type[x] === 'image') {
+                tempData[x] = undefined;
             }
         });
 
