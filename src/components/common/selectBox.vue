@@ -26,7 +26,7 @@ export default defineComponent({
     emits: ['update:modelValue', 'change'],
     props: {
         modelValue: {
-            type   : String, // Type Annotation
+            type   : Array, // Type Annotation
             default: () => (''),
         },
         name      : {

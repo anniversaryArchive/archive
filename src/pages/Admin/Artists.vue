@@ -88,7 +88,7 @@
             class='ag-theme-balham'
             @grid-ready="onGridReady"
             @pagination-changed="onPaginationChanged"
-            @selection-changed="onSelectionChanged"
+            @cell-focused="onCellFocused"
           />
         </div>
       </div>
@@ -106,10 +106,12 @@ import axios from 'axios';
 import ccobject from '@/composables/createComObject';
 import cinitial from '@/composables/comInitialize';
 import cscript from '@/composables/comScripts';
-import caggrid from '@/composables/customAgGridUtils';
+import caggrid, { DateFormatter } from '@/composables/customAgGridUtils';
+import { CellFocusedEvent, GetRowIdParams, GridOptions, RowNode } from '@ag-grid-community/core';
 import { Artist, ArtistType } from '@/types/Artist';
 import { useGroupStore } from '@/stores/group';
 import { useArtistStore } from '@/stores/artist';
+import moment from 'moment';
 
 const gridFields: { key: string, text: string }[] = [
   { key: 'name', text: '아티스트명' },
@@ -120,12 +122,18 @@ const gridFields: { key: string, text: string }[] = [
 const groupStore = useGroupStore();
 const artistStore = useArtistStore();
 
+// Grid 관련 변수
 const { grdApi, grdMstKey, grdMstProps, onGridReady, onPaginationChanged } = initGrid();
+const lastActionId: Ref<string | undefined> = ref(); // 마지막으로 생성/수정한 Artist의 _id
 
 // Artist List Table View 관련 변수
 const total: ComputedRef<number> = computed(() => artistStore.total);
 watch(() => artistStore.artists, () => {
   grdApi.value.setRowData(artistStore.artists);
+  const rowIndex: number = lastActionId.value ? artistStore.artists.findIndex((artist) => {
+    return artist[grdMstKey.value] === lastActionId.value;
+  }) : 0;
+  grdApi.value.setFocusedCell(rowIndex, grdMstKey.value);
 });
 
 // Artist Input Box 관련 변수
@@ -135,7 +143,7 @@ const inputArtistOrg: Ref<Artist> = ref(JSON.parse(JSON.stringify(inputArtist.va
 
 // Groups 관련 변수
 const groups: ref<ComboBoxModel[]> = ref([]);
-const artistGroup: Ref<ComboBoxModel | undefiend> = ref();
+const artistGroup: Ref<ComboBoxModel | undefined> = ref();
 
 onBeforeMount(() => {
   getGroups();
@@ -144,17 +152,24 @@ onBeforeMount(() => {
 async function getGroups() {
   try {
     const data = await groupStore.getGroupsQuery();
-    groups.value = (data.groups || []).map((group) => {
+    groups.value = (data.groups.data || []).map((group) => {
       return { id: group._id, name: group.name, unavailable: false } as ComboBoxModel;
     });
-  } catch (_) {}
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 function setInputArtist(value: Artist) {
   value.image = value.image;
+  for (const key of ['debutDate', 'birthDay']) {
+    if (value[key]) { 
+      value[key] = moment(value[key]).format('YYYY.MM.DD');
+    }
+  }
   inputArtist.value = value;
   inputArtistOrg.value = JSON.parse(JSON.stringify(inputArtist.value));
-  const groupId: string | undefiend = value.group?._id;
+  const groupId: string | undefined = value.group?._id;
   artistGroup.value = groupId && groups.value.find((group) => group.id === groupId);
 }
 
@@ -177,12 +192,26 @@ const fnCallFunc = (id: string) => {
 }
 
 // 신규 버튼 클릭 시
-function resetInputBox() {
+async function resetInputBox() {
+  try {
+    const checked: boolean = await confirmDiffData();
+    if (!checked) { return; }
+  } catch (error) { console.error(error); }
+
   setInputArtist(cinitial.$inItData('', ArtistType) as Artist);
+
+  // 그리드 선택 해제 (포커스 먹으려면 await)
+  try {
+    await grdApi.value.deselectAll();
+  } catch (error) { console.error(error); }
 }
 
 // Artist 리스트 조회(Server call)
-function fnInquire() {
+async function fnInquire() {
+  try {
+    const checked: boolean = await confirmDiffData();
+    if (!checked) { return; }
+  } catch (error) { console.error(error); }
   artistStore.getArtists();
 }
 
@@ -194,13 +223,20 @@ function fnInquire() {
 
 // 변경사항 체크
 async function checkDiffData(): Promise<boolean> {
+  // 그룹이 변경됐는 지 확인
+  const groupDiff = artistGroup.value?.id !== inputArtistOrg.value.group?._id;
+
+  // 이미지가 변경됐는 지 확인 
+  const imageDiff = (inputArtist.value.image?._id || inputArtist.value.image?.name) !== (inputArtistOrg.value.image?._id || inputArtistOrg.value.image?.name);
+
+  // inputArtist 데이터가 변경되었는 지
+  let dataDiff: boolean = false;
   try {
-    const compResult = await cscript.$compareDatas<Group>(inputArtist.value, inputArtistOrg.value);
-    const diff: boolean = compResult.length != 0;
-    if (diff) { return true; }
-    if (artistGroup.value?.id !== inputArtistOrg.value.group?._id) { return true; }
+    const compResult = await cscript.$compareDatas<Artist>(inputArtist.value, inputArtistOrg.value, ['image', 'group']);
+    dataDiff = compResult.length != 0;
   } catch (_) {}
-  return false;
+
+  return dataDiff || groupDiff || imageDiff;
 }
 
 // 필수 입력 항목 체크 - 생일, 이미지, 이름
@@ -245,21 +281,28 @@ async function onClickSaveBtn() {
     alert('오류가 발생했습니다!');
     return;
   }
+  if (artistGroup.value) {
+    const { id, name } = artistGroup.value;
+    inputArtist.value.group = { _id: id, name };
+  } else { inputArtist.value.group = undefined; }
+  setInputArtist(inputArtist.value);
   alert('저장 완료했습니다!');
 }
 
 // 생성 / 수정 시 mutation에 넘길 input을 만들어서 반환하는 함수
-async function getInput() {
+async function getInput(): Record<string, any> | undefined {
   const input = Object.assign({}, inputArtist.value);
   input.group = artistGroup.value?.id;
   for (const field of ['birthDay', 'debutDate']) {
     if (!input[field]) { continue; }
-    console.log('~ ', field, input[field], new Date(input[field]));
     input[field] = new Date(input[field]);
   }
 
   try {
-    await uploadFile();
+    const success: boolean = await uploadFile();
+    if (!success) { return undefined; }
+  } catch (_) {
+    return undefined;
   } finally {
     input.image = inputArtist.value.image?._id;
   }
@@ -272,8 +315,10 @@ async function getInput() {
 async function createArtist(): Promise<boolean> {
   try {
     const input = await getInput();
-    const success: boolean = await artistStore.createArtist(input);
-    return success;
+    if (!input) { return false; }
+    const id: string | undefined = await artistStore.createArtist(input);
+    lastActionId.value = id;
+    return id && true;
   } catch (error) { console.error(error); }
   return false;
 }
@@ -282,7 +327,9 @@ async function createArtist(): Promise<boolean> {
 async function updateArtist(): Promise<boolean> {
   try {
     const input = await getInput();
+    if (!input) { return false; }
     const success: boolean = await artistStore.updateArtist(inputArtist.value._id, input);
+    if (success) { lastActionId.value = inputArtist.value._id; }
     return success;
   } catch (error) { console.error(error); }
   return false;
@@ -335,7 +382,7 @@ function uploadFile(): Promise<boolean> {
       if (!image) { return rejolve(false); }
       inputArtist.value.image = image;
       return rejolve(true);
-    });
+    }).catch((error) => reject(error));
   });
 }
 
@@ -344,8 +391,34 @@ function uploadFile(): Promise<boolean> {
  * Grid 관련 변수 및 Functions .. 
  * =================================
  */
-function onSelectionChanged() {
-  const artist: Artist | undefiend = getSelectedArtist();
+// 변경사항 체크 
+async function confirmDiffData(): Promise<boolean> {
+  try {
+    const diff = await checkDiffData();
+    const msg = '변경된 내용이 있습니다. 신규 작성시 변경 내용이 사라집니다.계속 하시겠습니까?';
+    if (diff && !confirm(msg)) { return false; }
+  } catch (_) {}
+  return true;
+}
+
+// Grid Cell 포커스 
+async function onCellFocused(event: CellFocusedEvent) {
+  // 포커스 셀 변경 시 해당 셀의 행 선택
+  const focusNode = grdApi.value.getRenderedNodes().find((node: RowNode) => {
+    return node.childIndex === event.rowIndex;
+  });
+
+  // 변경사항 체크 
+  try {
+    const confirm: boolean = await confirmDiffData();
+    if (!confirm) { return; }
+  } catch (_) {}
+
+  if (!cscript.$isEmpty(focusNode)){
+    focusNode!.setSelected(true, true);
+  }
+
+  const artist: Artist | undefined = getSelectedArtist();
   if (!artist) { return; }
   setInputArtist(artist);
 }
@@ -359,9 +432,16 @@ function initGrid () {
     onPaginationChanged,
   } = ccobject.$createComGrd<Artist>(); // 그리드 변수
 
+  grdMstKey.value = '_id';
   const columnDefs = [
     { headerName: 'No', valueGetter: 'node.rowIndex + 1', width: 60, sortable: true },
-    ... gridFields.map((field) => ({ headerName: field.text, field: field.key, width: 150, cellStyle : {textAlign: 'left'} })),
+    ... gridFields.map((field) => {
+      const def = { headerName: field.text, field: field.key, width: 150, cellStyle : {textAlign: 'left'}, flex: 1 };
+      if (field.key === 'birthDay' || field.key === 'debutDate') {
+        def.valueFormatter = DateFormatter;
+      }
+      return def;
+    }),
     { headerName: 'ID', field: '_id', hide: true },
   ]
 
