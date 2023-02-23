@@ -6,10 +6,11 @@
     <date-picker :id='endDeNm' :ref='el => { divs[endDeNm] = el }'
                      v-model='theModel[endDeNm]' :clearable='clearable' :disabled='disabled'
                      :readonly="readonly"/>
-    <br>
+    <!--
     <q-btn flat @click="setToday">오늘</q-btn>
     <q-btn flat @click="setWeek">7일</q-btn>
     <q-btn flat @click="setMonth">1개월</q-btn>
+    -->
   </div>
 </template>
 <script lang="ts">
@@ -92,5 +93,24 @@ export default defineComponent({
 </script>
 
 <style scoped>
+.date-period button {
+  border        : none;
+  padding       : 0 15px;
+  border-radius : 3px;
+  height        : 26px;
+  background    : rgba(79, 190, 159, 0.2);
+  min-height    : 1em;
+  transition    : all .3s ease-in-out;
+  margin-left   : 5px;
+  color         : #424242 !important;
+}
 
+.date-period button:hover {
+  background : #4fbe9f;
+  color      : #fff !important;
+}
+
+.date-period button .q-icon {
+  font-size : 1.1em;
+}
 </style>

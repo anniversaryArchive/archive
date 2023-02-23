@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="inp_date">
         <q-input ref="inputRef" v-model="val" :clearable="clearable" :dense="true" outlined
                  :mask='maskFormat' :readonly="readonly" >
             <template v-slot:append>
@@ -98,3 +98,33 @@ export default defineComponent({
     },
 });
 </script>
+
+<style scoped>
+.inp_date {
+  width: 135px;
+  position: relative;
+  display: inline-block;
+  vertical-align: middle;
+}
+.inp_date input {
+  width: 100%;
+  text-align: center !important;
+}
+.inp_date label {
+  padding-bottom: 0;
+}
+.inp_date .q-field__marginal {
+  height: auto;
+}
+.inp_date + .inp_date {
+  margin-left: 30px;
+}
+.inp_date + .inp_date:after {
+  content: "~";
+  font-weight: bold;
+  position: absolute;
+  left: -20px;
+  top: 5px;
+}
+
+</style>
