@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { QueryExecutionOpts } from 'villus';
+import { QueryExecutionOpts, useQuery } from 'villus';
 import {Group} from '@/types/Group';
 import {mutate, query} from '@/composables/graphqlUtils';
 import {computed, ComputedRef} from 'vue';
@@ -46,6 +46,14 @@ export const useGroupStore = defineStore({
           total: computed(() => { return data.value?.groups?.total || 0; }),
           fetch: execute,
         };
+      });
+    },
+
+    getGroupsQuery() {
+      return new Promise((resolve, reject) => {
+        useQuery({ query: getGroups }).then(({ data }) => {
+          resolve(data.value);
+        }).catch((error) => reject(error));
       });
     },
 
