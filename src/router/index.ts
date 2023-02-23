@@ -7,6 +7,11 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('@/pages/Home.vue'),
   },
   {
+    meta: {title: 'cafeMap'},
+    path: '/cafeMap',
+    component: () => import('@/pages/cafeMap.vue'),
+  },
+  {
     path: '/admin',
     children: [
       { 
