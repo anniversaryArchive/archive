@@ -35,8 +35,8 @@ export const useArtistStore = defineStore({
     total (): number { return this.data?.total || 0 },
   },
   actions: {
-    getArtists () {
-      query(getArtists, {}, false).then(({ data, error, execute }) => {
+    getArtists (filterData? : object) {
+      query(getArtists, { filter: filterData }, false).then(({ data, error, execute }) => {
         this.data = {
           list: computed(() => {
             return data.value?.artist?.data || [];

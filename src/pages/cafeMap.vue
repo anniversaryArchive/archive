@@ -94,7 +94,6 @@ export default defineComponent({
     };
 
     const onLoadMap = (mapObject: unknown) => {
-      console.log('mapObject : ', mapObject);
       map.value = mapObject;
     };
 
@@ -105,11 +104,17 @@ export default defineComponent({
     });
 
     const initialize = () => {
-      artistStore.getArtists();
+      const filterData = {
+        "flds": {
+          "group" : "63e589617df4af219e0401c5"
+        }
+      }
+      artistStore.getArtists(filterData);
     }
 
     watch(() => artistStore.artists, async () => {
       const artistList = JSON.parse(JSON.stringify(artistStore.artists));
+      console.log('artistList : ', artistStore.artists);
 
       selectBoxOptions.value.artist = {
         name     : 'artistStatusOptions',
