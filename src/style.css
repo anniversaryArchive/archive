@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+html, body, #app {
+  height: 100%;
+}
+
 /*
 :root {
   font-family: Inter, Avenir, Helvetica, Arial, sans-serif;

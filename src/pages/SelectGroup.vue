@@ -16,12 +16,12 @@
         </div>
       </div>
       <div class="flex-1 p-12 bg-white rounded-lg">
-        <div class="grid grid-cols-5 gap-2">
+        <div class="grid grid-cols-1 grid-cols-2 gap-x-2 gap-y-6 xl:grid-cols-5 lg:grid-cols-3 md:grid-cols-2">
           <div v-for="group in groups" 
             class="text-center">
             <template v-if="group.logo">
               <img :src="group.logo.path"
-                class="w-20 h-20 m-auto border border-gray-300 border-solid rounded-full cursor-pointer" />
+                class="w-24 h-24 m-auto border border-gray-300 border-solid rounded-full cursor-pointer min-w-[6rem] min-h-[6rem]" />
             </template>
             <div class="mt-2 text-base text-gray-500">
               {{ group.name }}
@@ -55,7 +55,7 @@ function getGroups() {
   }
 
   groupStore.getGroupQuery(variables).then((result) => {
-    groups.value = result.data.value?.group?.data || [];
+    groups.value = result.data.value?.groups?.data || [];
   });
 }
 
