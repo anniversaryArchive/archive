@@ -15,14 +15,17 @@
             v-model="searchText" @search="doSearch" />
         </div>
       </div>
-      <div class="flex-1 px-4 py-8 bg-white rounded-lg">
+      <div class="flex-1 p-12 bg-white rounded-lg">
         <div class="grid grid-cols-5 gap-2">
           <div v-for="group in groups" 
             class="text-center">
             <template v-if="group.logo">
-              <img :src="group.logo.path" class="rounded-full" />
+              <img :src="group.logo.path"
+                class="w-20 h-20 m-auto border border-gray-300 border-solid rounded-full cursor-pointer" />
             </template>
-            {{ group.name }}
+            <div class="mt-2 text-base text-gray-500">
+              {{ group.name }}
+            </div>
           </div>
         </div>
       </div>
