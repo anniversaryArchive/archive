@@ -77,3 +77,9 @@ export interface CommonGrdProps extends GridOptions {
     //   [key: string]: ColDef;
     // },
 }
+
+export interface ComboBoxModel {
+    id: string;
+    name: string;
+    unavailable: boolean;
+}

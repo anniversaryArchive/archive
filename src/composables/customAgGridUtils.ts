@@ -45,3 +45,23 @@ export function PhoneNumFormatter(params: ValueFormatterParams) {
     }
     return params.value;
 }
+
+// YYYY-MM-DD
+export function DateFormatter(params: ValueFormatterParams) {
+    let result = params.value;
+    if (!params.value) {
+        result = '-';
+    } else {
+        // ex) 2021-02-22 14:22:46
+        if (params.value.length >= 19) {
+            if (params.value.charAt(4) === '-' && params.value.charAt(7) === '-') {
+                result = params.value.substring(0, 10);
+            }
+        }
+        // ex) 20200709
+        if (params.value.length === 8) {
+            result = params.value.substring(0, 4) + '-' + params.value.substring(4, 6) + '-' + params.value.substring(6, 8);
+        }
+    }
+    return result;
+}
