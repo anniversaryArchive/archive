@@ -5,13 +5,18 @@
     <q-card class="my-card" style="width: 25%; float: left;">
       <div class="search-box">
         <h1 class="search-text">멤버 선택</h1>
-        <select-box id="artist" v-model='artistList' v-bind='selectBoxOptions.artist' style="width: 100%;"
+        <select-box id="artist" v-model='artistsSchParams.artist' v-bind='selectBoxOptions.artist' style="width: 100%;"
                     :multiplied='false'
                     use-chips/>
         <h1 class="search-text">기간 선택</h1>
         <com-period-date-picker v-model='artistsSchParams'
                                 :clearable="true" :disabled='false' :readonly='false'
                                 beginDeNm="schBeginDe" endDeNm="schEndDe"/>
+
+        <div class="btn-box">
+          <q-btn type="button" class="" @click="resetFunc"> 초기화 </q-btn>
+          <q-btn type="button" class="search-btn" @click="searchBtnFunc"> 검색 </q-btn>
+        </div>
       </div>
 
       <q-list>
@@ -53,6 +58,7 @@ import ccobject from '@/composables/createComObject';
 import {useArtistStore} from '@/stores/artist';
 import cscript from '@/composables/comScripts';
 import {ArchiveSearchParams} from '@/types/Archive';
+import {ToSaveData} from '@/types/CommonTypes';
 
 export default defineComponent({
   name        : 'cafeMap',
@@ -60,8 +66,6 @@ export default defineComponent({
   mixins: [mixinPageCommon],
   setup(){
     // 아티스트 멀티 셀렉트박스 배열 변수
-    const artistList = ref([] as string[]);
-    const artistListOrgData = ref([] as string[]);
     const {selectBoxOptions: selectBoxOptions} = ccobject.$createSelectAll(['artist']);
     const {schParams: artistsSchParams} = ccobject.$createSchParams<ArchiveSearchParams>();
 
@@ -104,6 +108,7 @@ export default defineComponent({
     });
 
     const initialize = () => {
+      // 임시 그룹 데이터
       const filterData = {
         "flds": {
           "group" : "63e589617df4af219e0401c5"
@@ -114,7 +119,6 @@ export default defineComponent({
 
     watch(() => artistStore.artists, async () => {
       const artistList = JSON.parse(JSON.stringify(artistStore.artists));
-      console.log('artistList : ', artistStore.artists);
 
       selectBoxOptions.value.artist = {
         name     : 'artistStatusOptions',
@@ -122,7 +126,49 @@ export default defineComponent({
         style    : 'width: 250px',
       };
       selectBoxOptions.value.artist.data = await cscript.$getComboOptions(artistList);
+
+      //초기값 셋팅
+      artistsSchParams.value.artist = selectBoxOptions.value.artist.data[0].value;
     });
+
+    // 필수 입력 항목 체크
+    async function isMstValid() {
+      if (cscript.$isEmpty(artistsSchParams.value.artist)) {
+        alert('아티스트 선택은 필수입니다.');
+        return false;
+      }
+      return true;
+    }
+
+    // 아카이브 검색
+    async function searchBtnFunc() {
+      // 검색 조건 확인
+      if (!await isMstValid()) {
+        return;
+      }
+
+      // 검색 데이터 생성
+      const toSaveData = Object.assign({} as ToSaveData, artistsSchParams.value);
+      console.log('toSaveData : ', toSaveData);
+    }
+
+    function resetFunc() {
+      const msg = '초기화 하시겠습니까?';
+      if (!confirm(msg)) {
+        return;
+      }
+
+      console.log('artistsSchParams.value : ', artistsSchParams.value);
+
+      // 검색폼 / 카페 목록 초기화
+      artistsSchParams.value = {
+        artist    : selectBoxOptions.value.artist.data[0].value,
+        schBeginDe: '',
+        schEndDe  : ''
+      } as ArchiveSearchParams;
+
+      console.log('artistsSchParams.value : ', artistsSchParams.value);
+    }
 
     return {
       marker,
@@ -132,9 +178,10 @@ export default defineComponent({
       isOpen,
       onLoadMarker,
       onLoadInfoWindow,
-      artistList,
       selectBoxOptions,
-      artistsSchParams
+      artistsSchParams,
+      searchBtnFunc,
+      resetFunc
     }
   }
 });
@@ -157,6 +204,7 @@ export default defineComponent({
   }
 
   .search-text {
+    padding-top : 15px;
     font-weight: 400;
     font-size: 16px;
     line-height: 30px;
@@ -180,6 +228,19 @@ export default defineComponent({
     font-size: 14px;
     line-height: 25px;
     color: #767676;
+  }
+
+  .btn-box {
+    padding-top : 15px;
+  }
+
+  .btn-box button {
+    border: 1px solid #CCCCCC;
+    border-radius: 5px;
+  }
+
+  .search-btn {
+    float: right;
   }
 
 </style>

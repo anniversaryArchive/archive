@@ -101,7 +101,7 @@ export default defineComponent({
 
 <style scoped>
 .inp_date {
-  width: 135px;
+  width: 45%;
   position: relative;
   display: inline-block;
   vertical-align: middle;
@@ -117,7 +117,7 @@ export default defineComponent({
   height: auto;
 }
 .inp_date + .inp_date {
-  margin-left: 30px;
+  margin-left: 34px;
 }
 .inp_date + .inp_date:after {
   content: "~";

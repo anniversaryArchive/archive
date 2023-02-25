@@ -19,8 +19,9 @@ export interface Archive {
 }
 
 export interface ArchiveSearchParams extends CommonSch {
+  artist    : string;
   schBeginDe: string;
-  schEndDe: string;
+  schEndDe  : string;
 }
 
 const ArchiveType: { [key: string]: string } = {
