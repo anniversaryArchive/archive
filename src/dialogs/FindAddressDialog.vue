@@ -17,7 +17,7 @@ const props = withDefaults(defineProps<Props>(), { });
 const emit = defineEmits(['done', 'close']);
 
 function onCompleteAddress (result: VueDaumPostcodeCompleteResult) {
-  emit('done', result);
+  emit('done', result.address);
 }
 
 function closeDialog () {

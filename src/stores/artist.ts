@@ -1,7 +1,7 @@
-import { computed, ComputedRef } from 'vue';
+import { computed } from 'vue';
 import { defineStore } from 'pinia';
-import { QueryExecutionOpts } from 'villus';
 import { Artist } from '@/types/Artist';
+import { WatchQuery } from '@/types/CommonTypes';
 import { query, mutate } from '@/composables/graphqlUtils';
 
 // @ts-ignore
@@ -13,18 +13,8 @@ import patchArtist from '@/graphql/patchArtist.mutate.gql';
 // @ts-ignore
 import removeArtist from '@/graphql/removeArtist.mutate.gql';
 
-interface FetchFunc {
-  (overrideOpts?: Partial<QueryExecutionOpts<any>>): Promise<any>
-}
-
-interface WatchQuery {
-  list: ComputedRef<Artist[]>;
-  total: ComputedRef<number>;
-  fetch: FetchFunc;
-}
-
 interface ArtistState {
-  data?: WatchQuery;
+  data?: WatchQuery<Artist>;
 }
 
 export const useArtistStore = defineStore({
@@ -45,6 +35,10 @@ export const useArtistStore = defineStore({
           fetch: execute,
         };
       });
+    },
+
+    getArtistsQuery (variables: Record<string, any> = {}) {
+      return query(getArtists, variables, false);
     },
 
     async createArtist(input: Record<string, any>): Promise<string | undefined> {

@@ -1,5 +1,7 @@
 import {GridOptions} from '@ag-grid-community/core';
 import {AllCommunityModules} from '@ag-grid-community/all-modules';
+import { QueryExecutionOpts } from 'villus';
+import { ComputedRef } from 'vue';
 
 export interface CommonSelect {
     label: string;
@@ -82,4 +84,14 @@ export interface ComboBoxModel {
     id: string;
     name: string;
     unavailable: boolean;
+}
+
+export interface FetchFunc {
+    (overrideOpts?: Partial<QueryExecutionOpts<any>>): Promise<any>
+}
+
+export interface WatchQuery<T> {
+    list: ComputedRef<T[]>;
+    total: ComputedRef<number>;
+    fetch: FetchFunc;
 }
