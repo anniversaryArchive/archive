@@ -13,10 +13,6 @@
 
         <tbody>
           <!-- 필수 -->
-          <!-- TODO: 
-            필수 : 카페 이름, 테마 명, 주소(위도, 경도), 주최자, 카페 시작일, 종료일, 메인 이미지, 아티스트 -->
-
-          <!-- 영업 시작 시간, 종료 시간, 이미지 리스트, 전화번호, 대표 링크 -->
           <tr>
             <th>카페 이름</th>
             <td colspan="3">
@@ -118,7 +114,21 @@
             </td>
           </tr>
 
-          <!-- TODO: 이미지 리스트 -->
+          <tr>
+            <th>관련 이미지들</th>
+            <td colspan="3" class="border rounded boder-gray-300">
+              <ImageSlide v-model="inputArchive.images" />
+
+              <input type="file" class="hidden"
+                accept=".jpg, .png, image/*"
+                id="inputImages" @change="onChangeImage" />
+
+              <div class="text-right">
+                <button class="px-4 py-1 text-white rounded bg-primary"
+                  @click="onClickAddImage">이미지 추가</button>
+              </div>
+            </td>
+          </tr>
 
           <tr>
             <th>전화번호</th>
@@ -167,6 +177,7 @@
 import { ref, Ref, computed, ComputedRef, watch, onBeforeMount } from 'vue';
 import axios from 'axios';
 import moment from 'moment';
+import { convertFile } from '@/composables/fileUtils';
 
 // Types
 import { ComboBoxModel } from '@/types/CommonTypes';
@@ -189,6 +200,7 @@ import caggrid, { DateFormatter } from '@/composables/customAgGridUtils';
 import { LayoutPageTitle, DatePicker, SelectBox, AgGridVue } from '../mixin/mixinPageCommon';
 import ComboBox from '@/components/common/comboBox.vue';
 import TimePicker from '@/components/common/timePicker.vue';
+import ImageSlide from '@/components/common/imageSlide.vue';
 
 // Dialogs
 import FindAddressDialog from '@/dialogs/FindAddressDialog.vue';
@@ -325,12 +337,14 @@ async function checkDiffData(): Promise<boolean> {
   // 이미지가 변경됐는 지 확인 
   const imageDiff = (inputArchive.value.mainImage?._id || inputArchive.value.mainImage?.name) !== (inputArchiveOrg.value.mainImage?._id || inputArchiveOrg.value.mainImage?.name);
 
-  // TODO: 이미지 리스트가 변경되었는 지 확인
+  const images = inputArchive.value.images.map(image => image.path);
+  const orgIamges = inputArchiveOrg.value.images.map(image => image.path);
+  const imagesDiff: boolean = JSON.stringify(images) !== JSON.stringify(orgIamges);
 
   // inputArchive 데이터가 변경되었는 지
   let dataDiff: boolean = false;
   try {
-    const xcptKeyLists: string[] = ['mainImage', 'artist', 'imageList', 'openTime', 'closeTime'];
+    const xcptKeyLists: string[] = ['mainImage', 'artist', 'images', 'openTime', 'closeTime'];
     const compResult = await cscript.$compareDatas<Archive>(inputArchive.value, inputArchiveOrg.value, xcptKeyLists);
     dataDiff = compResult.length != 0;
   } catch (_) {}
@@ -344,7 +358,7 @@ async function checkDiffData(): Promise<boolean> {
     }
   }
 
-  return dataDiff || artistDiff || imageDiff || timeDiff;
+  return dataDiff || artistDiff || imageDiff || imagesDiff || timeDiff;
 }
 
 // 필수 입력 항목 체크 - 생일, 이미지, 이름
@@ -422,12 +436,16 @@ async function getInput(): Record<string, any> | undefined {
   }
 
   try {
-    const success: boolean = await uploadFile();
+    let success: boolean = await uploadFile();
     if (!success) { return undefined; }
-  } catch (_) {
+    success = await uploadImages();
+    if (!success) { return undefined; }
+  } catch (error) {
+    console.error(error);
     return undefined;
   } finally {
     input.mainImage = inputArchive.value.mainImage?._id;
+    input.images = inputArchive.value.images.map((image) => image._id);
   }
   delete input._id;
   
@@ -490,6 +508,23 @@ const onRejected = () => {
  * 파일 관련 로직
  * =================================
  */
+function onClickAddImage (): void {
+  document.getElementById('inputImages')?.click();
+}
+
+function onChangeImage (event) {
+  if (!event.target.files || !event.target.files[0]) { return; }
+  const file = event.target.files[0];
+  convertFile(file).then((result) => {
+    const image = result.file || file;
+    inputArchive.value.images.push({
+      file: image,
+      path: result.path,
+      name: image.name,
+    });
+    inputArchive.value.images = [...inputArchive.value.images];
+  });
+}
 
 function uploadFile(): Promise<boolean> {
   if (!inputArchive.value.mainImage || inputArchive.value.mainImage._id) { return true; }
@@ -504,6 +539,29 @@ function uploadFile(): Promise<boolean> {
       return rejolve(true);
     }).catch((error) => reject(error));
   });
+}
+
+async function uploadImages(): Promise<boolean> {
+  const promises = [];
+  for (let index = 0; index < inputArchive.value.images.length; index ++) {
+    const image = inputArchive.value.images[index];
+    if (image._id) { continue; }
+    const formData: FormData = new FormData();
+    formData.append('file', image.file);
+    promises.push(axios.post(`http://localhost:3000/file`, formData, {}).then((response) => {
+      const data = response.data?.data && response.data.data;
+      if (!data) { return false; }
+      inputArchive.value.images[index] = data;
+      return true;
+    }));
+  }
+
+  if (!promises.length) { return true; }
+  try {
+    const results = await Promise.all(promises);
+    return !results.some((result) => !result);
+  } catch (error) { console.error(error); }
+  return false;
 }
 
 /**
