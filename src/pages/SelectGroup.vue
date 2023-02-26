@@ -50,7 +50,7 @@ onBeforeMount(() => {
 function getGroups() {
   const variables: Record<string, any> = { filter: {} };
   if (searchText.value) {
-    variables.filter.fields = ['name'];
+    variables.filter.fields = ['name', 'englishName'];
     variables.filter.q = searchText.value;
   }
 
