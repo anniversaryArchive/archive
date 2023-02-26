@@ -241,7 +241,7 @@ async function getArtists () {
 
 function setInputArchive(value: Archive) {
   value.mainImage = value.mainImage;
-  for (const key of ['debutDate', 'birthDay']) {
+  for (const key of ['startDate', 'endDate']) {
     if (value[key]) { 
       value[key] = moment(value[key]).format('YYYY.MM.DD');
     }
@@ -330,12 +330,21 @@ async function checkDiffData(): Promise<boolean> {
   // inputArchive 데이터가 변경되었는 지
   let dataDiff: boolean = false;
   try {
-    const xcptKeyLists: string[] = ['mainImage', 'artist', 'imageList'];
+    const xcptKeyLists: string[] = ['mainImage', 'artist', 'imageList', 'openTime', 'closeTime'];
     const compResult = await cscript.$compareDatas<Archive>(inputArchive.value, inputArchiveOrg.value, xcptKeyLists);
     dataDiff = compResult.length != 0;
   } catch (_) {}
 
-  return dataDiff || artistDiff || imageDiff;
+  // openTime, closeTime
+  let timeDiff = false;
+  for (const key of ['openTime', 'closeTime']) {
+    if (JSON.stringify(inputArchive.value[key] || {}) !== JSON.stringify(inputArchiveOrg.value[key] || {})) {
+      timeDiff = true;
+      break;
+    }
+  }
+
+  return dataDiff || artistDiff || imageDiff || timeDiff;
 }
 
 // 필수 입력 항목 체크 - 생일, 이미지, 이름
@@ -390,8 +399,6 @@ async function onClickSaveBtn() {
     }
   } catch (error) { console.error(error); }
 
-  console.log('success : ', success);
-
   if (!success) {
     alert('오류가 발생했습니다!');
     return;
@@ -409,7 +416,7 @@ async function onClickSaveBtn() {
 async function getInput(): Record<string, any> | undefined {
   const input = Object.assign({}, inputArchive.value);
   input.artist = archiveArtist.value?.id;
-  for (const field of ['birthDay', 'debutDate']) {
+  for (const field of ['startDate', 'endDate']) {
     if (!input[field]) { continue; }
     input[field] = new Date(input[field]);
   }
@@ -431,10 +438,8 @@ async function getInput(): Record<string, any> | undefined {
 async function createArchive(): Promise<boolean> {
   try {
     const input = await getInput();
-    console.log('input : ', input);
     if (!input) { return false; }
     const id: string | undefined = await archiveStroe.createArchive(input);
-    console.log('create : ', id);
     lastActionId.value = id;
     return id && true;
     return true;
@@ -552,7 +557,7 @@ function initGrid () {
     { headerName: 'No', valueGetter: 'node.rowIndex + 1', width: 60, sortable: true },
     ... gridFields.map((field) => {
       const def = { headerName: field.text, field: field.key, width: 150, cellStyle : {textAlign: 'left'}, flex: 1 };
-      if (field.key === 'birthDay' || field.key === 'debutDate') {
+      if (field.key === 'startDate' || field.key === 'endDate') {
         def.valueFormatter = DateFormatter;
       }
       return def;

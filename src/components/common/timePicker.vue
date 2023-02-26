@@ -11,14 +11,13 @@
     <select v-model="time.minute" name="minutes"
       class="mr-4 text-xl bg-transparent outline-none appearance-none"
       @select="onChangeTime">
-      <option value="0">00</option>
-      <option value="30">30</option>
+      <option v-for="minute in minutes" :value="minute">{{minute}}</option>
     </select>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, Ref, watch, onBeforeMount } from 'vue';
+import { ref, Ref, watch, onBeforeMount, computed, ComputedRef } from 'vue';
 
 interface Time {
   hour: number;
@@ -32,6 +31,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), { });
 const emit = defineEmits(['update:modelValue']);
 
+const minutes: ComputedRef<number[]> = computed(() => [0, 30]);
 const time: Ref<Time | undefined> = ref();
 
 onBeforeMount(() => {

@@ -40,9 +40,7 @@ export const useArchiveStore = defineStore({
     async createArchive (input: Record<string ,any>): Promise<string | undefined> {
       try {
         const { data, error } = await mutate(createArchive, { input });
-        console.log('data : ', data);
         const id: string | undefined = data?.archive?._id;
-        console.log('id : ', id);
         if (id) { this.data?.fetch(); }
         return id;
       } catch (error) { console.error(error); }

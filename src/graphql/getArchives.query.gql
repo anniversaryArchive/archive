@@ -17,6 +17,10 @@ query ($page: Int, $perPage: Int, $filter: FilterOption) {
       }
       startDate
       endDate
+      artist {
+        _id
+        name
+      }
       mainImage {
         _id
         name
