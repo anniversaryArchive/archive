@@ -48,6 +48,9 @@ export const useGroupStore = defineStore({
         };
       });
     },
+    getGroupQuery (variables: Record<string, any>) {
+      return query(getGroups, variables);
+    },
 
     getGroupsQuery() {
       return new Promise((resolve, reject) => {

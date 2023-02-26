@@ -1,0 +1,15 @@
+query ($filter: FilterOption) {
+  group: GroupPagination (filter: $filter) {
+    data {
+      _id
+      name
+      debutDate
+      englishName
+      logo {
+        _id
+        path
+      }
+    }
+    total
+  }
+}
