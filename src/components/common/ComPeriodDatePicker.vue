@@ -1,4 +1,10 @@
 <template>
+  <div class="date-btn">
+    <q-btn flat @click="setToday">오늘</q-btn>
+    <q-btn flat @click="setWeek" class="btn-center">7일</q-btn>
+    <q-btn flat @click="setMonth">1개월</q-btn>
+  </div>
+
   <div class="date-period">
     <date-picker :id='beginDeNm' :ref='el => { divs[beginDeNm] = el }'
                      v-model='theModel[beginDeNm]' :clearable='clearable' :disabled='disabled'
@@ -6,11 +12,6 @@
     <date-picker :id='endDeNm' :ref='el => { divs[endDeNm] = el }'
                      v-model='theModel[endDeNm]' :clearable='clearable' :disabled='disabled'
                      :readonly="readonly"/>
-    <!--
-    <q-btn flat @click="setToday">오늘</q-btn>
-    <q-btn flat @click="setWeek">7일</q-btn>
-    <q-btn flat @click="setMonth">1개월</q-btn>
-    -->
   </div>
 </template>
 <script lang="ts">
@@ -62,22 +63,22 @@ export default defineComponent({
       ((divs.value[refDeNm] as { inputRef: HTMLInputElement }).inputRef).focus();
     }
 
-    // 오늘~오늘로 날짜 셋팅
+    // 오늘 날짜 셋팅
     function setToday() {
       getData.value[props.beginDeNm] = moment(new Date()).format('YYYYMMDD');
       getData.value[props.endDeNm] = moment(new Date()).format('YYYYMMDD');
     }
 
-    // 일주일전 ~ 오늘로 날짜 셋팅
+    // 오늘 ~ 일주일 후로 날짜 셋팅
     function setWeek() {
-      getData.value[props.beginDeNm] = moment(new Date()).subtract(7, 'days').add(1, 'days').format('YYYYMMDD');
-      getData.value[props.endDeNm] = moment(new Date()).format('YYYYMMDD');
+      getData.value[props.endDeNm] = moment(new Date()).subtract(1, 'days').add(7, 'days').format('YYYYMMDD');
+      getData.value[props.beginDeNm] = moment(new Date()).format('YYYYMMDD');
     }
 
-    // 한달전 ~ 오늘로 날짜 셋팅
+    // 오늘 ~ 한달 후로 날짜 셋팅
     function setMonth() {
-      getData.value[props.beginDeNm] = moment(new Date()).subtract(1, 'months').add(1, 'days').format('YYYYMMDD');
-      getData.value[props.endDeNm] = moment(new Date()).format('YYYYMMDD');
+      getData.value[props.endDeNm] = moment(new Date()).subtract(1, 'days').add(1, 'months').format('YYYYMMDD');
+      getData.value[props.beginDeNm] = moment(new Date()).format('YYYYMMDD');
     }
 
     return {
@@ -93,7 +94,15 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.date-period button {
+.date-period {
+  padding-top: 10px;
+}
+
+.date-btn button {
+  border: 1px solid #CCCCCC;
+  border-radius: 5px;
+  /*
+  text-align: center;
   border        : none;
   padding       : 0 15px;
   border-radius : 3px;
@@ -101,16 +110,20 @@ export default defineComponent({
   background    : rgba(79, 190, 159, 0.2);
   min-height    : 1em;
   transition    : all .3s ease-in-out;
-  margin-left   : 5px;
   color         : #424242 !important;
+  */
 }
 
-.date-period button:hover {
-  background : #4fbe9f;
+.date-btn .btn-center {
+  margin: 0 5px;
+}
+
+.date-btn button:hover {
+  background : #4285F4;
   color      : #fff !important;
 }
 
-.date-period button .q-icon {
+.date-btn button .q-icon {
   font-size : 1.1em;
 }
 </style>
