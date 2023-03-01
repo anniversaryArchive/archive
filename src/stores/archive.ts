@@ -18,25 +18,25 @@ interface WatchQuery {
   fetch: FetchFunc;
 }
 
-interface GroupState {
+interface ArchiveState {
   data?: WatchQuery;
 }
 
 export const useArchiveStore = defineStore({
   id: 'archive',
-  state : (): GroupState => ({ data: undefined }),
+  state : (): ArchiveState => ({ data: undefined }),
   getters: {
-    groups (): Archive[] { return this.data?.list || [] },
+    Archives(): Archive[] { return this.data?.list || [] },
     total (): number { return this.data?.total || 0 },
   },
   actions: {
-    getArchives () {
-      query(getArchives, {}, false).then(({ data, error, execute }) => {
+    getArchives (filterData? : object) {
+      query(getArchives, { filter: filterData }, false).then(({ data, error, execute }) => {
         this.data = {
           list: computed(() => {
-            return data.value?.archive?.data || [];
+            return data.value?.Archives.data || [];
           }),
-          total: computed(() => { return data.value?.groups?.total || 0; }),
+          total: computed(() => { return data.value?.Archives?.total || 0; }),
           fetch: execute,
         };
       });

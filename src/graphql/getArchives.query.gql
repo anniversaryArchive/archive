@@ -1,0 +1,14 @@
+query ($page: Int, $perPage: Int, $filter: FilterOption) {
+  Archives: ArchivePagination (page: $page, perPage: $perPage, filter: $filter) {
+    data {
+      _id
+      themeName
+      name
+      address
+      organizer
+      lat
+      lng
+    }
+    total
+  }
+}

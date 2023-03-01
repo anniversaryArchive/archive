@@ -5,11 +5,11 @@
     <q-card class="my-card" style="width: 25%; float: left;">
       <div class="search-box">
         <h1 class="search-text">멤버 선택</h1>
-        <select-box id="artist" v-model='artistsSchParams.artist' v-bind='selectBoxOptions.artist' style="width: 100%;"
+        <select-box id="artist" v-model='archiveSchParams.artist' v-bind='selectBoxOptions.artist' style="width: 100%;"
                     :multiplied='false'
                     use-chips/>
         <h1 class="search-text">기간 선택</h1>
-        <com-period-date-picker v-model='artistsSchParams'
+        <com-period-date-picker v-model='archiveSchParams'
                                 :clearable="true" :disabled='false' :readonly='false'
                                 beginDeNm="schBeginDe" endDeNm="schEndDe"/>
 
@@ -19,12 +19,12 @@
         </div>
       </div>
 
-      <q-list>
-        <q-item clickable>
+      <q-list v-if="archiveParams">
+        <q-item v-for="(archive) in archiveParams" v-bind:key="archiveParams" class="archive-item" clickable>
           <q-item-section>
-            <q-item-label class="archive-title">[형원] 나의 하루는 오늘도 너에게</q-item-label>
-            <q-item-label class="archive-account">@with_my_H</q-item-label>
-            <q-item-label class="archive-address"> 서울 마포구 어울마당로5길 25 1층</q-item-label>
+            <q-item-label class="archive-title">{{archive.themeName}}</q-item-label>
+            <q-item-label class="archive-account">{{archive.organizer}}</q-item-label>
+            <q-item-label class="archive-address">{{archive.address}}</q-item-label>
           </q-item-section>
         </q-item>
       </q-list>
@@ -57,8 +57,10 @@ import LayoutHeader from '@/layouts/LayoutHeader.vue';
 import ccobject from '@/composables/createComObject';
 import {useArtistStore} from '@/stores/artist';
 import cscript from '@/composables/comScripts';
-import {ArchiveSearchParams} from '@/types/Archive';
-import {ToSaveData} from '@/types/CommonTypes';
+import {Archive, ArchiveSearchParams} from '@/types/Archive';
+import {useArchiveStore} from '@/stores/archive';
+import moment from 'moment/moment';
+import _ from 'lodash';
 
 export default defineComponent({
   name        : 'cafeMap',
@@ -67,7 +69,9 @@ export default defineComponent({
   setup(){
     // 아티스트 멀티 셀렉트박스 배열 변수
     const {selectBoxOptions: selectBoxOptions} = ccobject.$createSelectAll(['artist']);
-    const {schParams: artistsSchParams} = ccobject.$createSchParams<ArchiveSearchParams>();
+    const {schParams: archiveSchParams} = ccobject.$createSchParams<ArchiveSearchParams>();
+
+    const archiveParams = ref({} as Archive);
 
     const map = ref();
     const mapOptions = {
@@ -102,6 +106,7 @@ export default defineComponent({
     };
 
     const artistStore = useArtistStore();
+    const archiveStore = useArchiveStore();
 
     onBeforeMount(() => {
       initialize();
@@ -115,6 +120,7 @@ export default defineComponent({
         }
       }
       artistStore.getArtists(filterData);
+      archiveStore.getArchives();
     }
 
     watch(() => artistStore.artists, async () => {
@@ -128,12 +134,16 @@ export default defineComponent({
       selectBoxOptions.value.artist.data = await cscript.$getComboOptions(artistList);
 
       //초기값 셋팅
-      artistsSchParams.value.artist = selectBoxOptions.value.artist.data[0].value;
+      archiveSchParams.value.artist = selectBoxOptions.value.artist.data[0].value;
+    });
+
+    watch(() => archiveStore.Archives, async () => {
+      // 카페 목록 초기화 및 재할당
     });
 
     // 필수 입력 항목 체크
     async function isMstValid() {
-      if (cscript.$isEmpty(artistsSchParams.value.artist)) {
+      if (cscript.$isEmpty(archiveSchParams.value.artist)) {
         alert('아티스트 선택은 필수입니다.');
         return false;
       }
@@ -148,8 +158,20 @@ export default defineComponent({
       }
 
       // 검색 데이터 생성
-      const toSaveData = Object.assign({} as ToSaveData, artistsSchParams.value);
-      console.log('toSaveData : ', toSaveData);
+      const filterData = {
+        "flds": {
+          "artist" : "63fae6ba92f11faaa75ca5f4", //artistsSchParams.value.artist,
+          "startDate" : archiveSchParams.value.schBeginDe ? moment(archiveSchParams.value.schBeginDe).format('YYYY-MM-DD') : "",
+          "endDate" : archiveSchParams.value.schEndDe ? moment(archiveSchParams.value.schEndDe).format('YYYY-MM-DD') : "",
+        }
+      }
+
+      // console.log('filterData : ', filterData);
+      archiveStore.getArchives(filterData);
+      const archiveList = JSON.parse(JSON.stringify(archiveStore.Archives));
+
+      archiveParams.value = _.cloneDeep(archiveList);
+      console.log('archiveParams : ', archiveParams.value);
     }
 
     function resetFunc() {
@@ -158,16 +180,16 @@ export default defineComponent({
         return;
       }
 
-      console.log('artistsSchParams.value : ', artistsSchParams.value);
+      console.log('artistsSchParams.value : ', archiveSchParams.value);
 
       // 검색폼 / 카페 목록 초기화
-      artistsSchParams.value = {
+      archiveSchParams.value = {
         artist    : selectBoxOptions.value.artist.data[0].value,
         schBeginDe: '',
         schEndDe  : ''
       } as ArchiveSearchParams;
 
-      console.log('artistsSchParams.value : ', artistsSchParams.value);
+      console.log('artistsSchParams.value : ', archiveSchParams.value);
     }
 
     return {
@@ -179,7 +201,8 @@ export default defineComponent({
       onLoadMarker,
       onLoadInfoWindow,
       selectBoxOptions,
-      artistsSchParams,
+      archiveSchParams,
+      archiveParams,
       searchBtnFunc,
       resetFunc
     }
@@ -208,6 +231,10 @@ export default defineComponent({
     font-weight: 400;
     font-size: 16px;
     line-height: 30px;
+  }
+
+  .archive-item {
+    border-bottom: 1px solid #CCCCCC;
   }
 
   .archive-title {
