@@ -4,7 +4,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     meta: {title: 'Home'},
     path: '/',
-    component: () => import('@/pages/Home.vue'),
+    component: () => import('@/pages/SelectGroup.vue'),
   },
   {
     meta: {title: 'cafeMap'},
