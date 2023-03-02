@@ -22,6 +22,6 @@ createApp(App)
   .use(createNaverMap, {
     clientId: VITE_CLIENTID,
     category: "ncp",
-    subModules: ["drawing"], // Optional, "panorama" | "geocoder" | "drawing" | "visualization"
+    subModules: ["drawing", "geocoder"], // Optional, "panorama" | "geocoder" | "drawing" | "visualization"
   })
   .mount('#app');

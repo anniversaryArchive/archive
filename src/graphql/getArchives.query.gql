@@ -5,6 +5,7 @@ query ($page: Int, $perPage: Int, $filter: FilterOption) {
       name
       themeName
       address
+      detailAddress
       lat
       lng
       openTime {

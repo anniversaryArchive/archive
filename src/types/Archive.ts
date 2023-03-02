@@ -4,6 +4,7 @@ export interface Archive {
   name: string;           // 카페 이름
   themeName: string;      // 카페 테마 명
   address: string;        // 주소
+  detailAddress?: string; // 상세 주소
   lat: number;            // 위도
   lng: number;            // 경도
   organizer: string;      // 주최자
@@ -21,6 +22,7 @@ export const ArchiveType: Record<string, string> = {
   name: 'string',
   themeName: 'string',
   address: 'string',
+  detailAddress: 'string',
   lat: 'number',
   lng: 'number',
   organizer: 'string',

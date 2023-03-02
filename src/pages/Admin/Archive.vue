@@ -39,6 +39,13 @@
           </tr>
 
           <tr>
+            <th>카페 상세 주소</th>
+            <td colspan="3">
+              <q-input :ref='el => { refs["detailAddress"] = el }' v-model="inputArchive.detailAddress" :dense="true" maxlength="100" outlined/>
+            </td>
+          </tr>
+
+          <tr>
             <th>주최자(트위터 아이디)</th>
             <td colspan="3">
               <q-input :ref='el => { refs["organizer"] = el }' v-model="inputArchive.organizer"
@@ -426,6 +433,18 @@ async function onClickSaveBtn() {
   alert('저장 완료했습니다!');
 }
 
+function getLatLng(): Promise<Record<string, number>> {
+  return new Promise((resolve, reject) => {
+    naver.maps.Service.geocode({
+      query: inputArchive.value.address
+    }, function (status, response) {
+      const data = response.v2.addresses[0];
+      const { x, y } = data;
+      resolve({ lng: Number(x), lat: Number(y) });
+    });
+  });
+}
+
 // 생성 / 수정 시 mutation에 넘길 input을 만들어서 반환하는 함수
 async function getInput(): Record<string, any> | undefined {
   const input = Object.assign({}, inputArchive.value);
@@ -448,7 +467,14 @@ async function getInput(): Record<string, any> | undefined {
     input.images = inputArchive.value.images.map((image) => image._id);
   }
   delete input._id;
-  
+
+  if (inputArchive.value.address !== inputArchiveOrg.value.address) {
+    try {
+      const { lat, lng } = await getLatLng();
+      input.lat = inputArchive.lat = lat;
+      input.lng = inputArchive.lng = lng;
+    } catch (_) {}
+  }
   return input;
 }
 
