@@ -19,6 +19,12 @@
         </div>
       </div>
 
+      <div class="list-order">
+        <q-select class="order-select" v-model="orderData" :options="orderOptions"
+                  @update:model-value="orderSelectChange()"
+                  borderless style="width: 50%"></q-select>
+      </div>
+
       <q-list v-if="archiveParams">
         <q-item v-for="(archive) in archiveParams" v-bind:key="archiveParams" class="archive-item" clickable>
           <q-item-section>
@@ -62,6 +68,7 @@ import {useArchiveStore} from '@/stores/archive';
 import moment from 'moment/moment';
 import _ from 'lodash';
 
+
 export default defineComponent({
   name        : 'cafeMap',
   components: { LayoutHeader, NaverMap, NaverMarker, NaverInfoWindow },
@@ -90,6 +97,19 @@ export default defineComponent({
       "ENGLISH",
     ];
 
+    const orderOptions = [{
+      "label" : "최신순",
+      "value" : "newest"
+    },{
+      "label" : "오래된순",
+      "value" : "oldest"
+    }];
+
+    const orderData = ref({
+      "label" : "최신순",
+      "value" : "newest"
+    });
+
     const marker = ref();
     const infoWindow = ref();
     const isOpen = ref(true); // false: 안보임, true: 보임
@@ -114,12 +134,20 @@ export default defineComponent({
 
     const initialize = () => {
       // 임시 그룹 데이터
-      const filterData = {
+      const artistFilterData = {
         "flds": {
           "group" : "63e589617df4af219e0401c5"
         }
       }
-      artistStore.getArtists(filterData);
+      artistStore.getArtists(artistFilterData);
+
+      /*const archiveFilterData = {
+        "flds": {
+          "artist" : "63fae6ba92f11faaa75ca5f4", //artistsSchParams.value.artist,
+          "startDate" : archiveSchParams.value.schBeginDe ? moment(archiveSchParams.value.schBeginDe).format('YYYY-MM-DD') : "",
+          "endDate" : archiveSchParams.value.schEndDe ? moment(archiveSchParams.value.schEndDe).format('YYYY-MM-DD') : "",
+        }
+      }*/
       archiveStore.getArchives();
     }
 
@@ -139,6 +167,7 @@ export default defineComponent({
 
     watch(() => archiveStore.Archives, async () => {
       // 카페 목록 초기화 및 재할당
+      // archiveParams.value = _.cloneDeep(archiveStore.Archives);
     });
 
     // 필수 입력 항목 체크
@@ -166,12 +195,38 @@ export default defineComponent({
         }
       }
 
-      // console.log('filterData : ', filterData);
       archiveStore.getArchives(filterData);
-      const archiveList = JSON.parse(JSON.stringify(archiveStore.Archives));
+      // console.log('archiveStore.Archives : ', archiveStore.Archives);
+      let archiveList = JSON.parse(JSON.stringify(archiveStore.Archives));
+
+      // orderData 확인
+      archiveList = orderDataFunc(archiveList, orderData.value.value);
 
       archiveParams.value = _.cloneDeep(archiveList);
-      console.log('archiveParams : ', archiveParams.value);
+    }
+
+    function orderDataFunc(list: any, key: string) {
+      switch (key) {
+        case 'newest': return descOrdSortDate(list);
+        case 'oldest': return ascOrdSortDate(list);
+        default: return list;
+      }
+    }
+
+    // 오름차순
+    function ascOrdSortDate(list : any) {
+      const sorted_list = list.sort(function(a: { startDate: string | number | Date; }, b: { startDate: string | number | Date; }) {
+        return new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
+      });
+      return sorted_list;
+    }
+
+    // 내림차순
+    function descOrdSortDate(list : any) {
+      const sorted_list = list.sort(function(a: { startDate: string | number | Date; }, b: { startDate: string | number | Date; }) {
+        return new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
+      }).reverse();
+      return sorted_list;
     }
 
     function resetFunc() {
@@ -180,16 +235,15 @@ export default defineComponent({
         return;
       }
 
-      console.log('artistsSchParams.value : ', archiveSchParams.value);
+      archiveParams.value = {} as Archive;
+    }
 
-      // 검색폼 / 카페 목록 초기화
-      archiveSchParams.value = {
-        artist    : selectBoxOptions.value.artist.data[0].value,
-        schBeginDe: '',
-        schEndDe  : ''
-      } as ArchiveSearchParams;
+    function orderSelectChange() {
+      if(!cscript.$isEmpty(archiveParams.value)){
+        const changeData = orderDataFunc(archiveParams.value, orderData.value.value);
+        archiveParams.value = _.cloneDeep(changeData);
+      }
 
-      console.log('artistsSchParams.value : ', archiveSchParams.value);
     }
 
     return {
@@ -204,7 +258,10 @@ export default defineComponent({
       archiveSchParams,
       archiveParams,
       searchBtnFunc,
-      resetFunc
+      resetFunc,
+      orderOptions,
+      orderData,
+      orderSelectChange
     }
   }
 });
@@ -223,6 +280,11 @@ export default defineComponent({
 
   .search-box {
     padding: 15px;
+    border-bottom: 1px solid #CCCCCC;
+  }
+
+  .list-order {
+    padding-left: 15px;
     border-bottom: 1px solid #CCCCCC;
   }
 
