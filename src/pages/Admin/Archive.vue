@@ -29,7 +29,7 @@
 
           <tr>
             <th>주소</th>
-            <td colspan="2" class="text-left">
+            <td colspan="2" class="pl-2 text-sm text-left">
               {{ inputArchive.address }}
             </td>
             <td class="text-right">

@@ -56,7 +56,6 @@ import {
   ComboboxOption,
   TransitionRoot,
 } from '@headlessui/vue';
-import { CheckIcon, ChevronUpDownIcon } from '@heroicons/vue/20/solid';
 import { ComboBoxModel } from '@/types/CommonTypes';
 
 interface Props {
