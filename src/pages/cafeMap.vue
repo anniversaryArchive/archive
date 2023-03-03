@@ -34,6 +34,15 @@
           </q-item-section>
         </q-item>
       </q-list>
+
+      <div v-if="paginationData.maxCnt" class="q-pa-lg flex flex-center">
+        <q-pagination
+            v-model="paginationData.current"
+            :max="paginationData.maxCnt"
+            @update:model-value="paginationChange()"
+            direction-links
+        />
+      </div>
     </q-card>
 
     <naver-map style="width: 75%; height: 100vh; float: right;" :mapOptions="mapOptions">
@@ -57,7 +66,7 @@
 
 <script lang="ts">
 import {defineComponent, onBeforeMount, ref, watch} from 'vue';
-import { NaverMap, NaverMarker, NaverInfoWindow } from "vue3-naver-maps";
+import {NaverInfoWindow, NaverMap, NaverMarker} from 'vue3-naver-maps';
 import mixinPageCommon from '@/pages/mixin/mixinPageCommon';
 import LayoutHeader from '@/layouts/LayoutHeader.vue';
 import ccobject from '@/composables/createComObject';
@@ -65,8 +74,8 @@ import {useArtistStore} from '@/stores/artist';
 import cscript from '@/composables/comScripts';
 import {Archive, ArchiveSearchParams} from '@/types/Archive';
 import {useArchiveStore} from '@/stores/archive';
-import moment from 'moment/moment';
 import _ from 'lodash';
+import {Pagination} from '@/types/CommonTypes';
 
 
 export default defineComponent({
@@ -110,6 +119,11 @@ export default defineComponent({
       "value" : "newest"
     });
 
+    const paginationData = ref({
+      current: 1,
+      perPage: 1
+    } as Pagination);
+
     const marker = ref();
     const infoWindow = ref();
     const isOpen = ref(true); // false: 안보임, true: 보임
@@ -140,14 +154,6 @@ export default defineComponent({
         }
       }
       artistStore.getArtists(artistFilterData);
-
-      /*const archiveFilterData = {
-        "flds": {
-          "artist" : "63fae6ba92f11faaa75ca5f4", //artistsSchParams.value.artist,
-          "startDate" : archiveSchParams.value.schBeginDe ? moment(archiveSchParams.value.schBeginDe).format('YYYY-MM-DD') : "",
-          "endDate" : archiveSchParams.value.schEndDe ? moment(archiveSchParams.value.schEndDe).format('YYYY-MM-DD') : "",
-        }
-      }*/
       archiveStore.getArchives();
     }
 
@@ -162,12 +168,21 @@ export default defineComponent({
       selectBoxOptions.value.artist.data = await cscript.$getComboOptions(artistList);
 
       //초기값 셋팅
-      archiveSchParams.value.artist = selectBoxOptions.value.artist.data[0].value;
+      archiveSchParams.value.artist = null;
     });
 
     watch(() => archiveStore.Archives, async () => {
-      // 카페 목록 초기화 및 재할당
-      // archiveParams.value = _.cloneDeep(archiveStore.Archives);
+      // 카페 목록 초기화 및 검색 버튼 이후에 할당
+      console.log(archiveSchParams.value.artist);
+      if(!cscript.$isEmpty(archiveSchParams.value.artist)){
+        let archiveList = JSON.parse(JSON.stringify(archiveStore.Archives));
+        // orderData 확인
+        archiveList = orderDataFunc(archiveList, orderData.value.value);
+        archiveParams.value = _.cloneDeep(archiveList);
+
+        // 페이지네이션 설정
+        paginationData.value.maxCnt =archiveStore.total / paginationData.value.perPage;
+      }
     });
 
     // 필수 입력 항목 체크
@@ -186,23 +201,20 @@ export default defineComponent({
         return;
       }
 
+      searchData();
+    }
+
+    function searchData() {
       // 검색 데이터 생성
       const filterData = {
         "flds": {
           "artist" : "63fae6ba92f11faaa75ca5f4", //artistsSchParams.value.artist,
-          "startDate" : archiveSchParams.value.schBeginDe ? moment(archiveSchParams.value.schBeginDe).format('YYYY-MM-DD') : "",
-          "endDate" : archiveSchParams.value.schEndDe ? moment(archiveSchParams.value.schEndDe).format('YYYY-MM-DD') : "",
+          // "startDate" : archiveSchParams.value.schBeginDe ? moment(archiveSchParams.value.schBeginDe).format('YYYY-MM-DD') : "",
+          // "endDate" : archiveSchParams.value.schEndDe ? moment(archiveSchParams.value.schEndDe).format('YYYY-MM-DD') : "",
         }
       }
 
-      archiveStore.getArchives(filterData);
-      // console.log('archiveStore.Archives : ', archiveStore.Archives);
-      let archiveList = JSON.parse(JSON.stringify(archiveStore.Archives));
-
-      // orderData 확인
-      archiveList = orderDataFunc(archiveList, orderData.value.value);
-
-      archiveParams.value = _.cloneDeep(archiveList);
+      archiveStore.getArchives(paginationData.value.current-1, paginationData.value.perPage, filterData);
     }
 
     function orderDataFunc(list: any, key: string) {
@@ -215,18 +227,16 @@ export default defineComponent({
 
     // 오름차순
     function ascOrdSortDate(list : any) {
-      const sorted_list = list.sort(function(a: { startDate: string | number | Date; }, b: { startDate: string | number | Date; }) {
+      return list.sort(function (a: { startDate: string | number | Date; }, b: { startDate: string | number | Date; }) {
         return new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
       });
-      return sorted_list;
     }
 
     // 내림차순
     function descOrdSortDate(list : any) {
-      const sorted_list = list.sort(function(a: { startDate: string | number | Date; }, b: { startDate: string | number | Date; }) {
+      return list.sort(function (a: { startDate: string | number | Date; }, b: { startDate: string | number | Date; }) {
         return new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
       }).reverse();
-      return sorted_list;
     }
 
     function resetFunc() {
@@ -235,6 +245,11 @@ export default defineComponent({
         return;
       }
 
+      // 검색 조건
+      archiveSchParams.value = {
+        artist: null,
+      } as ArchiveSearchParams;
+      // 카페 목록
       archiveParams.value = {} as Archive;
     }
 
@@ -244,6 +259,10 @@ export default defineComponent({
         archiveParams.value = _.cloneDeep(changeData);
       }
 
+    }
+
+    function paginationChange() {
+      searchData();
     }
 
     return {
@@ -261,7 +280,9 @@ export default defineComponent({
       resetFunc,
       orderOptions,
       orderData,
-      orderSelectChange
+      orderSelectChange,
+      paginationData,
+      paginationChange
     }
   }
 });

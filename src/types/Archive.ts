@@ -19,7 +19,7 @@ export interface Archive {
 }
 
 export interface ArchiveSearchParams extends CommonSch {
-  artist    : string;
+  artist    : string | null;
   schBeginDe: string;
   schEndDe  : string;
 }

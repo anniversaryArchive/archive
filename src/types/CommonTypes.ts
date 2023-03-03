@@ -87,3 +87,9 @@ export interface ComboBoxModel {
     name: string;
     unavailable: boolean;
 }
+
+export interface Pagination {
+    current: number,
+    maxCnt: number,
+    perPage: number,
+}
