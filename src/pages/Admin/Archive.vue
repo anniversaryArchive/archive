@@ -1,6 +1,10 @@
 <template>
-  <div class="px-4 py-6 text-center">
+  <div class="relative px-4 py-6 text-center">
     <LayoutPageTitle :fnCallFunc="fnCallFunc" />
+
+    <div v-if="isLoading" class="absolute top-0 left-0 z-20 flex w-full h-screen text-center bg-black/30">
+      <q-spinner color="primary" size="3em" class="m-auto" />
+    </div>
 
     <div class='form_table'>
       <table>
@@ -245,6 +249,8 @@ watch(() => archiveStroe.archives, () => {
   grdApi.value.setFocusedCell(rowIndex, grdMstKey.value);
 });
 
+const isLoading: Ref<boolean> = ref(false);
+
 // Archive Input Box 관련 변수
 const refs: Ref<string, any> = ref({});
 const inputArchive: Ref<Archive> = ref(cinitial.$inItData('', ArchiveType) as Archive);
@@ -434,6 +440,7 @@ async function onClickSaveBtn() {
   // 필수값 모두 입력됐는지 확인
   if (!isMstValid()) { return; }
 
+  isLoading.value = true;
   let result: string | boolean = false;
   try {
     if (inputArchive.value._id) {
@@ -443,6 +450,7 @@ async function onClickSaveBtn() {
     }
   } catch (error) { console.error(error); }
 
+  isLoading.value = false;
   if (result !== true) {
     alert(result || '오류가 발생했습니다!');
     return;
