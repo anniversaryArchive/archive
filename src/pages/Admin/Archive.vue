@@ -434,17 +434,17 @@ async function onClickSaveBtn() {
   // 필수값 모두 입력됐는지 확인
   if (!isMstValid()) { return; }
 
-  let success: boolean = false;
+  let result: string | boolean = false;
   try {
     if (inputArchive.value._id) {
-      success = await updateArchive();
+      result = await updateArchive();
     } else {
-      success = await createArchive();
+      result = await createArchive();
     }
   } catch (error) { console.error(error); }
 
-  if (!success) {
-    alert('오류가 발생했습니다!');
+  if (result !== true) {
+    alert(result || '오류가 발생했습니다!');
     return;
   }
 
@@ -507,14 +507,20 @@ async function getInput(): Record<string, any> | undefined {
 }
 
 // 새로운 아티스트 생성
-async function createArchive(): Promise<boolean> {
+async function createArchive(): Promise<boolean | string> {
   try {
     const input = await getInput();
     if (!input) { return false; }
-    const id: string | undefined = await archiveStroe.createArchive(input);
-    lastActionId.value = id;
-    return id && true;
-    return true;
+    const result = await archiveStroe.createArchive(input);
+    if (result) {
+      const { id, error } = result;
+      lastActionId.value = id;
+      const code: number | undefined = error?.graphqlErrors && error?.graphqlErrors[0]?.extensions?.code;
+      switch (code) {
+        case 1002: return '그룹 혹은 아티스트를 넣어주셔야 합니다.';
+      }
+      return id && true;
+    }
   } catch (error) { console.error(error); }
   return false;
 }

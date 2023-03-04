@@ -3,6 +3,7 @@ import { computed } from 'vue';
 import { WatchQuery } from '@/types/CommonTypes';
 import { Archive } from '@/types/Archive'
 import { query, mutate } from '@/composables/graphqlUtils';
+import { CombinedError } from 'villus';
 
 // @ts-ignore
 import getArchives from '@/graphql/getArchives.query.gql';
@@ -37,12 +38,12 @@ export const useArchiveStore = defineStore({
         };
       });
     },
-    async createArchive (input: Record<string ,any>): Promise<string | undefined> {
+    async createArchive (input: Record<string ,any>): Promise<{ id?: string, error: CombinedError | null } | undefined> {
       try {
         const { data, error } = await mutate(createArchive, { input });
         const id: string | undefined = data?.archive?._id;
         if (id) { this.data?.fetch(); }
-        return id;
+        return { id, error };
       } catch (error) { console.error(error); }
       return;
     },
