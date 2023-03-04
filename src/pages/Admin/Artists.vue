@@ -151,8 +151,8 @@ onBeforeMount(() => {
 
 async function getGroups() {
   try {
-    const data = await groupStore.getGroupsQuery();
-    groups.value = (data.groups.data || []).map((group) => {
+    const result = await groupStore.getGroupsQuery();
+    groups.value = (result.data.value.groups.data || []).map((group) => {
       return { id: group._id, name: group.name, unavailable: false } as ComboBoxModel;
     });
   } catch (error) {

@@ -54,7 +54,7 @@ function getGroups() {
     variables.filter.q = searchText.value;
   }
 
-  groupStore.getGroupQuery(variables).then((result) => {
+  groupStore.getGroupsQuery(variables).then((result) => {
     groups.value = result.data.value?.groups?.data || [];
   });
 }

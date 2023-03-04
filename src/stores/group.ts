@@ -48,16 +48,8 @@ export const useGroupStore = defineStore({
         };
       });
     },
-    getGroupQuery (variables: Record<string, any>) {
+    getGroupsQuery (variables: Record<string, any>) {
       return query(getGroups, variables);
-    },
-
-    getGroupsQuery() {
-      return new Promise((resolve, reject) => {
-        useQuery({ query: getGroups }).then(({ data }) => {
-          resolve(data.value);
-        }).catch((error) => reject(error));
-      });
     },
 
     async removeGroup(id: string): Promise<boolean> {
