@@ -5,13 +5,9 @@ import {mutate, query} from '@/composables/graphqlUtils';
 import {computed, ComputedRef} from 'vue';
 import {ToSaveData} from '@/types/CommonTypes';
 
-// @ts-ignore
 import getGroups from '@/graphql/getGroups.query.gql';
-// @ts-ignore
 import removeGroup from '@/graphql/removeGroup.mutate.gql';
-// @ts-ignore
 import createGroup from '@/graphql/createGroup.mutate.gql';
-// @ts-ignore
 import updateGroup from '@/graphql/updateGroup.mutate.gql';
 
 

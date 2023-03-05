@@ -5,13 +5,9 @@ import { Archive } from '@/types/Archive'
 import { query, mutate } from '@/composables/graphqlUtils';
 import { CombinedError } from 'villus';
 
-// @ts-ignore
 import getArchives from '@/graphql/getArchives.query.gql';
-// @ts-ignore
 import createArchive from '@/graphql/createArchive.mutate.gql';
-// @ts-ignore
 import patchArchive from '@/graphql/patchArchive.mutate.gql';
-// @ts-ignore
 import removeArchive from '@/graphql/removeArchive.mutate.gql';
 
 

@@ -4,13 +4,9 @@ import { Artist } from '@/types/Artist';
 import { WatchQuery } from '@/types/CommonTypes';
 import { query, mutate } from '@/composables/graphqlUtils';
 
-// @ts-ignore
 import getArtists from '@/graphql/getArtists.query.gql';
-// @ts-ignore
 import createArtist from '@/graphql/createArtist.mutate.gql';
-// @ts-ignore
 import patchArtist from '@/graphql/patchArtist.mutate.gql';
-// @ts-ignore
 import removeArtist from '@/graphql/removeArtist.mutate.gql';
 
 interface ArtistState {
