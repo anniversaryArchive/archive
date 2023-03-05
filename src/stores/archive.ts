@@ -7,7 +7,7 @@ import { CombinedError } from 'villus';
 
 import getArchives from '@/graphql/getArchives.query.gql';
 import createArchive from '@/graphql/createArchive.mutate.gql';
-import patchArchive from '@/graphql/patchArchive.mutate.gql';
+import updateArchive from '@/graphql/updateArchive.mutate.gql';
 import removeArchive from '@/graphql/removeArchive.mutate.gql';
 
 
@@ -46,7 +46,7 @@ export const useArchiveStore = defineStore({
 
     async updateArchive (id: string, input: Record<string, any>): Promise<boolean> {
       try {
-        const { data, error } = await mutate(patchArchive, { id, input });
+        const { data, error } = await mutate(updateArchive, { id, input });
         const success: boolean = data?.success || false;
         if (success) { this.data?.fetch(); }
         return success;

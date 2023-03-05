@@ -1,0 +1,3 @@
+mutation ($id: ID!, $input: updateArchiveInput!) {
+  success: updateArchive (id: $id, input: $input)
+}
