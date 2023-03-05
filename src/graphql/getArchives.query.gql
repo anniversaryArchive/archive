@@ -8,7 +8,6 @@ query ($page: Int, $perPage: Int, $filter: FilterOption) {
       organizer
       lat
       lng
-      startDate
     }
     total
   }

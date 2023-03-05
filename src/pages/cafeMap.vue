@@ -46,20 +46,22 @@
     </q-card>
 
     <naver-map style="width: 75%; height: 100vh; float: right;" :mapOptions="mapOptions">
-      <naver-marker
+<!--      <naver-marker
+          v-if="markerData"
           @click="isOpen = !isOpen"
           :latitude="37.51347"
           :longitude="127.041722"
           @onLoad="onLoadMarker($event)"
       >
       </naver-marker>
+
       <naver-info-window
           :marker="marker"
           :open="isOpen"
           @onLoad="onLoadInfoWindow($event)"
       >
         <div class="infowindow-style">click Marker!😎</div>
-      </naver-info-window>
+      </naver-info-window>-->
     </naver-map>
   </div>
 </template>
@@ -79,10 +81,10 @@ import {Pagination} from '@/types/CommonTypes';
 
 
 export default defineComponent({
-  name        : 'cafeMap',
-  components: { LayoutHeader, NaverMap, NaverMarker, NaverInfoWindow },
-  mixins: [mixinPageCommon],
-  setup(){
+  name      : 'cafeMap',
+  components: {LayoutHeader, NaverMap, NaverMarker, NaverInfoWindow},
+  mixins    : [mixinPageCommon],
+  setup() {
     // 아티스트 멀티 셀렉트박스 배열 변수
     const {selectBoxOptions: selectBoxOptions} = ccobject.$createSelectAll(['artist']);
     const {schParams: archiveSchParams} = ccobject.$createSchParams<ArchiveSearchParams>();
@@ -90,47 +92,50 @@ export default defineComponent({
     const archiveParams = ref({} as Archive);
 
     const map = ref();
+    const markerData = ref({} as Archive);
     const mapOptions = {
-      latitude: 37.51347, // 지도 중앙 위도
-      longitude: 127.041722, // 지도 중앙 경도
-      zoom: 13,
-      zoomControl: false,
-      zoomControlOptions: { position: "TOP_RIGHT" },
+      latitude          : 37.51347, // 지도 중앙 위도
+      longitude         : 127.041722, // 지도 중앙 경도
+      zoom              : 13,
+      zoomControl       : false,
+      zoomControlOptions: {position: 'TOP_RIGHT'},
     };
 
     const initLayers = [
-      "BACKGROUND",
-      "BACKGROUND_DETAIL",
-      "POI_KOREAN",
-      "TRANSIT",
-      "ENGLISH",
+      'BACKGROUND',
+      'BACKGROUND_DETAIL',
+      'POI_KOREAN',
+      'TRANSIT',
+      'ENGLISH',
     ];
 
     const orderOptions = [{
-      "label" : "최신순",
-      "value" : "newest"
-    },{
-      "label" : "오래된순",
-      "value" : "oldest"
+      'label': '최신순',
+      'value': 'newest',
+    }, {
+      'label': '오래된순',
+      'value': 'oldest',
     }];
 
     const orderData = ref({
-      "label" : "최신순",
-      "value" : "newest"
+      'label': '최신순',
+      'value': 'newest',
     });
 
     const paginationData = ref({
       current: 1,
-      perPage: 1
+      perPage: 1,
     } as Pagination);
 
-    const marker = ref();
+    const marker = ref([] as unknown);
     const infoWindow = ref();
     const isOpen = ref(true); // false: 안보임, true: 보임
 
     const onLoadMarker = (markerObject: unknown) => {
+      // console.log('markerObject : ', markerObject);
       marker.value = markerObject;
     };
+
     const onLoadInfoWindow = (infoWindowObject: unknown) => {
       infoWindow.value = infoWindowObject;
     };
@@ -149,13 +154,13 @@ export default defineComponent({
     const initialize = () => {
       // 임시 그룹 데이터
       const artistFilterData = {
-        "flds": {
-          "group" : "63e589617df4af219e0401c5"
-        }
-      }
+        'flds': {
+          'group': '63e589617df4af219e0401c5',
+        },
+      };
       artistStore.getArtists(artistFilterData);
       archiveStore.getArchives();
-    }
+    };
 
     watch(() => artistStore.artists, async () => {
       const artistList = JSON.parse(JSON.stringify(artistStore.artists));
@@ -173,17 +178,55 @@ export default defineComponent({
 
     watch(() => archiveStore.Archives, async () => {
       // 카페 목록 초기화 및 검색 버튼 이후에 할당
-      console.log(archiveSchParams.value.artist);
-      if(!cscript.$isEmpty(archiveSchParams.value.artist)){
-        let archiveList = JSON.parse(JSON.stringify(archiveStore.Archives));
-        // orderData 확인
-        archiveList = orderDataFunc(archiveList, orderData.value.value);
-        archiveParams.value = _.cloneDeep(archiveList);
+      if (!cscript.$isEmpty(archiveSchParams.value.artist)) {
 
-        // 페이지네이션 설정
-        paginationData.value.maxCnt =archiveStore.total / paginationData.value.perPage;
       }
+
+      let archiveList = JSON.parse(JSON.stringify(archiveStore.Archives));
+
+      // orderData 확인
+      archiveList = orderDataFunc(archiveList, orderData.value.value);
+      archiveParams.value = _.cloneDeep(archiveList);
+
+      // 페이지네이션 설정
+      paginationData.value.maxCnt = archiveStore.total / paginationData.value.perPage;
+
+      // 지도 마커 생성
+      markerData.value = _.cloneDeep(archiveList);
+
+      let markerList: unknown[] = [];
+      Object.entries(markerData.value).forEach(([, val]) => {
+        const markerJson = JSON.parse(JSON.stringify(val));
+        const latlng = new naver.maps.LatLng(markerJson.lat, markerJson.lng);
+        let markerOptions = new naver.maps.Marker({
+          position : latlng,
+          draggable: true,
+        });
+        markerList.push(markerOptions);
+      });
+
+      // 마커 데이터 생성
+      console.log('watch markerList : ', markerList);
+      // 실제 화면에 붙이는 방법은?
+      updateMarkers(markerList);
     });
+
+    function updateMarkers(markers: string | any[]) {
+      // console.log('updateMarkers : ', mapTest);
+      // var mapBounds = mapTest.getBounds();
+      var marker, position;
+
+      for (var i = 0; i < markers.length; i++) {
+        marker = markers[i]
+        position = marker.getPosition();
+
+        /*if (mapBounds.hasLatLng(position)) {
+          showMarker(map, marker);
+        } else {
+          hideMarker(map, marker);
+        }*/
+      }
+    }
 
     // 필수 입력 항목 체크
     async function isMstValid() {
@@ -200,7 +243,6 @@ export default defineComponent({
       if (!await isMstValid()) {
         return;
       }
-
       searchData();
     }
 
@@ -258,7 +300,6 @@ export default defineComponent({
         const changeData = orderDataFunc(archiveParams.value, orderData.value.value);
         archiveParams.value = _.cloneDeep(changeData);
       }
-
     }
 
     function paginationChange() {
@@ -271,6 +312,7 @@ export default defineComponent({
       initLayers,
       onLoadMap,
       isOpen,
+      markerData,
       onLoadMarker,
       onLoadInfoWindow,
       selectBoxOptions,
