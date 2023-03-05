@@ -1,3 +1,0 @@
-mutation ($id: ID!, $input: patchArchiveInput!) {
-  success: patchArchive (id: $id, input: $input)
-}

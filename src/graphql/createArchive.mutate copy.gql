@@ -1,5 +1,0 @@
-mutation ($input: createArchiveInput!) {
-  archive: createArchive (input: $input) {
-    _id
-  }
-}
