@@ -361,10 +361,6 @@ async function deleteSelectedArtist () {
 const onRejected = () => {
 }
 
-function onChangeGroup(event: ComboBoxModel) {
-  artistGroup.value = event;
-}
-
 /**
  * =================================
  * 파일 관련 로직
