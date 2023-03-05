@@ -5,13 +5,9 @@ import {mutate, query} from '@/composables/graphqlUtils';
 import {computed, ComputedRef} from 'vue';
 import {ToSaveData} from '@/types/CommonTypes';
 
-// @ts-ignore
 import getGroups from '@/graphql/getGroups.query.gql';
-// @ts-ignore
 import removeGroup from '@/graphql/removeGroup.mutate.gql';
-// @ts-ignore
 import createGroup from '@/graphql/createGroup.mutate.gql';
-// @ts-ignore
 import updateGroup from '@/graphql/updateGroup.mutate.gql';
 
 
@@ -48,16 +44,8 @@ export const useGroupStore = defineStore({
         };
       });
     },
-    getGroupQuery (variables: Record<string, any>) {
+    getGroupsQuery (variables: Record<string, any>) {
       return query(getGroups, variables);
-    },
-
-    getGroupsQuery() {
-      return new Promise((resolve, reject) => {
-        useQuery({ query: getGroups }).then(({ data }) => {
-          resolve(data.value);
-        }).catch((error) => reject(error));
-      });
     },
 
     async removeGroup(id: string): Promise<boolean> {

@@ -1,6 +1,10 @@
 <template>
-  <div class="px-4 py-6 text-center">
+  <div class="relative px-4 py-6 text-center">
     <LayoutPageTitle :fnCallFunc="fnCallFunc" />
+
+    <div v-if="isLoading" class="absolute top-0 left-0 z-20 flex w-full h-screen text-center bg-black/30">
+      <q-spinner color="primary" size="3em" class="m-auto" />
+    </div>
 
     <div class='form_table'>
       <table>
@@ -66,6 +70,13 @@
             <td colspan="3">
               <DatePicker :ref='el => { refs["endDate"] = el }' :id="inputArchive.endDate" 
                 v-model='inputArchive.endDate' :clearable='true' returnDataFormat="YYYY.MM.DD" />
+            </td>
+          </tr>
+
+          <tr>
+            <th>그룹</th>
+            <td colspan="3">
+              <ComboBox :options="groups" v-model="archiveGroup" />
             </td>
           </tr>
 
@@ -196,6 +207,7 @@ import { VueDaumPostcodeCompleteResult } from 'vue-daum-postcode';
 // Stores
 import { useArchiveStore } from '@/stores/archive';
 import { useArtistStore } from '@/stores/artist';
+import { useGroupStore } from '@/stores/group';
 
 // Composables
 import ccobject from '@/composables/createComObject';
@@ -221,6 +233,7 @@ const gridFields: { key: string, text: string }[] = [
 
 const archiveStroe = useArchiveStore();
 const artistStore = useArtistStore();
+const groupStore = useGroupStore();
 
 // Grid 관련 변수
 const { grdApi, grdMstKey, grdMstProps, onGridReady, onPaginationChanged } = initGrid();
@@ -236,10 +249,16 @@ watch(() => archiveStroe.archives, () => {
   grdApi.value.setFocusedCell(rowIndex, grdMstKey.value);
 });
 
+const isLoading: Ref<boolean> = ref(false);
+
 // Archive Input Box 관련 변수
 const refs: Ref<string, any> = ref({});
 const inputArchive: Ref<Archive> = ref(cinitial.$inItData('', ArchiveType) as Archive);
 const inputArchiveOrg: Ref<Archive> = ref(JSON.parse(JSON.stringify(inputArchive.value)));
+
+// Groups 관련 변수
+const groups: ref<ComboBoxModel[]> = ref([]);
+const archiveGroup: Ref<ComboBoxModel | undefined> = ref();
 
 // Artists 관련 변수
 const artists: ref<ComboBoxModel[]> = ref([]);
@@ -247,6 +266,7 @@ const archiveArtist: Ref<ComboBoxModel | undefined> = ref();
 
 onBeforeMount(() => {
   getArtists();
+  getGroups();
 });
 
 async function getArtists () {
@@ -254,6 +274,15 @@ async function getArtists () {
     const result = await artistStore.getArtistsQuery();
     artists.value = (result.data.value.artist.data || []).map((artist) => {
       return { id: artist._id, name: artist.name, unavailable: false } as ComboBoxModel;
+    });
+  } catch (error) { console.error(error); }
+}
+
+async function getGroups () {
+  try {
+    const result = await groupStore.getGroupsQuery();
+    groups.value = (result.data.value.groups.data || []).map((group) => {
+      return { id: group._id, name: group.name, unavailable: false } as ComboBoxModel;
     });
   } catch (error) { console.error(error); }
 }
@@ -269,6 +298,8 @@ function setInputArchive(value: Archive) {
   inputArchiveOrg.value = JSON.parse(JSON.stringify(inputArchive.value));
   const artistId: string | undefined = value.artist?._id;
   archiveArtist.value = artistId && artists.value.find(artist => artist.id === artistId);
+  const groupId: string | undefined = value.group?._id;
+  archiveGroup.value = groupId && groups.value.find(group => group.id === groupId);
 }
 
 /**
@@ -313,6 +344,7 @@ async function resetInputBox() {
     if (!checked) { return; }
   } catch (error) { console.error(error); }
 
+  archiveGroup.value = archiveArtist.value = undefined;
   setInputArchive(cinitial.$inItData('', ArchiveType) as Archive);
 
   // 그리드 선택 해제 (포커스 먹으려면 await)
@@ -341,6 +373,9 @@ async function checkDiffData(): Promise<boolean> {
   // 아티스트가 변경되었는 지 여부
   const artistDiff = archiveArtist.value?.id !== inputArchiveOrg.value.artist?._id;
 
+  // 그룹이 변경되었는 지 여부
+  const groupDiff = archiveGroup.value?.id !== inputArchiveOrg.value.group?._id;
+
   // 이미지가 변경됐는 지 확인 
   const imageDiff = (inputArchive.value.mainImage?._id || inputArchive.value.mainImage?.name) !== (inputArchiveOrg.value.mainImage?._id || inputArchiveOrg.value.mainImage?.name);
 
@@ -351,7 +386,7 @@ async function checkDiffData(): Promise<boolean> {
   // inputArchive 데이터가 변경되었는 지
   let dataDiff: boolean = false;
   try {
-    const xcptKeyLists: string[] = ['mainImage', 'artist', 'images', 'openTime', 'closeTime'];
+    const xcptKeyLists: string[] = ['mainImage', 'artist', 'group', 'images', 'openTime', 'closeTime'];
     const compResult = await cscript.$compareDatas<Archive>(inputArchive.value, inputArchiveOrg.value, xcptKeyLists);
     dataDiff = compResult.length != 0;
   } catch (_) {}
@@ -365,7 +400,7 @@ async function checkDiffData(): Promise<boolean> {
     }
   }
 
-  return dataDiff || artistDiff || imageDiff || imagesDiff || timeDiff;
+  return dataDiff || artistDiff || groupDiff || imageDiff || imagesDiff || timeDiff;
 }
 
 // 필수 입력 항목 체크 - 생일, 이미지, 이름
@@ -387,12 +422,6 @@ function isMstValid(): boolean {
       return false;
     }
   }
-
-  if (!archiveArtist.value) {
-    alert('아티스트는 필수입니다.');
-    return false;
-  }
-
   return true;
 }
 
@@ -411,17 +440,19 @@ async function onClickSaveBtn() {
   // 필수값 모두 입력됐는지 확인
   if (!isMstValid()) { return; }
 
-  let success: boolean = false;
+  isLoading.value = true;
+  let result: string | boolean = false;
   try {
     if (inputArchive.value._id) {
-      success = await updateArchive();
+      result = await updateArchive();
     } else {
-      success = await createArchive();
+      result = await createArchive();
     }
   } catch (error) { console.error(error); }
 
-  if (!success) {
-    alert('오류가 발생했습니다!');
+  isLoading.value = false;
+  if (result !== true) {
+    alert(result || '오류가 발생했습니다!');
     return;
   }
 
@@ -429,6 +460,10 @@ async function onClickSaveBtn() {
     const { id, name } = archiveArtist.value;
     inputArchive.value.artist = { _id: id, name };
   } else { inputArchive.value.artist = undefined; }
+  if (archiveGroup.value) {
+    const { id, name } = archiveGroup.value;
+    inputArchive.value.group = { _id: id, name };
+  } else { inputArchive.value.group = undefined; }
   setInputArchive(inputArchive.value);
   alert('저장 완료했습니다!');
 }
@@ -449,6 +484,7 @@ function getLatLng(): Promise<Record<string, number>> {
 async function getInput(): Record<string, any> | undefined {
   const input = Object.assign({}, inputArchive.value);
   input.artist = archiveArtist.value?.id;
+  input.group = archiveGroup.value?.id;
   for (const field of ['startDate', 'endDate']) {
     if (!input[field]) { continue; }
     input[field] = new Date(input[field]);
@@ -479,14 +515,20 @@ async function getInput(): Record<string, any> | undefined {
 }
 
 // 새로운 아티스트 생성
-async function createArchive(): Promise<boolean> {
+async function createArchive(): Promise<boolean | string> {
   try {
     const input = await getInput();
     if (!input) { return false; }
-    const id: string | undefined = await archiveStroe.createArchive(input);
-    lastActionId.value = id;
-    return id && true;
-    return true;
+    const result = await archiveStroe.createArchive(input);
+    if (result) {
+      const { id, error } = result;
+      lastActionId.value = id;
+      const code: number | undefined = error?.graphqlErrors && error?.graphqlErrors[0]?.extensions?.code;
+      switch (code) {
+        case 1002: return '그룹 혹은 아티스트를 넣어주셔야 합니다.';
+      }
+      return id && true;
+    }
   } catch (error) { console.error(error); }
   return false;
 }
