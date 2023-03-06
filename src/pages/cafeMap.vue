@@ -49,7 +49,7 @@
     <naver-map style="width: 75%; height: 100vh; float: right;" :mapOptions="mapOptions">
       <span v-if="markerData" v-for="(marker) in markerData" v-bind:key="markerData">
         <naver-marker
-            @click="isOpen = !isOpen"
+            @click="onLoadMarker(marker)"
             :latitude="marker.lat"
             :longitude="marker.lng"
         >
@@ -133,11 +133,17 @@ export default defineComponent({
     const isOpen = ref(true); // false: 안보임, true: 보임
 
     const onLoadMarker = (markerObject: Archive) => {
+      /*if(!cscript.$isEmpty(marker.value)){
+        isOpen.value = _.cloneDeep(!isOpen.value);
+      }*/
+
       const latlng = new naver.maps.LatLng(markerObject.lat, markerObject.lng);
       marker.value = new naver.maps.Marker({
         position : latlng,
         draggable: true,
       });
+
+      // 카페 목록 상세 가져오기
     };
 
     const onLoadInfoWindow = (infoWindowObject: unknown) => {
@@ -194,41 +200,8 @@ export default defineComponent({
 
         // 지도 마커 생성
         markerData.value = _.cloneDeep(archiveList);
-
-        /*let markerList: unknown[] = [];
-        Object.entries(markerData.value).forEach(([, val]) => {
-          const markerJson = JSON.parse(JSON.stringify(val));
-          const latlng = new naver.maps.LatLng(markerJson.lat, markerJson.lng);
-          let markerOptions = new naver.maps.Marker({
-            position : latlng,
-            draggable: true,
-          });
-          markerList.push(markerOptions);
-        });
-
-        // 마커 데이터 생성
-        console.log('watch markerList : ', markerList);
-        // 실제 화면에 붙이는 방법은?
-        updateMarkers(markerList);*/
       }
     });
-
-    /*function updateMarkers(markers: string | any[]) {
-      // console.log('updateMarkers : ', mapTest);
-      // var mapBounds = mapTest.getBounds();
-      var marker, position;
-
-      for (var i = 0; i < markers.length; i++) {
-        marker = markers[i]
-        position = marker.getPosition();
-
-        /!*if (mapBounds.hasLatLng(position)) {
-          showMarker(map, marker);
-        } else {
-          hideMarker(map, marker);
-        }*!/
-      }
-    }*/
 
     // 필수 입력 항목 체크
     async function isMstValid() {
