@@ -90,6 +90,6 @@ export interface ComboBoxModel {
 
 export interface Pagination {
     current: number,
-    maxCnt: number,
+    maxCnt: number | null,
     perPage: number,
 }

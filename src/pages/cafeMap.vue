@@ -61,7 +61,7 @@
           :open="isOpen"
           @onLoad="onLoadInfoWindow($event)"
       >
-        <q-list class="infowindow-style">
+        <div class="infowindow-style">
           <q-item class="archive-item">
             <q-item-section>
               <q-item-label class="archive-title">{{detailArchive.themeName}}</q-item-label>
@@ -70,9 +70,9 @@
               <q-item-label class="archive-address">{{detailArchive.address}}</q-item-label>
             </q-item-section>
           </q-item>
-        </q-list>
+        </div>
         <div class="infowindow-btn-box">
-          <q-btn type="button" class="detail-btn" @click="detailBtnFunc">상세보기</q-btn>
+          <q-btn type="button" class="detail-btn" @click="detailBtnFunc(detailArchive._id)">상세보기</q-btn>
         </div>
       </naver-info-window>
     </naver-map>
@@ -146,9 +146,10 @@ export default defineComponent({
     const isOpen = ref(true); // false: 안보임, true: 보임
 
     const onLoadMarker = (markerObject: Archive) => {
-      /*if(!cscript.$isEmpty(marker.value)){
+      // 정보창 닫혀있으면 열기
+      if(!cscript.$isEmpty(marker.value) && !isOpen.value){
         isOpen.value = _.cloneDeep(!isOpen.value);
-      }*/
+      }
 
       const latlng = new naver.maps.LatLng(markerObject.lat, markerObject.lng);
       marker.value = new naver.maps.Marker({
@@ -216,7 +217,6 @@ export default defineComponent({
 
         // 지도 마커 생성
         markerData.value = _.cloneDeep(archiveList);
-        console.log(markerData.value);
       }
     });
 
@@ -287,6 +287,12 @@ export default defineComponent({
       archiveParams.value = {} as Archive;
       // 마커
       markerData.value = {} as Archive;
+      // 정보창 열려있으면 닫기
+      if(!cscript.$isEmpty(marker.value) && isOpen.value){
+        isOpen.value = _.cloneDeep(!isOpen.value);
+      }
+      // 페이지네이션
+      paginationData.value.maxCnt = null;
     }
 
     function orderSelectChange() {
@@ -301,6 +307,10 @@ export default defineComponent({
     }
 
     function paginationChange() {
+      // 정보창 열려있으면 닫기
+      if(!cscript.$isEmpty(marker.value) && isOpen.value){
+        isOpen.value = _.cloneDeep(!isOpen.value);
+      }
       searchData();
     }
 
@@ -332,83 +342,87 @@ export default defineComponent({
 </script>
 
 <style>
-  .infowindow-style {
-    color: black;
-    background-color: white;
-    text-align: left;
-  }
+.infowindow-style {
+  color: black;
+  background-color: white;
+  text-align: left;
+}
 
-  .infowindow-btn-box {
-    text-align: center;
-    padding-bottom: 5px;
-  }
+.infowindow-btn-box {
+  text-align: center;
+  padding-bottom: 5px;
+}
 
-  .infowindow-btn-box button {
-    min-height: 1.5em;
-    font-size: 12px;
-    font-weight: 400;
-    color: #000000;
-  }
+.infowindow-btn-box button {
+  min-height: 1.5em;
+  font-size: 12px;
+  font-weight: 400;
+  color: #000000;
+}
 
-  .search-box {
-    padding: 15px;
-    border-bottom: 1px solid #CCCCCC;
-  }
+.search-box {
+  padding: 15px;
+  border-bottom: 1px solid #CCCCCC;
+}
 
-  .list-order {
-    padding-left: 15px;
-    border-bottom: 1px solid #CCCCCC;
-  }
+.list-order {
+  padding-left: 15px;
+  border-bottom: 1px solid #CCCCCC;
+}
 
-  .search-text {
-    padding-top : 15px;
-    font-weight: 400;
-    font-size: 16px;
-    line-height: 30px;
-  }
+.search-text {
+  padding-top : 15px;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 30px;
+}
 
-  .archive-item {
-    border-bottom: 1px solid #CCCCCC;
-  }
+.archive-item {
+  border-bottom: 1px solid #CCCCCC;
+}
 
-  .infowindow-style .archive-item {
-    border-bottom: 0;
-    padding: 16px 100px 16px 16px;
-  }
+.infowindow-style .archive-item {
+  border-bottom: 0;
+  padding: 16px;
+  width: 300px;
+}
 
-  .archive-title {
-    font-weight: 400;
-    font-size: 16px;
-    line-height: 30px;
-  }
+.archive-title {
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 30px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
 
-  .archive-account {
-    font-weight: 400;
-    font-size: 12px;
-    line-height: 22px;
-    color: #767676;
-  }
+.archive-account {
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 22px;
+  color: #767676;
+}
 
-  .archive-address {
-    font-weight: 400;
-    font-size: 14px;
-    line-height: 25px;
-    color: #767676;
-  }
+.archive-address {
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 25px;
+  color: #767676;
+}
 
-  .btn-box {
-    padding-top : 15px;
-  }
+.btn-box {
+  padding-top : 15px;
+}
 
-  .btn-box button,
-  .infowindow-btn-box button{
-    border: 1px solid #CCCCCC;
-    border-radius: 5px;
-    margin-bottom: 10px;
-  }
+.btn-box button,
+.infowindow-btn-box button{
+  border: 1px solid #CCCCCC;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
 
-  .search-btn {
-    float: right;
-  }
+.search-btn {
+  float: right;
+}
 
 </style>
