@@ -61,7 +61,19 @@
           :open="isOpen"
           @onLoad="onLoadInfoWindow($event)"
       >
-        <div class="infowindow-style">click Marker!😎</div>
+        <q-list class="infowindow-style">
+          <q-item class="archive-item">
+            <q-item-section>
+              <q-item-label class="archive-title">{{detailArchive.themeName}}</q-item-label>
+              <q-item-label class="archive-account">{{detailArchive.organizer}}</q-item-label>
+              <q-item-label class="archive-address">{{detailArchive.name}}</q-item-label>
+              <q-item-label class="archive-address">{{detailArchive.address}}</q-item-label>
+            </q-item-section>
+          </q-item>
+        </q-list>
+        <div class="infowindow-btn-box">
+          <q-btn type="button" class="detail-btn" @click="detailBtnFunc">상세보기</q-btn>
+        </div>
       </naver-info-window>
     </naver-map>
   </div>
@@ -91,6 +103,7 @@ export default defineComponent({
     const {schParams: archiveSchParams} = ccobject.$createSchParams<ArchiveSearchParams>();
 
     const archiveParams = ref({} as Archive);
+    const detailArchive = ref({} as Archive);
 
     const map = ref();
     const markerData = ref({} as Archive);
@@ -144,10 +157,13 @@ export default defineComponent({
       });
 
       // 카페 목록 상세 가져오기
+      detailArchive.value = _.cloneDeep(markerObject);
     };
 
     const onLoadInfoWindow = (infoWindowObject: unknown) => {
       infoWindow.value = infoWindowObject;
+      // infoWindow.value.borderColor = '#CCCCCC';
+      // infoWindow.value.DEFAULT_OPTIONS.borderColor = '#CCCCCC';
     };
 
     const onLoadMap = (mapObject: unknown) => {
@@ -200,6 +216,7 @@ export default defineComponent({
 
         // 지도 마커 생성
         markerData.value = _.cloneDeep(archiveList);
+        console.log(markerData.value);
       }
     });
 
@@ -225,7 +242,7 @@ export default defineComponent({
       // 검색 데이터 생성
       const filterData = {
         "flds": {
-          "artist" : "63fae6ba92f11faaa75ca5f4", //artistsSchParams.value.artist,
+          "artist" : archiveSchParams.value.artist,
           // "startDate" : archiveSchParams.value.schBeginDe ? moment(archiveSchParams.value.schBeginDe).format('YYYY-MM-DD') : "",
           // "endDate" : archiveSchParams.value.schEndDe ? moment(archiveSchParams.value.schEndDe).format('YYYY-MM-DD') : "",
         }
@@ -268,6 +285,8 @@ export default defineComponent({
       } as ArchiveSearchParams;
       // 카페 목록
       archiveParams.value = {} as Archive;
+      // 마커
+      markerData.value = {} as Archive;
     }
 
     function orderSelectChange() {
@@ -275,6 +294,10 @@ export default defineComponent({
         const changeData = orderDataFunc(archiveParams.value, orderData.value.value);
         archiveParams.value = _.cloneDeep(changeData);
       }
+    }
+
+    function detailBtnFunc() {
+      console.log('카페 상세 페이지 이동');
     }
 
     function paginationChange() {
@@ -288,6 +311,7 @@ export default defineComponent({
       onLoadMap,
       isOpen,
       markerData,
+      detailArchive,
       onLoadMarker,
       onLoadInfoWindow,
       selectBoxOptions,
@@ -299,7 +323,8 @@ export default defineComponent({
       orderData,
       orderSelectChange,
       paginationData,
-      paginationChange
+      paginationChange,
+      detailBtnFunc
     }
   }
 });
@@ -310,10 +335,19 @@ export default defineComponent({
   .infowindow-style {
     color: black;
     background-color: white;
+    text-align: left;
+  }
+
+  .infowindow-btn-box {
     text-align: center;
-    font-weight: 600;
-    font-size: 20px;
-    padding: 6px 8px;
+    padding-bottom: 5px;
+  }
+
+  .infowindow-btn-box button {
+    min-height: 1.5em;
+    font-size: 12px;
+    font-weight: 400;
+    color: #000000;
   }
 
   .search-box {
@@ -335,6 +369,11 @@ export default defineComponent({
 
   .archive-item {
     border-bottom: 1px solid #CCCCCC;
+  }
+
+  .infowindow-style .archive-item {
+    border-bottom: 0;
+    padding: 16px 100px 16px 16px;
   }
 
   .archive-title {
@@ -361,9 +400,11 @@ export default defineComponent({
     padding-top : 15px;
   }
 
-  .btn-box button {
+  .btn-box button,
+  .infowindow-btn-box button{
     border: 1px solid #CCCCCC;
     border-radius: 5px;
+    margin-bottom: 10px;
   }
 
   .search-btn {
