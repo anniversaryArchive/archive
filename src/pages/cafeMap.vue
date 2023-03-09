@@ -163,8 +163,6 @@ export default defineComponent({
 
     const onLoadInfoWindow = (infoWindowObject: unknown) => {
       infoWindow.value = infoWindowObject;
-      // infoWindow.value.borderColor = '#CCCCCC';
-      // infoWindow.value.DEFAULT_OPTIONS.borderColor = '#CCCCCC';
     };
 
     const onLoadMap = (mapObject: unknown) => {
