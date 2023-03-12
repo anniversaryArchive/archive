@@ -2,6 +2,7 @@ import { CommonSch } from '@/types/CommonTypes';
 import { Image } from './Image';
 
 export interface Archive {
+  _id: string,            // 카페 ID
   name: string;           // 카페 이름
   themeName: string;      // 카페 테마 명
   address: string;        // 주소
