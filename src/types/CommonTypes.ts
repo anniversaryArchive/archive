@@ -28,6 +28,10 @@ export interface CommonMapList {
     [p: string]: unknown;
 }
 
+export interface CommonSch {
+    schDateNm?: string;
+}
+
 export interface CommonCode extends CommonRowData {
     codeGroup: string,
     codeValue: string,
@@ -84,6 +88,12 @@ export interface ComboBoxModel {
     id: string;
     name: string;
     unavailable: boolean;
+}
+
+export interface Pagination {
+    current: number,
+    maxCnt: number | null,
+    perPage: number,
 }
 
 export interface FetchFunc {
