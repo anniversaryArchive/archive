@@ -1,32 +1,25 @@
 import { defineStore } from 'pinia';
-import { QueryExecutionOpts } from 'villus';
-import {Archive} from '@/types/Archive';
-import {query} from '@/composables/graphqlUtils';
-import {computed, ComputedRef} from 'vue';
+import { computed } from 'vue';
+import { WatchQuery } from '@/types/CommonTypes';
+import { Archive } from '@/types/Archive'
+import { query, mutate } from '@/composables/graphqlUtils';
+import { CombinedError } from 'villus';
 
-// @ts-ignore
 import getArchives from '@/graphql/getArchives.query.gql';
+import createArchive from '@/graphql/createArchive.mutate.gql';
+import updateArchive from '@/graphql/updateArchive.mutate.gql';
+import removeArchive from '@/graphql/removeArchive.mutate.gql';
 
-
-interface FetchFunc {
-  (overrideOpts?: Partial<QueryExecutionOpts<any>>): Promise<any>
-}
-
-interface WatchQuery {
-  list: Archive[];
-  total: ComputedRef<number>;
-  fetch: FetchFunc;
-}
 
 interface ArchiveState {
-  data?: WatchQuery;
+  data?: WatchQuery<Archive>;
 }
 
 export const useArchiveStore = defineStore({
   id: 'archive',
-  state : (): ArchiveState => ({ data: undefined }),
+  state: (): ArchiveState => ({ data: undefined }),
   getters: {
-    Archives(): Archive[] { return this.data?.list || [] },
+    archives (): Archive[] { return this.data?.list || [] },
     total (): number { return this.data?.total || 0 },
   },
   actions: {
@@ -38,12 +31,41 @@ export const useArchiveStore = defineStore({
       }, false).then(({ data, error, execute }) => {
         this.data = {
           list: computed(() => {
-            return data.value?.Archives.data || [];
+            return data.value?.archive?.data || [];
           }),
-          total: computed(() => { return data.value?.Archives?.total || 0; }),
+          total: computed(() => { return data.value?.archive?.total || 0; }),
           fetch: execute,
         };
       });
+    },
+    async createArchive (input: Record<string ,any>): Promise<{ id?: string, error: CombinedError | null } | undefined> {
+      try {
+        const { data, error } = await mutate(createArchive, { input });
+        const id: string | undefined = data?.archive?._id;
+        if (id) { this.data?.fetch(); }
+        return { id, error };
+      } catch (error) { console.error(error); }
+      return;
+    },
+
+    async updateArchive (id: string, input: Record<string, any>): Promise<boolean> {
+      try {
+        const { data, error } = await mutate(updateArchive, { id, input });
+        const success: boolean = data?.success || false;
+        if (success) { this.data?.fetch(); }
+        return success;
+      } catch (error) { console.error(error); }
+      return false;
+    },
+
+    async removeArchive (id: string): Promise<boolean> {
+      try {
+        const { data, error } = await mutate(removeArchive, { id });
+        const success: boolean = data?.success || false;
+        if (success) { this.data?.fetch(); }
+        return success;
+      } catch (error) { console.error(error); }
+      return false;
     },
   }
 });

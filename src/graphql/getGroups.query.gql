@@ -11,8 +11,9 @@ query ($page: Int, $perPage: Int, $filter: FilterOption) {
       debutDate
       color
       logo {
-        name
         _id
+        name
+        path
       }
     }
     total

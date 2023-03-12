@@ -201,10 +201,10 @@ export default defineComponent({
       archiveSchParams.value.artist = null;
     });
 
-    watch(() => archiveStore.Archives, async () => {
+    watch(() => archiveStore.archives, async () => {
       // 카페 목록 초기화 및 검색 버튼 이후에 할당
       if (!cscript.$isEmpty(archiveSchParams.value.artist)) {
-        let archiveList = JSON.parse(JSON.stringify(archiveStore.Archives));
+        let archiveList = JSON.parse(JSON.stringify(archiveStore.archives));
 
         // orderData 확인
         archiveList = orderDataFunc(archiveList, orderData.value.value);

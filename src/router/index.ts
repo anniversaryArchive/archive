@@ -4,7 +4,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     meta: {title: 'Home'},
     path: '/',
-    component: () => import('@/pages/Home.vue'),
+    component: () => import('@/pages/SelectGroup.vue'),
   },
   {
     meta: {title: 'cafeMap'},
@@ -26,6 +26,10 @@ const routes: Array<RouteRecordRaw> = [
         path: 'artist',
         meta: { title: '아티스트 추가 화면' },
         component: () => import('@/pages/Admin/Artists.vue'),
+      }, {
+        path: 'archive',
+        meta: { title: '카페 추가 화면' },
+        component: () => import('@/pages/Admin/Archive.vue'),
       }
     ],
   }

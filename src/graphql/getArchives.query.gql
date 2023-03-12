@@ -1,13 +1,44 @@
 query ($page: Int, $perPage: Int, $filter: FilterOption) {
-  Archives: ArchivePagination (page: $page, perPage: $perPage, filter: $filter) {
+  archive: ArchivePagination (page: $page, perPage: $perPage, filter: $filter) {
     data {
       _id
-      themeName
       name
+      themeName
       address
-      organizer
+      detailAddress
       lat
       lng
+      openTime {
+        hour
+        minute
+      }
+      closeTime {
+        hour
+        minute
+      }
+      startDate
+      endDate
+      artist {
+        _id
+        name
+      }
+      group {
+        _id
+        name
+      }
+      mainImage {
+        _id
+        name
+        path
+      }
+      images {
+        _id
+        name
+        path
+      }
+      organizer
+      phoneNumber
+      link
     }
     total
   }
