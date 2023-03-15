@@ -144,6 +144,7 @@ export default defineComponent({
     const marker = ref([] as unknown);
     const infoWindow = ref();
     const isOpen = ref(true); // false: 안보임, true: 보임
+    let isEarly = true;
 
     const onLoadMarker = (markerObject: Archive) => {
       // 정보창 닫혀있으면 열기
@@ -163,6 +164,13 @@ export default defineComponent({
 
     const onLoadInfoWindow = (infoWindowObject: unknown) => {
       infoWindow.value = infoWindowObject;
+
+      // 카페 목록 생성 후 초기 정보창 데이터 생성 후 닫기
+      // 초기 정보창 오픈 시 좌표가 맞지 않아서 때문에 추가
+      if(isEarly){
+        infoWindow.value.close();
+        isEarly = false;
+      }
     };
 
     const onLoadMap = (mapObject: unknown) => {
@@ -213,8 +221,13 @@ export default defineComponent({
         // 페이지네이션 설정
         paginationData.value.maxCnt = archiveStore.total / paginationData.value.perPage;
 
-        // 지도 마커 생성
-        markerData.value = _.cloneDeep(archiveList);
+        if(!cscript.$isEmpty(archiveList)){
+          // 지도 마커 생성
+          markerData.value = _.cloneDeep(archiveList);
+
+          // 마커 정보창 생성
+          onLoadMarker(archiveList[0]);
+        }
       }
     });
 
