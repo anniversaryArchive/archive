@@ -91,6 +91,7 @@ import {Archive, ArchiveSearchParams} from '@/types/Archive';
 import {useArchiveStore} from '@/stores/archive';
 import _ from 'lodash';
 import {Pagination} from '@/types/CommonTypes';
+import moment from 'moment';
 
 
 export default defineComponent({
@@ -213,6 +214,7 @@ export default defineComponent({
       // 카페 목록 초기화 및 검색 버튼 이후에 할당
       if (!cscript.$isEmpty(archiveSchParams.value.artist)) {
         let archiveList = JSON.parse(JSON.stringify(archiveStore.archives));
+        console.log('archiveList : ', archiveList);
 
         // orderData 확인
         archiveList = orderDataFunc(archiveList, orderData.value.value);
@@ -247,19 +249,24 @@ export default defineComponent({
         return;
       }
       searchData();
+      isEarly = true;
+      reset();
     }
 
     function searchData() {
       // 검색 데이터 생성
       const filterData = {
         "flds": {
-          "artist" : archiveSchParams.value.artist,
-          // "startDate" : archiveSchParams.value.schBeginDe ? moment(archiveSchParams.value.schBeginDe).format('YYYY-MM-DD') : "",
-          // "endDate" : archiveSchParams.value.schEndDe ? moment(archiveSchParams.value.schEndDe).format('YYYY-MM-DD') : "",
+          "artist" : archiveSchParams.value.artist
         }
       }
 
-      archiveStore.getArchives(paginationData.value.current-1, paginationData.value.perPage, filterData);
+      const searchDate = {
+        "start": archiveSchParams.value.schBeginDe ? moment(archiveSchParams.value.schBeginDe).format('YYYY-MM-DD') : "",
+        "end": archiveSchParams.value.schEndDe ? moment(archiveSchParams.value.schEndDe).format('YYYY-MM-DD') : ""
+      }
+
+      archiveStore.getArchives(paginationData.value.current-1, paginationData.value.perPage, filterData, searchDate);
     }
 
     function orderDataFunc(list: any, key: string) {
@@ -294,6 +301,11 @@ export default defineComponent({
       archiveSchParams.value = {
         artist: null,
       } as ArchiveSearchParams;
+
+      reset();
+    }
+
+    function reset() {
       // 카페 목록
       archiveParams.value = {} as Archive;
       // 마커

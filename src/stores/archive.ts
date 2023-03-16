@@ -23,11 +23,23 @@ export const useArchiveStore = defineStore({
     total (): number { return this.data?.total || 0 },
   },
   actions: {
-    getArchives (pageData? : number | null, perPageData? : number | null, filterData? : object) {
+    getArchives (pageData? : number | null, perPageData? : number | null, filterData? : object, searchDate?: object) {
+      const result = {
+        page: pageData,
+        perPage : perPageData,
+        filter: filterData,
+        start: searchDate?.start,
+        end: searchDate?.end
+      }
+
+      console.log(result);
+
       query(getArchives, {
         page: pageData,
         perPage : perPageData,
-        filter: filterData
+        filter: filterData,
+        start: searchDate?.start,
+        end: searchDate?.end
       }, false).then(({ data, error, execute }) => {
         this.data = {
           list: computed(() => {
