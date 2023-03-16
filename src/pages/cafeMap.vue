@@ -46,7 +46,7 @@
       </div>
     </q-card>
 
-    <naver-map style="width: 75%; height: 100vh; float: right;" :mapOptions="mapOptions">
+    <naver-map style="width: 75%; height: 100vh; float: right;" :mapOptions="mapOptions" @onLoad="onLoadMap($event)">
       <span v-if="markerData" v-for="(marker) in markerData" v-bind:key="markerData">
         <naver-marker
             @click="onLoadMarker(marker)"
@@ -161,6 +161,11 @@ export default defineComponent({
 
       // 카페 목록 상세 가져오기
       detailArchive.value = _.cloneDeep(markerObject);
+
+      // 지도 중앙 좌표 변경
+      if(!isEarly){
+        map.value.setCenter(latlng);
+      }
     };
 
     const onLoadInfoWindow = (infoWindowObject: unknown) => {
@@ -214,7 +219,6 @@ export default defineComponent({
       // 카페 목록 초기화 및 검색 버튼 이후에 할당
       if (!cscript.$isEmpty(archiveSchParams.value.artist)) {
         let archiveList = JSON.parse(JSON.stringify(archiveStore.archives));
-        console.log('archiveList : ', archiveList);
 
         // orderData 확인
         archiveList = orderDataFunc(archiveList, orderData.value.value);
@@ -228,6 +232,7 @@ export default defineComponent({
           markerData.value = _.cloneDeep(archiveList);
 
           // 마커 정보창 생성
+          isEarly = true;
           onLoadMarker(archiveList[0]);
         }
       }

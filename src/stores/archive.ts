@@ -24,16 +24,6 @@ export const useArchiveStore = defineStore({
   },
   actions: {
     getArchives (pageData? : number | null, perPageData? : number | null, filterData? : object, searchDate?: object) {
-      const result = {
-        page: pageData,
-        perPage : perPageData,
-        filter: filterData,
-        start: searchDate?.start,
-        end: searchDate?.end
-      }
-
-      console.log(result);
-
       query(getArchives, {
         page: pageData,
         perPage : perPageData,
