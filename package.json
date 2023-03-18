@@ -17,6 +17,7 @@
     "heic2any": "^0.0.3",
     "lodash": "^4.17.21",
     "pinia": "^2.0.28",
+    "pinia-plugin-persistedstate": "^3.1.0",
     "quasar": "^2.11.4",
     "villus": "^2.1.0",
     "vite-plugin-html": "^3.2.0",

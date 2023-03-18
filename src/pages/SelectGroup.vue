@@ -17,8 +17,7 @@
       </div>
       <div class="flex-1 p-12 bg-white rounded-lg">
         <div class="grid grid-cols-1 grid-cols-2 gap-x-2 gap-y-6 xl:grid-cols-5 lg:grid-cols-3 md:grid-cols-2">
-          <div v-for="group in groups" 
-            class="text-center">
+          <div v-for="group in groups" class="text-center" @click="onClickGroup(group)">
             <template v-if="group.logo">
               <img :src="group.logo.path"
                 class="w-24 h-24 m-auto border border-gray-300 border-solid rounded-full cursor-pointer min-w-[6rem] min-h-[6rem]" />
@@ -35,10 +34,15 @@
 
 <script setup lang="ts">
 import { onBeforeMount, ref, Ref } from 'vue';
+import { useRouter } from 'vue-router'
 import { useGroupStore } from '@/stores/group';
+import { useArchiveStore } from '@/stores/archive';
 import { Group } from '@/types/Group';
 
+const router = useRouter();
+
 const groupStore = useGroupStore();
+const archiveStore = useArchiveStore();
 
 const groups: Ref<Group[]> = ref([]);
 const searchText: Ref<string> = ref('');
@@ -60,8 +64,12 @@ function getGroups() {
 }
 
 function doSearch() {
-  console.log('do search');
   getGroups();
+}
+
+function onClickGroup(group: Group) {
+  archiveStore.setGroup(group);
+  router.push('/cafeMap');
 }
 
 </script>
