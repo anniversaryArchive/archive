@@ -4,6 +4,11 @@ import {CommonGrdProps, CommonSelectBox} from '@/types/CommonTypes';
 import {ColumnApi, GridApi, GridReadyEvent, PaginationChangedEvent} from '@ag-grid-community/core';
 
 export default {
+    $createSchParams: function createSchParams<T>() {
+        const schParams = ref({} as T);
+        return {schParams};
+    },
+
     $createSelectAll: function createSelectAll(names: string[]) {
         const selectBoxOptions = ref({} as { [key: string]: CommonSelectBox });
 

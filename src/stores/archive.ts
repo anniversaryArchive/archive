@@ -15,6 +15,11 @@ interface ArchiveState {
   data?: WatchQuery<Archive>;
 }
 
+interface searchDate {
+  start?: string,
+  end?: string
+}
+
 export const useArchiveStore = defineStore({
   id: 'archive',
   state: (): ArchiveState => ({ data: undefined }),
@@ -23,8 +28,14 @@ export const useArchiveStore = defineStore({
     total (): number { return this.data?.total || 0 },
   },
   actions: {
-    getArchives () {
-      query(getArchives, {}, false).then(({ data, error, execute }) => {
+    getArchives (pageData? : number | null, perPageData? : number | null, filterData? : object, searchDate?: searchDate) {
+      query(getArchives, {
+        page: pageData,
+        perPage : perPageData,
+        filter: filterData,
+        start: searchDate?.start,
+        end: searchDate?.end
+      }, false).then(({ data, error, execute }) => {
         this.data = {
           list: computed(() => {
             return data.value?.archive?.data || [];

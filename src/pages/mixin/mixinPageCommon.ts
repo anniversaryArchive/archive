@@ -1,6 +1,7 @@
 import {defineComponent} from 'vue';
 import LayoutPageTitle from '@/layouts/LayoutPageTitle.vue';
 import DatePicker from '@/components/common/datePicker.vue';
+import ComPeriodDatePicker from '@/components/common/ComPeriodDatePicker.vue';
 import SelectBox from '@/components/common/selectBox.vue';
 import {AgGridVue} from '@ag-grid-community/vue3';
 import '@ag-grid-community/core/dist/styles/ag-grid.css'; // Core grid CSS, always needed
@@ -14,6 +15,7 @@ export default defineComponent({
         LayoutPageTitle,
         AgGridVue,
         DatePicker,
+        ComPeriodDatePicker,
         SelectBox,
     },
     setup() {}
