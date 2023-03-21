@@ -17,6 +17,11 @@ interface ArchiveState {
   group?: Group;
 }
 
+interface searchDate {
+  start?: string,
+  end?: string
+}
+
 export const useArchiveStore = defineStore({
   id: 'archive',
   persist: true,
@@ -33,8 +38,7 @@ export const useArchiveStore = defineStore({
     setGroup (group: Group) {
       this.group = group;
     },
-
-    getArchives (pageData? : number | null, perPageData? : number | null, filterData? : object, searchDate?: object) {
+    getArchives (pageData? : number | null, perPageData? : number | null, filterData? : object, searchDate?: searchDate) {
       query(getArchives, {
         page: pageData,
         perPage : perPageData,

@@ -116,14 +116,6 @@ export default defineComponent({
       zoomControlOptions: {position: 'TOP_RIGHT'},
     };
 
-    const initLayers = [
-      'BACKGROUND',
-      'BACKGROUND_DETAIL',
-      'POI_KOREAN',
-      'TRANSIT',
-      'ENGLISH',
-    ];
-
     const orderOptions = [{
       'label': '최신순',
       'value': 'newest',
@@ -345,7 +337,6 @@ export default defineComponent({
     return {
       marker,
       mapOptions,
-      initLayers,
       onLoadMap,
       isOpen,
       markerData,
