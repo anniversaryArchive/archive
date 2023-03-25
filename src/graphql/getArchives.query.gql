@@ -1,5 +1,5 @@
-query ($page: Int, $perPage: Int, $filter: FilterOption) {
-  archive: ArchivePagination (page: $page, perPage: $perPage, filter: $filter) {
+query ($page: Int, $perPage: Int, $filter: FilterOption, $start: Date, $end: Date) {
+  archive: ArchivePagination (page: $page, perPage: $perPage, filter: $filter, start: $start, end: $end) {
     data {
       _id
       name
