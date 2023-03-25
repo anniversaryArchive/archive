@@ -4,7 +4,7 @@
     <div class="absolute top-0 left-0 w-full h-full bg-black/70"></div>
     <div class="absolute top-1/2 translate-y-[-50%] left-40">
       <div class="text-2xl font-black">
-        <span class="text-primary">{{ artistName }}</span> 생일 카페
+        <span class="text-primary">{{ archive.artist?.name }}</span> 생일 카페
       </div>
       <div class="text-5xl font-black">
         {{ archive.themeName }}
@@ -43,7 +43,7 @@
     <div class="inline-block pt-20 pb-2 text-3xl font-bold border-b-2 border-black">포스터 및 특전 정보</div>
 
     <div class="my-8">
-      <ImageSlide v-model="images" height="50rem" />  
+      <ImageSlide :modelValue="images" height="50rem" :editMode="false" />  
     </div>
   </div>
 </template>
@@ -61,13 +61,11 @@ const archiveStore = useArchiveStore();
 
 const archive: Ref<Archive | undefined> = ref();
 
-onBeforeMount(() => {
-  getArchive();
-});
-
-const artistName: ComputedRef<string | undefined> = computed(() => {
-  return archive.value?.artist?.name;
-});
+/**
+ * ====================
+ * Archive View 관련 computed .. 
+ * ====================
+ */
 const mainImage: ComputedRef<string | undefined> = computed(() => {
   return archive.value?.mainImage?.path;
 });
@@ -99,15 +97,16 @@ const images: ComputedRef<Record<string, any>[]> = computed(() => {
   return archive.value?.images || [];
 });
 
+onBeforeMount(() => {
+  getArchive();
+});
+
 async function getArchive() {
   const id: string = route.params.id;
   try {
     const { data } = await archiveStore.getArchive(id);
     archive.value = (data.value.archive || {}) as Archive;
-    console.log('archive : ', archive.value);
-  } catch (error) {
-    console.error(error);
-  }
+  } catch (error) { console.error(error); }
 }
 
 function numToTime(num: int): string {
