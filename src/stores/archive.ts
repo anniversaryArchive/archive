@@ -5,6 +5,7 @@ import { Archive } from '@/types/Archive'
 import { query, mutate } from '@/composables/graphqlUtils';
 import { CombinedError } from 'villus';
 
+import getArchive from '@/graphql/getArchive.query.gql';
 import getArchives from '@/graphql/getArchives.query.gql';
 import createArchive from '@/graphql/createArchive.mutate.gql';
 import updateArchive from '@/graphql/updateArchive.mutate.gql';
@@ -23,6 +24,10 @@ export const useArchiveStore = defineStore({
     total (): number { return this.data?.total || 0 },
   },
   actions: {
+    getArchive (id: string) {
+      return query(getArchive, { id }, false);
+    },
+
     getArchives () {
       query(getArchives, {}, false).then(({ data, error, execute }) => {
         this.data = {
@@ -34,6 +39,7 @@ export const useArchiveStore = defineStore({
         };
       });
     },
+
     async createArchive (input: Record<string ,any>): Promise<{ id?: string, error: CombinedError | null } | undefined> {
       try {
         const { data, error } = await mutate(createArchive, { input });

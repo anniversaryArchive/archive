@@ -1,11 +1,11 @@
 <template>
   <q-carousel v-if="images.length" v-model="slide" v-model:fullscreen="fullscreen"
-    transition-prev="scale" transition-next="scale"
     swipeable animated control-color="blue"
     control-type="outline" navigation padding arrows
-    height="300px" class="text-white bg-white shadow-1 rounded-borders">
+    :height="height" class="text-white bg-white shadow-1 rounded-borders">
     <q-carousel-slide v-for="(image, index) in images"
       class="column no-wrap flex-center" :name="image.name"
+      :class="{ '!bg-contain bg-no-repeat': !editMode }"
       :img-src="image.path">
     </q-carousel-slide>
 
@@ -16,7 +16,7 @@
           @click="fullscreen = !fullscreen" />
       </q-carousel-control>
 
-      <q-carousel-control position="top-right" :offset="[18, 18]">
+      <q-carousel-control v-if="editMode" position="top-right" :offset="[18, 18]">
         <q-btn push round dense color="white" text-color="red"
           icon="delete" @click="onClickDeleteButton(index)" />
       </q-carousel-control>
@@ -30,9 +30,11 @@ import { Image } from '@/types/image';
 
 interface Props {
   modelValue: (Image | File)[];
+  editMode: boolean;
+  height: string;
 }
 
-const props = withDefaults(defineProps<Props>(), { });
+const props = withDefaults(defineProps<Props>(), { editMode: false, height: '300px' });
 const emit = defineEmits(['delete', 'update:modelValue']);
 
 const slide: Ref<string | undefined> = ref(null);
@@ -42,6 +44,9 @@ const fullscreen: Ref<boolean> = ref(false);
 onBeforeMount(() => initImages());
 
 watch(() => props.modelValue, () => initImages());
+
+const editMode: ComputedRef<boolean> = computed(() => props.editMode);
+const height: ComputedRef<string> = computed(() => props.height);
 
 function initImages () {
   images.value = [...props.modelValue];

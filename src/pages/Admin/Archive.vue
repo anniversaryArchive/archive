@@ -135,7 +135,7 @@
           <tr>
             <th>관련 이미지들</th>
             <td colspan="3" class="border rounded boder-gray-300">
-              <ImageSlide v-model="inputArchive.images" />
+              <ImageSlide v-model="inputArchive.images" :editMode="true" />
 
               <input type="file" class="hidden"
                 accept=".jpg, .png, image/*"

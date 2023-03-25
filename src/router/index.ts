@@ -12,6 +12,11 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('@/pages/cafeMap.vue'),
   },
   {
+    meta: { title: 'Archive' },
+    path: '/archive/:id',
+    component: () => import('@/pages/ArchiveDetail.vue'),
+  },
+  {
     path: '/admin',
     children: [
       { 
