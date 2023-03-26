@@ -1,5 +1,6 @@
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';
+import piniaPluginPersistedState from "pinia-plugin-persistedstate"
 import './style.css';
 import App from './App.vue';
 import router from './router';
@@ -12,6 +13,7 @@ import 'quasar/src/css/index.sass';
 import { createNaverMap } from "vue3-naver-maps";
 
 const pinia = createPinia();
+pinia.use(piniaPluginPersistedState)
 const { VITE_CLIENTID } = import.meta.env
 
 createApp(App)

@@ -186,7 +186,7 @@ export default defineComponent({
       // 임시 그룹 데이터
       const artistFilterData = {
         'flds': {
-          'group': '63e589617df4af219e0401c5',
+          'group': archiveStore.groupId,
         },
       };
       artistStore.getArtists(artistFilterData);
