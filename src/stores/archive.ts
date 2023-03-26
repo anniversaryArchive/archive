@@ -6,6 +6,7 @@ import { Group } from '@/types/Group';
 import { query, mutate } from '@/composables/graphqlUtils';
 import { CombinedError } from 'villus';
 
+import getArchive from '@/graphql/getArchive.query.gql';
 import getArchives from '@/graphql/getArchives.query.gql';
 import createArchive from '@/graphql/createArchive.mutate.gql';
 import updateArchive from '@/graphql/updateArchive.mutate.gql';
@@ -38,6 +39,9 @@ export const useArchiveStore = defineStore({
     setGroup (group: Group) {
       this.group = group;
     },
+    getArchive (id: string) {
+      return query(getArchive, { id }, false);
+    },
     getArchives (pageData? : number | null, perPageData? : number | null, filterData? : object, searchDate?: searchDate) {
       query(getArchives, {
         page: pageData,
@@ -55,6 +59,7 @@ export const useArchiveStore = defineStore({
         };
       });
     },
+
     async createArchive (input: Record<string ,any>): Promise<{ id?: string, error: CombinedError | null } | undefined> {
       try {
         const { data, error } = await mutate(createArchive, { input });

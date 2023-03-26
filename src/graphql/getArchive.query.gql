@@ -1,0 +1,42 @@
+query ($id: ID!) {
+  archive (id: $id) {
+    _id
+    name
+    themeName
+    address
+    detailAddress
+    lat
+    lng
+    openTime {
+      hour
+      minute
+    }
+    closeTime {
+      hour
+      minute
+    }
+    startDate
+    endDate
+    artist {
+      _id
+      name
+    }
+    group {
+      _id
+      name
+    }
+    mainImage {
+      _id
+      name
+      path
+    }
+    images {
+      _id
+      name
+      path
+    }
+    organizer
+    phoneNumber
+    link
+  }
+}

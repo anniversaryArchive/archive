@@ -36,7 +36,7 @@
         </q-item>
       </q-list>
 
-      <div v-if="paginationData.maxCnt" class="q-pa-lg flex flex-center">
+      <div v-if="paginationData.maxCnt" class="flex q-pa-lg flex-center">
         <q-pagination
             v-model="paginationData.current"
             :max="paginationData.maxCnt"
@@ -322,8 +322,8 @@ export default defineComponent({
       }
     }
 
-    function detailBtnFunc() {
-      console.log('카페 상세 페이지 이동');
+    function detailBtnFunc(id: string) {
+      this.$router.push(`/archive/${id}`);
     }
 
     function paginationChange() {
