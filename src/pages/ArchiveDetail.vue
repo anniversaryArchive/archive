@@ -1,4 +1,5 @@
 <template>
+  <layout-header></layout-header>
   <div v-if="archive" :style="`background-image: url(${mainImage})`"
     class="relative text-white bg-center bg-cover h-80">
     <div class="absolute top-0 left-0 w-full h-full bg-black/70"></div>
@@ -54,6 +55,7 @@ import { useRoute } from 'vue-router';
 import { useArchiveStore } from '@/stores/archive';
 import { Archive } from '@/types/Archive';
 import ImageSlide from '@/components/common/imageSlide.vue';
+import LayoutHeader from '@/layouts/LayoutHeader.vue';
 import moment from 'moment';
 
 const route = useRoute();
