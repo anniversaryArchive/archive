@@ -83,7 +83,6 @@
 import {defineComponent, onBeforeMount, ref, watch} from 'vue';
 import {NaverInfoWindow, NaverMap, NaverMarker} from 'vue3-naver-maps';
 import mixinPageCommon from '@/pages/mixin/mixinPageCommon';
-import LayoutHeader from '@/layouts/LayoutHeader.vue';
 import ccobject from '@/composables/createComObject';
 import {useArtistStore} from '@/stores/artist';
 import cscript from '@/composables/comScripts';
@@ -96,7 +95,7 @@ import moment from 'moment';
 
 export default defineComponent({
   name      : 'cafeMap',
-  components: {LayoutHeader, NaverMap, NaverMarker, NaverInfoWindow},
+  components: {NaverMap, NaverMarker, NaverInfoWindow},
   mixins    : [mixinPageCommon],
   setup() {
     // 아티스트 멀티 셀렉트박스 배열 변수
