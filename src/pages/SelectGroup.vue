@@ -1,9 +1,9 @@
 <template>
   <div class="flex h-full bg-primary"> 
     <div class="flex w-9/12 m-auto h-4/5">
-      <div class="flex flex-col justify-center text-white">
-        <div class="mb-6 text-6xl font-bold">ARCHIVE</div>
-        <div class="mr-12 text-4xl font-semibold">
+      <div class="main-div flex flex-col justify-center text-white">
+        <div class="main-title mb-6 text-6xl font-bold">ARCHIVE</div>
+        <div class="main-text mr-12 text-4xl font-semibold">
           원하는 아티스트의 생일 카페<br/>
           정보를 쉽게 찾아보세요.
         </div>
@@ -12,11 +12,12 @@
 
         <div>
           <input type="search" placeholder="검색할 그룹을 입력해주세요."
-            class="px-2 py-3 text-xl text-black rounded w-80"
+            class="search-text px-2 py-3 text-xl text-black rounded w-80"
             v-model="searchText" @search="doSearch" />
         </div>
       </div>
-      <div class="flex-1 p-12 bg-white rounded-lg">
+
+      <div class="group-div flex-1 p-12 bg-white rounded-lg">
         <q-scroll-area :delay="1200" style="height: 100%;">
           <div class="grid grid-cols-1 grid-cols-2 gap-x-2 gap-y-6 xl:grid-cols-5 lg:grid-cols-3 md:grid-cols-2">
             <div v-for="group in groups" class="text-center" @click="onClickGroup(group)">
@@ -78,5 +79,31 @@ function onClickGroup(group: Group) {
 </script>
 
 <style scoped>
+  @media screen and (max-width: 767px){
+    .main-div {
+      width: 100%;
+    }
 
+    .main-title {
+      font-size: 2.5rem;
+    }
+
+    .main-text {
+      font-size: 1.5rem;
+      line-height: 1.85rem;
+      margin: 0;
+    }
+
+    .search-text {
+      width: 100%;
+      font-size: 1.25rem;
+      line-height: 1.25em;
+    }
+
+    .group-div {
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+    }
+  }
 </style>
