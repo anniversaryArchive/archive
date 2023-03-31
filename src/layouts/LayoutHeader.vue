@@ -2,10 +2,11 @@
   <q-layout view="lHh lpr lFf" container style="height: 61px" class="rounded-borders">
     <q-header bordered class="bg-white text-primary">
       <q-toolbar>
-        <q-toolbar-title class="text-left">
-          <q-avatar>
-            <!-- <img src="https://cdn.quasar.dev/logo-v2/svg/logo.svg"> -->
+        <q-toolbar-title class="toolbar-title">
+          <!-- <q-avatar>
+            <img src="https://cdn.quasar.dev/logo-v2/svg/logo.svg">
           </q-avatar>
+          -->
           <span class="layout-title">ARCHIVE</span>
         </q-toolbar-title>
       </q-toolbar>
@@ -26,10 +27,20 @@ export default defineComponent({
 </script>
 
 <style scoped>
+  .toolbar-title {
+    text-align: left;
+  }
+
   .layout-title {
     font-style: normal;
     font-weight: 900;
-    font-size: 40px;
+    font-size: 2rem;
     line-height: 60px;
+  }
+
+  @media screen and (max-width: 767px){
+    .toolbar-title {
+      text-align: center;
+    }
   }
 </style>
