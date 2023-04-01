@@ -198,7 +198,11 @@ async function resetInputBox() {
     if (!checked) { return; }
   } catch (error) { console.error(error); }
 
+  const orgDebut = inputArtist.value.debutDate;
+  const orgArtistGroup = artistGroup.value;
   setInputArtist(cinitial.$inItData('', ArtistType) as Artist);
+  inputArtist.value.debutDate = orgDebut;
+  artistGroup.value = orgArtistGroup;
 
   // 그리드 선택 해제 (포커스 먹으려면 await)
   try {
@@ -241,7 +245,7 @@ async function checkDiffData(): Promise<boolean> {
 
 // 필수 입력 항목 체크 - 생일, 이미지, 이름
 function isMstValid(): boolean {
-  const requireFields = [{ key: 'name', text: '이름' }, { key: 'image', text: '이미지' }, { key: 'birthDay', text: '생일' }];
+  const requireFields = [{ key: 'name', text: '이름' }, { key: 'birthDay', text: '생일' }];
 
   for (const field of requireFields) {
     if (cscript.$isEmpty(inputArtist.value[field.key])) {

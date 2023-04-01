@@ -94,7 +94,11 @@ const link: ComputedRef<string | undefined> = computed(() => {
   return archive.value.link.slice(0, index);
 })
 const images: ComputedRef<Record<string, any>[]> = computed(() => {
-  return archive.value?.images || [];
+  if (!archive.value) { return []; }
+  return [
+    archive.value.mainImage,
+    ... (archive.value.images || [])
+  ];
 });
 
 onBeforeMount(() => {
