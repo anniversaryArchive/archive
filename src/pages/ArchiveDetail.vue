@@ -7,7 +7,7 @@
       <div class="text-2xl font-black">
         <span class="text-primary">{{ archive.artist?.name }}</span> 생일 카페
       </div>
-      <div class="text-5xl font-black">
+      <div class="archive-theme text-5xl font-black">
         {{ archive.themeName }}
       </div>
       <div class="text-lg text-gray-400">{{ archive.organizer }}</div>
@@ -37,7 +37,7 @@
         <span class="inline-block w-8">
           <img src="@/assets/twitter.svg" class="w-5" />
         </span>
-        <a :href="link" class="border-b border-gray-800">{{ link }}</a>
+        <a :href="link" class="border-b border-gray-800">{{ archive.organizer }}</a>
       </div>
     </div>
 
@@ -118,5 +118,60 @@ function numToTime(num: int): string {
 </script>
 
 <style scoped>
+  @media screen and (max-width: 767px){
+    .h-80 {
+      height: 16rem;
+    }
 
+    .left-40 {
+      left: 1.25rem;
+    }
+
+    .text-2xl {
+      font-size: 1.25rem;
+    }
+
+    .archive-theme {
+      /*
+      width: 70%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      */
+    }
+
+    .text-5xl {
+      font-size: 2rem;
+    }
+
+    .text-lg {
+      font-size: 0.8rem;
+    }
+
+    .px-40 {
+      padding-left: 2rem;
+      padding-right: 2rem;
+    }
+
+    .pt-20 {
+      padding-top: 3rem;
+    }
+
+    .text-3xl {
+      font-size: 1.5rem;
+    }
+
+    .mt-11 {
+      margin-top: 1rem;
+    }
+
+    .w-8 {
+      width: 1.5rem;
+    }
+
+    .text-xl {
+      font-size: 1rem;
+      line-height: 0rem;
+    }
+  }
 </style>

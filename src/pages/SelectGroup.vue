@@ -1,6 +1,6 @@
 <template>
   <div class="flex h-full bg-primary"> 
-    <div class="flex w-9/12 m-auto h-4/5">
+    <div class="flex w-9/12 m-auto max-[640px]:flex-col h-4/5">
       <div class="main-div flex flex-col justify-center text-white">
         <div class="main-title mb-6 text-6xl font-bold">ARCHIVE</div>
         <div class="main-text mr-12 text-4xl font-semibold">
@@ -17,7 +17,7 @@
         </div>
       </div>
 
-      <div class="group-div flex-1 p-12 bg-white rounded-lg">
+      <div class="group-div flex-1 p-12 bg-white rounded-lg max-[640px]:mt-8">
         <q-scroll-area :delay="1200" style="height: 100%;">
           <div class="grid grid-cols-1 grid-cols-2 gap-x-2 gap-y-6 xl:grid-cols-5 lg:grid-cols-3 md:grid-cols-2">
             <div v-for="group in groups" class="text-center" @click="onClickGroup(group)">
