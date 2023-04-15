@@ -16,33 +16,33 @@
     <div id="signinBox" style="display: none"></div>
   </q-layout>
 
-  <LoginDialog :show="isOpenLoginDialog"
-    @close="() => { isOpenLoginDialog = false; }" />
+  <SignInDialog :show="isOpenSignInDialog"
+    @close="() => { isOpenSignInDialog = false; }" />
 </template>
 
 <script lang='ts'>
 import { defineComponent, ref, computed } from 'vue';
 import { useUserStore } from '@/stores/user';
-import LoginDialog from '@/dialogs/LoginDialog.vue';
+import SignInDialog from '@/dialogs/SignInDialog.vue';
 
 export default defineComponent({
   name: 'LayoutHeader.',
-  components: { LoginDialog },
+  components: { SignInDialog },
   setup() {
     const userStore = useUserStore();
     const loggedIn = computed(() => userStore.loggedIn);
 
-    const isOpenLoginDialog = ref(false);
+    const isOpenSignInDialog = ref(false);
     return {
       userStore,
       loggedIn,           // 현재 로그인 여부 
-      isOpenLoginDialog,  // 로그인 Dialog open 여부 
+      isOpenSignInDialog,  // 로그인/회원가입 Dialog open 여부 
     };
   },
   methods: {
-    // 로그인 버튼 클릭 시, 로그인 Dialog을 띄워준다 
+    // 로그인 버튼 클릭 시, 로그인/회원가입 Dialog을 띄워준다 
     doLogin() {
-      this.isOpenLoginDialog = true;
+      this.isOpenSignInDialog = true;
     },
     // 로그아웃 버튼 클릭 시, userStore.doLogout을 호출하여 로그아웃을 진행한다. 
     doLogout() {
