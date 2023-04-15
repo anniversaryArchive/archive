@@ -15,28 +15,33 @@
     </q-header>
     <div id="signinBox" style="display: none"></div>
   </q-layout>
+
+  <LoginDialog :show="isOpenLoginDialog"
+    @close="() => { isOpenLoginDialog = false; }" />
 </template>
 
 <script lang='ts'>
 import { defineComponent, ref, computed } from 'vue';
 import { useUserStore } from '@/stores/user';
+import LoginDialog from '@/dialogs/LoginDialog.vue';
 
 export default defineComponent({
   name: 'LayoutHeader.',
+  components: { LoginDialog },
   setup() {
     const userStore = useUserStore();
-
     const loggedIn = computed(() => userStore.loggedIn);
+
+    const isOpenLoginDialog = ref(false);
     return {
       userStore,
-      loggedIn
+      loggedIn,
+      isOpenLoginDialog,
     };
   },
   methods: {
     async doLogin() {
-      try {
-        await this.userStore.doLogin('google');
-      } catch (_) {}
+      this.isOpenLoginDialog = true;
     },
     doLogout() {
       this.userStore.doLogout();

@@ -15,7 +15,7 @@ import { createNaverMap } from "vue3-naver-maps";
 
 const pinia = createPinia();
 pinia.use(piniaPluginPersistedState)
-const { VITE_CLIENTID, GOOGLE_CLIENTID } = import.meta.env
+const { VITE_CLIENTID, VITE_GOOGLE_CLIENT_ID } = import.meta.env
 
 createApp(App)
   .use(pinia)
@@ -27,5 +27,5 @@ createApp(App)
     category: "ncp",
     subModules: ["drawing", "geocoder"], // Optional, "panorama" | "geocoder" | "drawing" | "visualization"
   })
-  .use(vue3GoogleLogin, { clientId: GOOGLE_CLIENTID })
+  .use(vue3GoogleLogin, { clientId: VITE_GOOGLE_CLIENT_ID })
   .mount('#app');

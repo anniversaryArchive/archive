@@ -22,7 +22,7 @@ export default defineConfig(({ mode }) => {
         inject: {
           data: {
             clientID: env.VITE_CLIENTID,
-            googleClientID: env.GOOGLE_CLIENTID
+            googleClientID: env.VITE_GOOGLE_CLIENT_ID
           }
         }
       }),
