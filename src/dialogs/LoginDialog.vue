@@ -1,7 +1,7 @@
 <template>
   <CommonDialog :show="show" @close="closeDialog">
     <div class="text-center">
-      <div v-if="signUpMode">회원가입 하시겠습니까?</div>
+      <div v-if="signUpMode" class="mb-6 text-xlg">회원가입 하시겠습니까?</div>
       <button class="px-2 py-1 font-bold text-white bg-blue-600 rounded shadow-lg hover:bg-blue-800"
         @click="doAction('google')">GOOGLE</button>
     </div>
@@ -21,8 +21,7 @@ const props = withDefaults(defineProps<Props>(), { });
 const emit = defineEmits(['done', 'close']);
 
 const userStore = useUserStore();
-
-const signUpMode: Ref<boolean> = ref(false);
+const signUpMode: Ref<boolean> = ref(false);    // 회원가입 모드
 
 function closeDialog () {
   emit('close')
@@ -37,9 +36,9 @@ function doAction(provider: string) {
 async function doLogin(provider: string) {
   try {
     const user: User | null | undefined = await userStore.doLogin(provider);
-    if (user == null) {
+    if (user == null) { // 회원가입 한 유저 정보가 없는 경우 
       signUpMode.value = true;
-      alert('회원가입이 필요합니다!');
+      alert('회원가입이 필요합니다');
     } else { emit('close'); }
   } catch (error) {
     console.error(error);

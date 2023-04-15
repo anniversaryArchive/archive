@@ -9,8 +9,8 @@
           <span class="layout-title">ARCHIVE</span>
         </q-toolbar-title>
 
-        <q-btn v-if="!loggedIn" @click="doLogin">로그인</q-btn>
-        <q-btn v-else @click="doLogout">로그아웃</q-btn>
+        <q-btn v-if="loggedIn" @click="doLogout">로그아웃</q-btn>
+        <q-btn v-else @click="doLogin">로그인</q-btn>
       </q-toolbar>
     </q-header>
     <div id="signinBox" style="display: none"></div>
@@ -35,17 +35,19 @@ export default defineComponent({
     const isOpenLoginDialog = ref(false);
     return {
       userStore,
-      loggedIn,
-      isOpenLoginDialog,
+      loggedIn,           // 현재 로그인 여부 
+      isOpenLoginDialog,  // 로그인 Dialog open 여부 
     };
   },
   methods: {
-    async doLogin() {
+    // 로그인 버튼 클릭 시, 로그인 Dialog을 띄워준다 
+    doLogin() {
       this.isOpenLoginDialog = true;
     },
+    // 로그아웃 버튼 클릭 시, userStore.doLogout을 호출하여 로그아웃을 진행한다. 
     doLogout() {
       this.userStore.doLogout();
-    }
+    },
   },
 });
 </script>
