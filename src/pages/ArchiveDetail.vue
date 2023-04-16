@@ -1,7 +1,7 @@
 <template>
   <layout-header></layout-header>
   <div v-if="archive" :style="`background-image: url(${mainImage})`"
-    class="relative text-white bg-center bg-cover h-80">
+    class="relative text-white bg-center bg-cover h-80 sm:h-64">
     <div class="absolute top-0 left-0 w-full h-full bg-black/70"></div>
     <div class="absolute top-1/2 translate-y-[-50%] left-40">
       <div class="text-2xl font-black">
@@ -44,7 +44,7 @@
     <div class="inline-block pt-20 pb-2 text-3xl font-bold border-b-2 border-black">포스터 및 특전 정보</div>
 
     <div class="my-8">
-      <ImageSlide :modelValue="images" height="50rem" :editMode="false" />  
+      <ImageSlide :modelValue="images" height="height" :editMode="false" />
     </div>
   </div>
 </template>
@@ -57,11 +57,18 @@ import { Archive } from '@/types/Archive';
 import ImageSlide from '@/components/common/imageSlide.vue';
 import LayoutHeader from '@/layouts/LayoutHeader.vue';
 import moment from 'moment';
+import {useQuasar} from "quasar"
 
+const $q = useQuasar()
 const route = useRoute();
 const archiveStore = useArchiveStore();
 
 const archive: Ref<Archive | undefined> = ref();
+
+$q.screen.setSizes({sm: 360, md: 800, lg: 1500, xl: 2000});
+const height: ComputedRef<string | undefined> = computed(() => {
+  return $q.screen.width < $q.screen.sizes.md ? "0" : "50rem";
+});
 
 /**
  * ====================
@@ -119,9 +126,9 @@ function numToTime(num: int): string {
 
 <style scoped>
   @media screen and (max-width: 767px){
-    .h-80 {
+    /*.h-80 {
       height: 16rem;
-    }
+    }*/
 
     .left-40 {
       left: 1.25rem;
@@ -171,7 +178,7 @@ function numToTime(num: int): string {
 
     .text-xl {
       font-size: 1rem;
-      line-height: 0rem;
+      line-height: 0;
     }
   }
 </style>
