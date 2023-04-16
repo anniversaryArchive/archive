@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { QueryExecutionOpts, useQuery } from 'villus';
+import { QueryExecutionOpts } from 'villus';
 import {Group} from '@/types/Group';
 import {mutate, query} from '@/composables/graphqlUtils';
 import {computed, ComputedRef} from 'vue';

@@ -1,0 +1,10 @@
+mutation ($token: String!, $provider: String) {
+  user: signUp (accessToken: $token, provider: $provider) {
+    _id
+    name
+    email
+    provider
+    providerId
+    image
+  }
+}
