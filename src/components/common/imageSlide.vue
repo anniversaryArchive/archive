@@ -2,7 +2,7 @@
   <q-carousel v-if="images.length" v-model="slide" v-model:fullscreen="fullscreen"
     swipeable animated control-color="blue"
     control-type="outline" navigation padding arrows
-    :height="height" class="text-white bg-white shadow-1 rounded-borders">
+    :height="height" class="text-white bg-white rounded-borders">
     <q-carousel-slide v-for="(image, index) in images"
       class="column no-wrap flex-center" :name="image.name"
       :class="{ '!bg-contain bg-no-repeat': !editMode }"

@@ -1,4 +1,5 @@
 import {defineComponent} from 'vue';
+import LayoutHeader from '@/layouts/LayoutHeader.vue';
 import LayoutPageTitle from '@/layouts/LayoutPageTitle.vue';
 import DatePicker from '@/components/common/datePicker.vue';
 import ComPeriodDatePicker from '@/components/common/ComPeriodDatePicker.vue';
@@ -12,6 +13,7 @@ import '@ag-grid-community/core/dist/styles/ag-theme-blue.css';
 
 export default defineComponent({
     components: {
+        LayoutHeader,
         LayoutPageTitle,
         AgGridVue,
         DatePicker,
