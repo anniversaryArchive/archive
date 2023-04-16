@@ -2,11 +2,11 @@
   <div>
     <layout-header></layout-header>
 
-    <q-card class="my-card" style="width: 25%; float: left;">
+    <q-card class="my-card">
       <div class="search-box">
         <h1 class="search-text">멤버 선택</h1>
-        <select-box id="artist" v-model='archiveSchParams.artist' v-bind='selectBoxOptions.artist' style="width: 100%;"
-                    :multiplied='false'
+        <select-box id="artist" v-model='artistList' v-bind='selectBoxOptions.artist' style="width: 100%;"
+                    :multiplied='true'
                     use-chips/>
         <h1 class="search-text">기간 선택</h1>
         <com-period-date-picker v-model='archiveSchParams'
@@ -27,7 +27,7 @@
 
       <q-list v-if="archiveParams">
         <q-item v-for="(archive) in archiveParams" v-bind:key="archiveParams" class="archive-item" clickable
-                @click="onLoadMarker(archive)">
+                @click="$q.screen.xs ? detailBtnFunc(archive._id) : onLoadMarker(archive)">
           <q-item-section>
             <q-item-label class="archive-title">{{archive.themeName}}</q-item-label>
             <q-item-label class="archive-account">{{archive.organizer}}</q-item-label>
@@ -46,7 +46,7 @@
       </div>
     </q-card>
 
-    <naver-map style="width: 75%; height: 100vh; float: right;" :mapOptions="mapOptions" @onLoad="onLoadMap($event)">
+    <naver-map v-if="!$q.screen.xs" style="width: 75%; height: 100vh; float: right;" :mapOptions="mapOptions" @onLoad="onLoadMap($event)">
       <span v-if="markerData" v-for="(marker) in markerData" v-bind:key="markerData">
         <naver-marker
             @click="onLoadMarker(marker)"
@@ -83,7 +83,6 @@
 import {defineComponent, onBeforeMount, ref, watch} from 'vue';
 import {NaverInfoWindow, NaverMap, NaverMarker} from 'vue3-naver-maps';
 import mixinPageCommon from '@/pages/mixin/mixinPageCommon';
-import LayoutHeader from '@/layouts/LayoutHeader.vue';
 import ccobject from '@/composables/createComObject';
 import {useArtistStore} from '@/stores/artist';
 import cscript from '@/composables/comScripts';
@@ -92,19 +91,24 @@ import {useArchiveStore} from '@/stores/archive';
 import _ from 'lodash';
 import {Pagination} from '@/types/CommonTypes';
 import moment from 'moment';
-
+import {useQuasar} from "quasar"
 
 export default defineComponent({
   name      : 'cafeMap',
-  components: {LayoutHeader, NaverMap, NaverMarker, NaverInfoWindow},
+  components: {NaverMap, NaverMarker, NaverInfoWindow},
   mixins    : [mixinPageCommon],
   setup() {
+    const $q = useQuasar();
+
     // 아티스트 멀티 셀렉트박스 배열 변수
     const {selectBoxOptions: selectBoxOptions} = ccobject.$createSelectAll(['artist']);
     const {schParams: archiveSchParams} = ccobject.$createSchParams<ArchiveSearchParams>();
 
     const archiveParams = ref({} as Archive);
     const detailArchive = ref({} as Archive);
+
+    // 아티스트 멀티 셀렉트박스 배열 변수
+    const artistList = ref([] as string[]);
 
     const map = ref();
     const markerData = ref({} as Archive);
@@ -209,7 +213,7 @@ export default defineComponent({
 
     watch(() => archiveStore.archives, async () => {
       // 카페 목록 초기화 및 검색 버튼 이후에 할당
-      if (!cscript.$isEmpty(archiveSchParams.value.artist)) {
+      if (!cscript.$isEmpty(artistList.value)) {
         let archiveList = JSON.parse(JSON.stringify(archiveStore.archives));
 
         // orderData 확인
@@ -232,7 +236,7 @@ export default defineComponent({
 
     // 필수 입력 항목 체크
     async function isMstValid() {
-      if (cscript.$isEmpty(archiveSchParams.value.artist)) {
+      if (cscript.$isEmpty(artistList.value)) {
         alert('아티스트 선택은 필수입니다.');
         return false;
       }
@@ -252,9 +256,14 @@ export default defineComponent({
 
     function searchData() {
       // 검색 데이터 생성
+      let artistListSave : unknown[] = [];
+      Object.entries(artistList.value).forEach(([, val]) => {
+        artistListSave.push(val);
+      });
+
       const filterData = {
         "flds": {
-          "artist" : archiveSchParams.value.artist
+          "artist" : artistListSave
         }
       }
 
@@ -263,6 +272,7 @@ export default defineComponent({
         "end": archiveSchParams.value.schEndDe ? moment(archiveSchParams.value.schEndDe).format('YYYY-MM-DD') : ""
       }
 
+      // console.log('filterData : ', filterData);
       archiveStore.getArchives(paginationData.value.current-1, paginationData.value.perPage, filterData, searchDate);
     }
 
@@ -341,6 +351,7 @@ export default defineComponent({
       isOpen,
       markerData,
       detailArchive,
+      artistList,
       onLoadMarker,
       onLoadInfoWindow,
       selectBoxOptions,
@@ -360,7 +371,13 @@ export default defineComponent({
 
 </script>
 
-<style>
+<style scoped>
+
+.my-card {
+  width: 25%;
+  float: left;
+}
+
 .infowindow-style {
   color: black;
   background-color: white;
@@ -442,6 +459,13 @@ export default defineComponent({
 
 .search-btn {
   float: right;
+}
+
+@media screen and (max-width: 767px){
+  .my-card {
+    width: 100%;
+    float: left;
+  }
 }
 
 </style>

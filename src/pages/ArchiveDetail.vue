@@ -1,12 +1,13 @@
 <template>
+  <layout-header></layout-header>
   <div v-if="archive" :style="`background-image: url(${mainImage})`"
-    class="relative text-white bg-center bg-cover h-80">
+    class="relative text-white bg-center bg-cover h-80 sm:h-64">
     <div class="absolute top-0 left-0 w-full h-full bg-black/70"></div>
     <div class="absolute top-1/2 translate-y-[-50%] left-40">
       <div class="text-2xl font-black">
         <span class="text-primary">{{ archive.artist?.name }}</span> 생일 카페
       </div>
-      <div class="text-5xl font-black">
+      <div class="archive-theme text-5xl font-black">
         {{ archive.themeName }}
       </div>
       <div class="text-lg text-gray-400">{{ archive.organizer }}</div>
@@ -36,14 +37,14 @@
         <span class="inline-block w-8">
           <img src="@/assets/twitter.svg" class="w-5" />
         </span>
-        <a :href="link" class="border-b border-gray-800">{{ link }}</a>
+        <a :href="link" class="border-b border-gray-800">{{ archive.organizer }}</a>
       </div>
     </div>
 
     <div class="inline-block pt-20 pb-2 text-3xl font-bold border-b-2 border-black">포스터 및 특전 정보</div>
 
     <div class="my-8">
-      <ImageSlide :modelValue="images" height="50rem" :editMode="false" />  
+      <ImageSlide :modelValue="images" :height="height" :editMode="false" />
     </div>
   </div>
 </template>
@@ -54,12 +55,20 @@ import { useRoute } from 'vue-router';
 import { useArchiveStore } from '@/stores/archive';
 import { Archive } from '@/types/Archive';
 import ImageSlide from '@/components/common/imageSlide.vue';
+import LayoutHeader from '@/layouts/LayoutHeader.vue';
 import moment from 'moment';
+import {useQuasar} from "quasar"
 
+const $q = useQuasar()
 const route = useRoute();
 const archiveStore = useArchiveStore();
 
 const archive: Ref<Archive | undefined> = ref();
+
+$q.screen.setSizes({sm: 360, md: 800, lg: 1500, xl: 2000});
+const height: ComputedRef<string | undefined> = computed(() => {
+  return $q.screen.width < $q.screen.sizes.md ? "0" : "50rem";
+});
 
 /**
  * ====================
@@ -120,5 +129,60 @@ function numToTime(num: int): string {
 </script>
 
 <style scoped>
+  @media screen and (max-width: 767px){
+    /*.h-80 {
+      height: 16rem;
+    }*/
 
+    .left-40 {
+      left: 1.25rem;
+    }
+
+    .text-2xl {
+      font-size: 1.25rem;
+    }
+
+    .archive-theme {
+      /*
+      width: 70%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      */
+    }
+
+    .text-5xl {
+      font-size: 2rem;
+    }
+
+    .text-lg {
+      font-size: 0.8rem;
+    }
+
+    .px-40 {
+      padding-left: 2rem;
+      padding-right: 2rem;
+    }
+
+    .pt-20 {
+      padding-top: 3rem;
+    }
+
+    .text-3xl {
+      font-size: 1.5rem;
+    }
+
+    .mt-11 {
+      margin-top: 1rem;
+    }
+
+    .w-8 {
+      width: 1.5rem;
+    }
+
+    .text-xl {
+      font-size: 1rem;
+      line-height: 0;
+    }
+  }
 </style>
