@@ -44,7 +44,7 @@
     <div class="inline-block pt-20 pb-2 text-3xl font-bold border-b-2 border-black">포스터 및 특전 정보</div>
 
     <div class="my-8">
-      <ImageSlide :modelValue="images" height="height" :editMode="false" />
+      <ImageSlide :modelValue="images" :height="height" :editMode="false" />
     </div>
   </div>
 </template>
