@@ -58,6 +58,7 @@ export const useUserStore = defineStore({
     doLogout() {
       googleLogout();
       this.user = undefined;
+      location.href = '/';
     },
 
     doSignUp(provider: string): Promise<boolean> {
