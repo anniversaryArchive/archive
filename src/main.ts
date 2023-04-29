@@ -8,7 +8,7 @@ import client from './plugins/villus';
 import vue3GoogleLogin from 'vue3-google-login';
 
 // Quasar
-import { Quasar } from 'quasar';
+import { Quasar, setCssVar } from 'quasar';
 import '@quasar/extras/material-icons/material-icons.css';
 import 'quasar/src/css/index.sass';
 import { createNaverMap } from "vue3-naver-maps";
@@ -16,6 +16,8 @@ import { createNaverMap } from "vue3-naver-maps";
 const pinia = createPinia();
 pinia.use(piniaPluginPersistedState)
 const { VITE_CLIENTID, VITE_GOOGLE_CLIENT_ID } = import.meta.env
+
+setCssVar('primary', '#4285F4');
 
 createApp(App)
   .use(pinia)
