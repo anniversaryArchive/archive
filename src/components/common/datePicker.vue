@@ -101,7 +101,7 @@ export default defineComponent({
 
 <style scoped>
 .inp_date {
-  width: 45%;
+  width: 44%;
   position: relative;
   display: inline-block;
   vertical-align: middle;

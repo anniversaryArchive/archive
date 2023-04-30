@@ -17,6 +17,11 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('@/pages/ArchiveDetail.vue'),
   },
   {
+    meta: {title: 'favorite'},
+    path: '/favorite',
+    component: () => import('@/pages/favorite.vue'),
+  },
+  {
     path: '/admin',
     children: [
       { 
