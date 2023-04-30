@@ -135,7 +135,7 @@ export default defineComponent({
 
     const paginationData = ref({
       current: 1,
-      perPage: 2,
+      perPage: 10,
     } as Pagination);
 
     const marker = ref([] as unknown);
@@ -215,6 +215,7 @@ export default defineComponent({
       // 카페 목록 초기화 및 검색 버튼 이후에 할당
       if (!cscript.$isEmpty(artistList.value)) {
         let archiveList = JSON.parse(JSON.stringify(archiveStore.archives));
+        // console.log("archiveList : ", archiveList);
 
         // orderData 확인
         archiveList = orderDataFunc(archiveList, orderData.value.value);
