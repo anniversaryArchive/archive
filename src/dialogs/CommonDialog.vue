@@ -15,7 +15,7 @@
             enter-to="opacity-100 scale-100" leave="duration-200 ease-in"
             leave-from="opacity-100 scale-100" leave-to="opacity-0 scale-95">
             <DialogPanel ref="modal"
-              class="w-full max-w-md p-6 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl">
+              class="w-full max-w-md p-6 overflow-hidden text-left align-middle transition-all transform bg-white rounded-lg shadow-xl">
               <slot></slot>
             </DialogPanel>
           </TransitionChild>

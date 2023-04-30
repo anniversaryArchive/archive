@@ -60,6 +60,7 @@ export const useUserStore = defineStore({
       localStorage.removeItem(import.meta.env.VITE_TOKEN_KEY);
       googleLogout();
       this.user = undefined;
+      location.href = '/';
     },
 
     doSignUp(provider: string): Promise<boolean> {
