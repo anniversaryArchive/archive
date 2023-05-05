@@ -1,5 +1,5 @@
 mutation ($token: String!, $provider: String) {
-  user: signIn (code: $token, provider: $provider) {
+  auth: signIn (code: $token, provider: $provider) {
     user {
       _id
       name

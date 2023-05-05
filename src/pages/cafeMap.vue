@@ -92,7 +92,7 @@ import _ from 'lodash';
 import {Pagination} from '@/types/CommonTypes';
 import moment from 'moment';
 import {useQuasar} from "quasar"
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/user';
 
 export default defineComponent({
@@ -185,6 +185,30 @@ export default defineComponent({
     const archiveStore = useArchiveStore();
 
     const userStore = useUserStore();
+    
+    async function doNaverSignUp(code: string) {
+      userStore.openSignInDialog = false;
+      try {
+        const success = await userStore.doNaverSignUp(code);
+        if (!success) { location.href.value = ''; }
+      } catch (error) { console.error(error); }
+    }
+
+    async function doNaverLogin(code: string) {
+      try {
+        const user = await userStore.doNaverLogin(code);
+        if (user == null) { 
+          userStore.openDialog('signUp'); 
+        } else if (user == undefined) {
+          location.href.value = '';
+        } else {
+          // TODO: 
+          $router.push('/cafeMap');
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    }
 
     onBeforeMount(() => {
       initialize();
@@ -192,18 +216,13 @@ export default defineComponent({
       const route = useRoute();
       const code: string | undefined = route.query.code;
       if (!code) { return; }
-      userStore.doNaverLogin(code);
-      console.log('query : ', route.query);
+      if (userStore.signUpMode) {
+        doNaverSignUp(code);
+      } else {
+        doNaverLogin(code);
+      }
     });
 
-    onMounted(() => {
-      // TODO: 네이버 로그인 체크 
-      
-      // $router
-      // console.log('query : ', this);
-      // http://localhost:5173/cafeMap#access_token=AAAAN-C-DejF9XLPkvCH-sVgnIXvT_bkc7t7bVpKSwQh5SRzi0F5cOcrWvKb5SyHipOvK-xjSvsKjjQj2kvwihqSNgk&state=&token_type=bearer&expires_in=3600
-      // const 
-    });
 
     const initialize = () => {
       // 임시 그룹 데이터

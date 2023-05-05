@@ -39,7 +39,6 @@ const props = withDefaults(defineProps<Props>(), { });
 const emit = defineEmits(['done', 'close']);
 
 const userStore = useUserStore();
-const signUpMode: Ref<boolean> = ref(false);    // 회원가입 모드
 
 const hoverGoogleLoginBtn: Ref<boolean> = ref<boolean>(false);
 const pressedGoogleLoginBtn: Ref<boolean> = ref<boolean>(false);
@@ -48,7 +47,10 @@ const googleLoginBtnImage: ComputedRef<string> = computed<string>(() => {
   if (pressedGoogleLoginBtn.value) { return pressedGoogleBtnImage; }
   if (hoverGoogleLoginBtn.value) { return focusGoogleBtnImage; }
   return nomarlGoogleBtnImage;
-})
+});
+const signUpMode: ComputedRef<boolean> = computed<boolean>(() => {
+  return userStore.signInDialogMode == 'signUp';
+});
 
 function closeDialog () {
   emit('close')
@@ -63,7 +65,7 @@ function doAction(provider: string) {
 async function doLogin(provider: string) {
   try {
     const user: User | null | undefined = await userStore.doLogin(provider);
-    if (user == null) { // 회원가입 한 유저 정보가 없는 경우 
+    if (user == null && user != undefined) { // 회원가입 한 유저 정보가 없는 경우 
       signUpMode.value = true;
       alert('회원가입이 필요합니다');
     } else { emit('close'); }

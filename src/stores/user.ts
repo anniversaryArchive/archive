@@ -8,24 +8,38 @@ import signUp from '@/graphql/signUp.mutate.gql';
 
 interface UserState {
   user?: User;
+  openSignInDialog: boolean;
+  signInDialogMode: 'signIn' | 'signUp';
 }
 
 export const useUserStore = defineStore({
   id: 'user',
   persist: true,
 
-  state : (): UserState => ({ user: undefined }),
+  state : (): UserState => ({ 
+    user: undefined,
+    openSignInDialog: false,
+    signInDialogMode: 'signIn',
+   }),
 
   getters: {
-    loggedIn(state): boolean { return !!state.user },
+    loggedIn(state): boolean { return !!state.user; },
+    isOpenSignInDialog(state): boolean { return state.openSignInDialog; },
+    signUpMode(state): boolean { return state.signInDialogMode == 'signUp'; },
   },
 
   actions: {
+    openDialog(mode: 'signIn' | 'signUp') {
+      this.openSignInDialog = true;
+      this.signInDialogMode = mode;
+    },
+
     doLogin(provider: string): Promise<User | null | undefined> {
       switch (provider) {
         case 'google': return this.doGoogleLogin();
         case 'naver':
-          const url: string = `https://nid.naver.com/oauth2.0/authorize?client_id=${import.meta.env.VITE_NAVER_CLIENT_ID}&redirect_uri=${window.location.href}&response_type=code`;
+          console.log('url : ', window.location.origin);
+          const url: string = `https://nid.naver.com/oauth2.0/authorize?client_id=${import.meta.env.VITE_NAVER_CLIENT_ID}&redirect_uri=${window.location.origin}/cafeMap&response_type=code`;
           window.location.href=url;
           break;
       }
@@ -35,6 +49,7 @@ export const useUserStore = defineStore({
     async signIn(provider: string, code: string): Promise<User | null | undefined> {
       try {
         const { data, error } = await mutate(signIn, { token: code, provider });
+        console.log('data : ', data);
         if (error) {
           const code: number | undefined = error?.graphqlErrors && error?.graphqlErrors[0]?.extensions?.code;
           this.onErrorLogin(code);
@@ -84,15 +99,17 @@ export const useUserStore = defineStore({
     doSignUp(provider: string): Promise<boolean> {
       switch (provider) {
         case 'google': return this.doGoogleSignUp();
+        case 'naver':
+          const url: string = `https://nid.naver.com/oauth2.0/authorize?client_id=${import.meta.env.VITE_NAVER_CLIENT_ID}&redirect_uri=${window.location.origin}/cafeMap&response_type=code`;
+          window.location.href=url;
+          break;
       }
       return Promise.resolve(false); 
     },
 
-    async doGoogleSignUp(): Promise<boolean> {
+    async signUp(provider: string, code: string): Promise<boolean> {
       try {
-        var response = await googleTokenLogin();
-        if (!response?.access_token) { return false; }
-        const { data, error } = await mutate(signUp, { token: response.access_token, provider: 'google' });
+        const { data, error } = await mutate(signUp, { token: code, provider });
         if (error) {
           const code: number | undefined = error?.graphqlErrors && error?.graphqlErrors[0]?.extensions?.code;
           this.onErrorSignUp(code);
@@ -102,6 +119,22 @@ export const useUserStore = defineStore({
         if (!user) { return false; }
         this.user = user;
         return true;
+      } catch (error) { console.error(error); }
+      return false;
+    },
+
+    async doNaverSignUp(code: string): Promise<boolean> {
+      try {
+        return await this.signUp('naver', code);
+      } catch (error) { console.error(error); }
+      return true;
+    },
+
+    async doGoogleSignUp(): Promise<boolean> {
+      try {
+        var response = await googleTokenLogin();
+        if (!response?.access_token) { return false; }
+        return await this.signUp('google', response.access_token);
       } catch (error) { console.error(error); }
       return true;
     },

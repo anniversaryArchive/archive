@@ -18,7 +18,7 @@
   </q-layout>
 
   <SignInDialog :show="isOpenSignInDialog"
-    @close="() => { isOpenSignInDialog = false; }" />
+    @close="() => { userStore.openSignInDialog = false; }" />
 </template>
 
 <script lang='ts'>
@@ -32,8 +32,8 @@ export default defineComponent({
   setup() {
     const userStore = useUserStore();
     const loggedIn = computed(() => userStore.loggedIn);
+    const isOpenSignInDialog = computed(() => userStore.isOpenSignInDialog);
 
-    const isOpenSignInDialog = ref(false);
     return {
       userStore,
       loggedIn,           // 현재 로그인 여부 
@@ -43,7 +43,7 @@ export default defineComponent({
   methods: {
     // 로그인 버튼 클릭 시, 로그인/회원가입 Dialog을 띄워준다 
     doLogin() {
-      this.isOpenSignInDialog = true;
+      this.userStore.openDialog('signIn');
     },
     // 로그아웃 버튼 클릭 시, userStore.doLogout을 호출하여 로그아웃을 진행한다. 
     doLogout() {
