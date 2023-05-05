@@ -1,10 +1,13 @@
 mutation ($token: String!, $provider: String) {
   user: signIn (code: $token, provider: $provider) {
-    _id
-    name
-    email
-    provider
-    providerId
-    image
+    user {
+      _id
+      name
+      email
+      provider
+      providerId
+      image
+    }
+    token
   }
 }

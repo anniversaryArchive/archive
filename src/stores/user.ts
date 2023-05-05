@@ -40,8 +40,9 @@ export const useUserStore = defineStore({
           this.onErrorLogin(code);
           return;
         }
-        const user: User | undefined = data?.user;
-        if (user) { this.user = user;  }
+        const { user, token }: { user?: User, token?: string } = data?.auth || {};
+        this.user = user;
+        if (token) { localStorage.setItem(import.meta.env.VITE_TOKEN_KEY, token); }
         return user;
       } catch (error) { console.error(error); }
       return null;
@@ -74,6 +75,7 @@ export const useUserStore = defineStore({
     },
 
     doLogout() {
+      localStorage.removeItem(import.meta.env.VITE_TOKEN_KEY);
       googleLogout();
       this.user = undefined;
       location.href = '/';
