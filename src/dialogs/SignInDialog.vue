@@ -16,12 +16,13 @@
           @mouseover="hoverGoogleLoginBtn = true" @mouseleave="hoverGoogleLoginBtn = false"
           @mousedown="pressedGoogleLoginBtn = true" @mouseup="pressedGoogleLoginBtn = false" />
       </button>
+      <button @click="doAction('naver')">NAVER LOGIN</button>
     </div>
   </CommonDialog>
 </template>
 
 <script setup lang="ts">
-import { ref, Ref, computed, ComputedRef } from 'vue';
+import { ref, Ref, computed, ComputedRef, onBeforeMount } from 'vue';
 import CommonDialog from './CommonDialog.vue';
 import { useUserStore } from '@/stores/user';
 

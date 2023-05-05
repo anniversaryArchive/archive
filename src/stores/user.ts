@@ -24,15 +24,17 @@ export const useUserStore = defineStore({
     doLogin(provider: string): Promise<User | null | undefined> {
       switch (provider) {
         case 'google': return this.doGoogleLogin();
+        case 'naver':
+          const url: string = `https://nid.naver.com/oauth2.0/authorize?client_id=${import.meta.env.VITE_NAVER_CLIENT_ID}&redirect_uri=${window.location.href}&response_type=code`;
+          window.location.href=url;
+          break;
       }
       return Promise.resolve(undefined);
     },
 
-    async doGoogleLogin(): Promise<User | null | undefined> {
+    async signIn(provider: string, code: string): Promise<User | null | undefined> {
       try {
-        var response = await googleTokenLogin();
-        if (!response?.access_token) { return; }
-        const { data, error } = await mutate(signIn, { token: response.access_token, provider: 'google' });
+        const { data, error } = await mutate(signIn, { token: code, provider });
         if (error) {
           const code: number | undefined = error?.graphqlErrors && error?.graphqlErrors[0]?.extensions?.code;
           this.onErrorLogin(code);
@@ -41,6 +43,22 @@ export const useUserStore = defineStore({
         const user: User | undefined = data?.user;
         if (user) { this.user = user;  }
         return user;
+      } catch (error) { console.error(error); }
+      return null;
+    },
+
+    async doNaverLogin(code: string): Promise<User | null | undefined> {
+      try {
+        return await this.signIn('naver', code);
+      } catch (error) { console.error(error); }
+      return;
+    },
+
+    async doGoogleLogin(): Promise<User | null | undefined> {
+      try {
+        var response = await googleTokenLogin();
+        if (!response?.access_token) { return; }
+        return await this.signIn('google', response.access_token);
       } catch (error) { console.error(error); }
       return;
     },

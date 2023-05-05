@@ -80,7 +80,7 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, onBeforeMount, ref, watch} from 'vue';
+import {defineComponent, onBeforeMount, onMounted, ref, watch} from 'vue';
 import {NaverInfoWindow, NaverMap, NaverMarker} from 'vue3-naver-maps';
 import mixinPageCommon from '@/pages/mixin/mixinPageCommon';
 import ccobject from '@/composables/createComObject';
@@ -92,6 +92,8 @@ import _ from 'lodash';
 import {Pagination} from '@/types/CommonTypes';
 import moment from 'moment';
 import {useQuasar} from "quasar"
+import { useRoute } from 'vue-router';
+import { useUserStore } from '@/stores/user';
 
 export default defineComponent({
   name      : 'cafeMap',
@@ -182,8 +184,25 @@ export default defineComponent({
     const artistStore = useArtistStore();
     const archiveStore = useArchiveStore();
 
+    const userStore = useUserStore();
+
     onBeforeMount(() => {
       initialize();
+
+      const route = useRoute();
+      const code: string | undefined = route.query.code;
+      if (!code) { return; }
+      userStore.doNaverLogin(code);
+      console.log('query : ', route.query);
+    });
+
+    onMounted(() => {
+      // TODO: 네이버 로그인 체크 
+      
+      // $router
+      // console.log('query : ', this);
+      // http://localhost:5173/cafeMap#access_token=AAAAN-C-DejF9XLPkvCH-sVgnIXvT_bkc7t7bVpKSwQh5SRzi0F5cOcrWvKb5SyHipOvK-xjSvsKjjQj2kvwihqSNgk&state=&token_type=bearer&expires_in=3600
+      // const 
     });
 
     const initialize = () => {
