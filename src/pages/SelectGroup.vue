@@ -79,31 +79,4 @@ function onClickGroup(group: Group) {
 </script>
 
 <style scoped>
-  @media screen and (max-width: 767px){
-    .main-div {
-      width: 100%;
-    }
-
-    .main-title {
-      font-size: 2.5rem;
-    }
-
-    .main-text {
-      font-size: 1.5rem;
-      line-height: 1.85rem;
-      margin: 0;
-    }
-
-    .search-text {
-      width: 100%;
-      font-size: 1.25rem;
-      line-height: 1.25em;
-    }
-
-    .group-div {
-      padding: 1rem;
-      display: flex;
-      flex-direction: column;
-    }
-  }
 </style>
