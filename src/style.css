@@ -161,7 +161,9 @@ body {
   padding: 20px;
 }
 
-.info-card ul {
+.favorite-card .card-title,
+.info-card ul,
+.favor-list {
   border-bottom: 1px solid #cccccc;
 }
 
@@ -176,6 +178,31 @@ body {
   font-size: 18px;
   line-height: 30px;
 }
+
+.favor-list {
+  text-align: center;
+  padding: 20px;
+}
+
+.favor-list li {
+  display: table-cell;
+  margin: auto;
+  vertical-align: middle;
+  /* padding: 0 20px; */
+
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 20px;
+  color: #000000;
+}
+
+.favor-list li span {
+  display: block;
+  font-size: 12px;
+  line-height: 15px;
+  color: #767676;
+}
+
 /* End favorite.vue */
 
 /* 모바일 화면 */

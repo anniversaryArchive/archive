@@ -10,15 +10,25 @@
             <li class="info-text pb-5">닉네임</li>
           </ul>
 
-          <div class="search-box">
+          <div>
             <h1 class="search-text">멤버 선택</h1>
-            <select-box id="artist" v-model='artistList' v-bind='selectBoxOptions.artist' style="width: 100%;"
-                        :multiplied='true'
-                        use-chips/>
+            <select-box
+                id="artist"
+                v-model="artistList"
+                v-bind="selectBoxOptions.artist"
+                style="width: 100%"
+                :multiplied="true"
+                use-chips
+            />
             <h1 class="search-text">기간 선택</h1>
-            <com-period-date-picker v-model='archiveSchParams'
-                                    :clearable="true" :disabled='false' :readonly='false'
-                                    beginDeNm="schBeginDe" endDeNm="schEndDe"/>
+            <com-period-date-picker
+                v-model="archiveSchParams"
+                :clearable="true"
+                :disabled="false"
+                :readonly="false"
+                beginDeNm="schBeginDe"
+                endDeNm="schEndDe"
+            />
 
             <div class="btn-box">
               <q-btn type="button" class="" @click="resetFunc"> 초기화 </q-btn>
@@ -33,6 +43,16 @@
           <ul>
             <li class="card-title pb-3">즐겨찾기</li>
           </ul>
+
+          <ul class="favor-list row">
+            <li class="col-2">몬스타엑스</li>
+            <li class="col-1">형원</li>
+            <li class="col-8 cafe-text">
+              나의 하루는 오늘도 너에게
+              <span>@with_my_H</span>
+            </li>
+            <li class="col-1 text-right"><font-awesome-icon :icon="['fas', 'heart']" style="color: #4e84c1" /></li>
+          </ul>
         </q-card-section>
       </q-card>
     </div>
@@ -40,29 +60,30 @@
 </template>
 
 <script lang="ts">
-
-import {defineComponent, ref} from 'vue';
-import mixinPageCommon from '@/pages/mixin/mixinPageCommon';
-import {ArchiveSearchParams} from '@/types/Archive';
-import cscript from '@/composables/comScripts';
-import {useQuasar} from 'quasar';
-import ccobject from '@/composables/createComObject';
+import {defineComponent, ref} from "vue"
+import mixinPageCommon from "@/pages/mixin/mixinPageCommon"
+import {Archive, ArchiveSearchParams} from "@/types/Archive"
+import cscript from "@/composables/comScripts"
+import {useQuasar} from "quasar"
+import ccobject from "@/composables/createComObject"
 
 export default defineComponent({
-  name      : 'favorite',
+  name: "favorite",
   components: {},
-  mixins    : [mixinPageCommon],
+  mixins: [mixinPageCommon],
   setup() {
-    const $q = useQuasar();
-    const artistList = ref([] as string[]);
+    const $q = useQuasar()
+    const archiveParams = ref({} as Archive)
 
-    const {selectBoxOptions: selectBoxOptions} = ccobject.$createSelectAll(['artist']);
-    const {schParams: archiveSchParams} = ccobject.$createSchParams<ArchiveSearchParams>();
+    const artistList = ref([] as string[])
+
+    const {selectBoxOptions: selectBoxOptions} = ccobject.$createSelectAll(["artist"])
+    const {schParams: archiveSchParams} = ccobject.$createSchParams<ArchiveSearchParams>()
 
     function resetFunc() {
-      const msg = '초기화 하시겠습니까?';
+      const msg = "초기화 하시겠습니까?"
       if (!confirm(msg)) {
-        return;
+        return
       }
 
       // 검색 조건
@@ -79,13 +100,13 @@ export default defineComponent({
         alert('아티스트 선택은 필수입니다.');
         return false;
       }*/
-      return true;
+      return true
     }
 
     async function searchBtnFunc() {
       // 검색 조건 확인
-      if (!await isMstValid()) {
-        return;
+      if (!(await isMstValid())) {
+        return
       }
       /*searchData();
       isEarly = true;
@@ -100,8 +121,7 @@ export default defineComponent({
       searchBtnFunc
     }
   }
-});
+})
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>
