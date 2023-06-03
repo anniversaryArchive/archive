@@ -18,6 +18,7 @@ export interface Archive {
   images: [Image];        // 이미지 리스트
   phoneNumber?: string;   // 전화번호
   link?: string;          // 대표 링크
+  favorite: boolean;      // 즐겨찾기 여부 
 }
 
 export const ArchiveType: Record<string, string> = {

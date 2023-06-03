@@ -36,6 +36,7 @@ query ($page: Int, $perPage: Int, $filter: FilterOption, $start: Date, $end: Dat
         name
         path
       }
+      favorite
       organizer
       phoneNumber
       link
