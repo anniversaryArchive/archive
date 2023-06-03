@@ -41,8 +41,8 @@ function onClickItem() {
 async function onClickFavoriteIcon() {
   let success: boolean = false;
   try {
-    if (archive.favorite) {
-      success = await (archive.favorite ? doRemoveFavorite() : doCreateFavorite());
+    if (archive.value.favorite) {
+      success = await doRemoveFavorite();
     } else {
       success = await doCreateFavorite();
     }
