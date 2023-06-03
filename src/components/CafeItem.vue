@@ -32,10 +32,12 @@ const emit = defineEmits(['click']);
 
 const archive: ComputedRef<Archive> = computed(() => props.archive);
 
+// 카페 아이템 클릭 시 
 function onClickItem() {
   emit('click');
 }
 
+// 즐겨찾기 아이콘 클릭 시, 즐겨찾기 여부를 확인하여 doCreateFavorite / doRemoveFavorite 함수를 호출해준다.
 async function onClickFavoriteIcon() {
   let success: boolean = false;
   try {
@@ -49,6 +51,7 @@ async function onClickFavoriteIcon() {
   } catch (_) {}
 }
 
+// 즐겨찾기 추가 
 async function doCreateFavorite(): Promise<boolean> {
   try {
     const { data } = await mutate(createFavorite, { archive: archive.value._id });
@@ -57,6 +60,7 @@ async function doCreateFavorite(): Promise<boolean> {
   return false;
 }
 
+// 즐겨찾기 제거 
 async function doRemoveFavorite(): Promise<boolean> {
   try {
     const { data } = await mutate(removeFavorite, { archive: archive.value._id });
