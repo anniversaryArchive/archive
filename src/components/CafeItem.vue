@@ -17,8 +17,10 @@
 
 <script setup lang="ts">
 import { computed, ComputedRef } from 'vue';
+import { useQuasar } from 'quasar';
 import { Archive } from '@/types/Archive';
 import { mutate } from '@/composables/graphqlUtils';
+import { useUserStore } from '@/stores/user';
 
 import createFavorite from '@/graphql/createFavorite.mutate.gql';
 import removeFavorite from '@/graphql/removeFavorite.mutate.gql';
@@ -30,15 +32,23 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {});
 const emit = defineEmits(['click']);
 
+const $q = useQuasar()
+const userStore = useUserStore();
 const archive: ComputedRef<Archive> = computed(() => props.archive);
 
-// 카페 아이템 클릭 시 
+// 카페 아이템 클릭 시
 function onClickItem() {
   emit('click');
 }
 
 // 즐겨찾기 아이콘 클릭 시, 즐겨찾기 여부를 확인하여 doCreateFavorite / doRemoveFavorite 함수를 호출해준다.
 async function onClickFavoriteIcon() {
+  // 로그인되어 있지 않은 경우, 경고 메세지를 띄워준다.
+  if (!userStore.loggedIn) {
+    $q.notify('즐겨찾기 기능은 로그인 시 이용 가능합니다.');
+    return;
+  }
+
   let success: boolean = false;
   try {
     if (archive.value.favorite) {
@@ -51,7 +61,7 @@ async function onClickFavoriteIcon() {
   } catch (_) {}
 }
 
-// 즐겨찾기 추가 
+// 즐겨찾기 추가
 async function doCreateFavorite(): Promise<boolean> {
   try {
     const { data } = await mutate(createFavorite, { archive: archive.value._id });
@@ -60,7 +70,7 @@ async function doCreateFavorite(): Promise<boolean> {
   return false;
 }
 
-// 즐겨찾기 제거 
+// 즐겨찾기 제거
 async function doRemoveFavorite(): Promise<boolean> {
   try {
     const { data } = await mutate(removeFavorite, { archive: archive.value._id });
