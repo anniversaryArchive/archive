@@ -1,0 +1,5 @@
+mutation ($archive: ID!) {
+  favorite: createFavorite (archive: $archive) {
+    _id
+  }
+}

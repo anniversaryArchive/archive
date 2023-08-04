@@ -26,14 +26,8 @@
       </div>
 
       <q-list v-if="archiveParams">
-        <q-item v-for="(archive) in archiveParams" v-bind:key="archiveParams" class="archive-item" clickable
-                @click="$q.screen.xs ? detailBtnFunc(archive._id) : onLoadMarker(archive)">
-          <q-item-section>
-            <q-item-label class="archive-title">{{archive.themeName}}</q-item-label>
-            <q-item-label class="archive-account">{{archive.organizer}}</q-item-label>
-            <q-item-label class="archive-address">{{archive.address}}</q-item-label>
-          </q-item-section>
-        </q-item>
+        <CafeItem v-for="archive in archiveParams" :archive="archive"
+          @click="$q.screen.xs ? detailBtnFunc(archive._id) : onLoadMarker(archive)" />
       </q-list>
 
       <div v-if="paginationData.maxCnt" class="flex q-pa-lg flex-center">
@@ -91,11 +85,12 @@ import {useArchiveStore} from '@/stores/archive';
 import _ from 'lodash';
 import {Pagination} from '@/types/CommonTypes';
 import moment from 'moment';
-import {useQuasar} from "quasar"
+import {useQuasar} from 'quasar';
+import CafeItem from '@/components/CafeItem.vue';
 
 export default defineComponent({
   name      : 'cafeMap',
-  components: {NaverMap, NaverMarker, NaverInfoWindow},
+  components: { NaverMap, NaverMarker, NaverInfoWindow, CafeItem },
   mixins    : [mixinPageCommon],
   setup() {
     const $q = useQuasar();
@@ -421,29 +416,6 @@ export default defineComponent({
   border-bottom: 0;
   padding: 16px;
   width: 300px;
-}
-
-.archive-title {
-  font-weight: 400;
-  font-size: 16px;
-  line-height: 30px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
-}
-
-.archive-account {
-  font-weight: 400;
-  font-size: 12px;
-  line-height: 22px;
-  color: #767676;
-}
-
-.archive-address {
-  font-weight: 400;
-  font-size: 14px;
-  line-height: 25px;
-  color: #767676;
 }
 
 .btn-box {

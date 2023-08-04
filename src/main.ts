@@ -8,7 +8,7 @@ import client from './plugins/villus';
 import vue3GoogleLogin from 'vue3-google-login';
 
 // Quasar
-import { Quasar, setCssVar } from 'quasar';
+import { Quasar, setCssVar, Notify } from 'quasar';
 import '@quasar/extras/material-icons/material-icons.css';
 import 'quasar/src/css/index.sass';
 import { createNaverMap } from "vue3-naver-maps";
@@ -22,7 +22,12 @@ setCssVar('primary', '#4285F4');
 createApp(App)
   .use(pinia)
   .use(router)
-  .use(Quasar, { plugins: {} })
+  .use(Quasar, {
+    plugins: { Notify },
+    config: {
+      notify: {},
+    },
+  })
   .use(client)
   .use(createNaverMap, {
     clientId: VITE_CLIENTID,
