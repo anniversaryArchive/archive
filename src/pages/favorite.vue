@@ -11,7 +11,7 @@
           </ul>
 
           <div>
-            <h1 class="search-text">멤버 선택</h1>
+            <h1 class="search-text">그룹 선택</h1>
             <select-box
                 id="artist"
                 v-model="artistList"
@@ -60,12 +60,14 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, ref} from "vue"
+import {defineComponent, onBeforeMount, ref, watch} from 'vue';
 import mixinPageCommon from "@/pages/mixin/mixinPageCommon"
 import {Archive, ArchiveSearchParams} from "@/types/Archive"
 import cscript from "@/composables/comScripts"
 import {useQuasar} from "quasar"
 import ccobject from "@/composables/createComObject"
+import {useArchiveStore} from '@/stores/archive';
+import { useFavoriteStore } from '@/stores/favorite';
 
 export default defineComponent({
   name: "favorite",
@@ -77,8 +79,22 @@ export default defineComponent({
 
     const artistList = ref([] as string[])
 
-    const {selectBoxOptions: selectBoxOptions} = ccobject.$createSelectAll(["artist"])
-    const {schParams: archiveSchParams} = ccobject.$createSchParams<ArchiveSearchParams>()
+    const {selectBoxOptions: selectBoxOptions} = ccobject.$createSelectAll(["artist"]);
+    const {schParams: archiveSchParams} = ccobject.$createSchParams<ArchiveSearchParams>();
+
+    const favoriteGroupsStore = useFavoriteStore();
+
+    onBeforeMount(() => {
+      initialize();
+    });
+
+    const initialize = () => {
+      favoriteGroupsStore.getFavoriteGroupState();
+    };
+
+    watch(() => favoriteGroupsStore.favoriteGroups, async () => {
+      console.log('favoriteGroupsStore : ', favoriteGroupsStore);
+    });
 
     function resetFunc() {
       const msg = "초기화 하시겠습니까?"
@@ -96,10 +112,10 @@ export default defineComponent({
 
     // 필수 입력 항목 체크
     async function isMstValid() {
-      /*if (cscript.$isEmpty(artistList.value)) {
-        alert('아티스트 선택은 필수입니다.');
+      if (cscript.$isEmpty(artistList.value)) {
+        alert('그룹 선택은 필수입니다.');
         return false;
-      }*/
+      }
       return true
     }
 
