@@ -195,9 +195,6 @@ export default defineComponent({
         group: archiveSchParams.value.group,
       } as variables;
 
-      console.log('searchDate : ', searchDate);
-      console.log('result : ', result);
-
       favoriteArchiveStore.getFavoriteArchives(result, searchDate);
     }
 
@@ -210,7 +207,7 @@ export default defineComponent({
     }
 
     function orderSelectChange() {
-      if(cscript.$isEmpty(archiveParams.value)){
+      if(!cscript.$isEmpty(archiveParams.value)){
         const changeData = orderDataFunc(archiveParams.value, orderData.value.value);
         archiveParams.value = _.cloneDeep(changeData);
       }
@@ -226,15 +223,31 @@ export default defineComponent({
 
     // 오름차순
     function ascOrdSortDate(list : any) {
-      return list.sort(function (a: { startDate: string | number | Date; }, b: { startDate: string | number | Date; }) {
-        return new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
+      return list.sort(function (a: {
+        archive: {
+          startDate: string | number | Date;
+        }
+      }, b: {
+        archive: {
+          startDate: string | number | Date;
+        }
+      }) {
+        return new Date(a.archive.startDate).getTime() - new Date(b.archive.startDate).getTime();
       });
     }
 
     // 내림차순
     function descOrdSortDate(list : any) {
-      return list.sort(function (a: { startDate: string | number | Date; }, b: { startDate: string | number | Date; }) {
-        return new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
+      return list.sort(function (a: {
+        archive: {
+          startDate: string | number | Date;
+        }
+      }, b: {
+        archive: {
+          startDate: string | number | Date;
+        }
+      }) {
+        return new Date(a.archive.startDate).getTime() - new Date(b.archive.startDate).getTime();
       }).reverse();
     }
 

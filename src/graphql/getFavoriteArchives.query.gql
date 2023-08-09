@@ -1,5 +1,5 @@
-query FavoritePagination($sortOrder: Int, $page: Int, $perPage: Int, $group: ID) {
-  FavoritePagination(sortOrder: $sortOrder, page: $page, perPage: $perPage, group: $group) {
+query FavoritePagination($sortOrder: Int, $page: Int, $perPage: Int, $group: ID, $start: Date, $end: Date) {
+  FavoritePagination(sortOrder: $sortOrder, page: $page, perPage: $perPage, group: $group, start: $start, end: $end) {
     data {
       _id
       archive {
