@@ -46,7 +46,7 @@ body {
   letter-spacing: -0.015em;
   color: #000000;
   font-weight: 400;
-  padding: 0px;
+  padding: 0;
 }
 
 .menu-ul li button:hover {

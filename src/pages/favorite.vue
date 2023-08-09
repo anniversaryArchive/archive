@@ -75,7 +75,6 @@ import { useFavoriteGroupStore } from '@/stores/favoriteGroup';
 import {Pagination, variables} from '@/types/CommonTypes';
 import moment from 'moment/moment';
 import {useFavoriteArchiveStore} from '@/stores/favoriteArchive';
-import { useQuasar } from 'quasar';
 import {FavoriteArchive} from '@/types/Favorite';
 import _ from 'lodash';
 
