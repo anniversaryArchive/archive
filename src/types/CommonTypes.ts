@@ -105,3 +105,10 @@ export interface WatchQuery<T> {
     total: ComputedRef<number>;
     fetch: FetchFunc;
 }
+
+export interface variables {
+    perPage     : number,
+    page        : number,
+    sortOrder?  : number,
+    group       : string
+}

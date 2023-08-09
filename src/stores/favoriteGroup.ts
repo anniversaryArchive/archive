@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import {mutate, query} from '@/composables/graphqlUtils';
+import {query} from '@/composables/graphqlUtils';
 import {QueryExecutionOpts} from 'villus';
 import {computed, ComputedRef} from 'vue';
 import {FavoriteGroup} from '@/types/Favorite';
@@ -19,8 +19,8 @@ interface FavoriteState {
   data?: WatchQuery;
 }
 
-export const useFavoriteStore = defineStore({
-  id: 'favorite',
+export const useFavoriteGroupStore = defineStore({
+  id: 'favoriteGroup',
   state: (): FavoriteState => ({ data: undefined }),
   getters: {
     favoriteGroups (): FavoriteGroup[] { return this.data?.list || [] },
@@ -39,6 +39,6 @@ export const useFavoriteStore = defineStore({
           fetch: execute,
         }
       });
-    },
+    }
   }
 });

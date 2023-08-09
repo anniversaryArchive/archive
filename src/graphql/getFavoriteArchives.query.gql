@@ -1,0 +1,19 @@
+query FavoritePagination($sortOrder: Int, $page: Int, $perPage: Int, $group: ID) {
+  FavoritePagination(sortOrder: $sortOrder, page: $page, perPage: $perPage, group: $group) {
+    data {
+      _id
+      archive {
+        _id
+        themeName
+        organizer
+        favorite
+        startDate
+        endDate
+        artist {
+          _id
+          name
+        }
+      }
+    }
+  }
+}

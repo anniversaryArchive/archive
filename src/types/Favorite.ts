@@ -13,6 +13,22 @@ export interface FavoriteGroup {
     name        : string,
 }
 
+export interface FavoriteArchive {
+    _id         : string,
+    archive     : {
+        _id         : string,
+        themeName   : string,
+        organizer   : string,
+        favorite    : boolean,
+        startDate   : string,
+        endDate     : string,
+        artist      : {
+            _id     : string,
+            name    : string
+        }
+    },
+}
+
 const FavoriteType: { [key: string]: string } = {
     user        : 'string',
     group       : 'string',

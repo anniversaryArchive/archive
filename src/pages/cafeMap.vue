@@ -327,7 +327,7 @@ export default defineComponent({
     }
 
     function orderSelectChange() {
-      if(!cscript.$isEmpty(archiveParams.value)){
+      if(cscript.$isEmpty(archiveParams.value)){
         const changeData = orderDataFunc(archiveParams.value, orderData.value.value);
         archiveParams.value = _.cloneDeep(changeData);
       }
