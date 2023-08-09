@@ -62,12 +62,10 @@
 <script lang="ts">
 import { defineComponent, onBeforeMount, ref, watch} from 'vue';
 import mixinPageCommon from "@/pages/mixin/mixinPageCommon"
-import {Archive, ArchiveSearchParams} from "@/types/Archive"
+import {ArchiveSearchParams} from "@/types/Archive"
 import cscript from "@/composables/comScripts"
-import {useQuasar} from "quasar"
 import ccobject from "@/composables/createComObject"
 import { useFavoriteStore } from '@/stores/favorite';
-import {useUserStore} from '@/stores/user';
 
 export default defineComponent({
   name: "favorite",
