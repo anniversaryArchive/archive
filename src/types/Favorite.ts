@@ -1,4 +1,3 @@
-import * as diagnostics_channel from 'diagnostics_channel';
 
 export interface Favorite {
     user        : string, // 즐겨찾기한 유저

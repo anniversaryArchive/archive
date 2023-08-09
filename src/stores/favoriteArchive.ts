@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import {query} from '@/composables/graphqlUtils';
 import {QueryExecutionOpts} from 'villus';
 import {computed, ComputedRef} from 'vue';
-import {FavoriteArchive, FavoriteGroup} from '@/types/Favorite';
+import {FavoriteArchive} from '@/types/Favorite';
 import getFavoriteArchives from '@/graphql/getFavoriteArchives.query.gql';
 import { variables} from '@/types/CommonTypes';
 
