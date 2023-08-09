@@ -14,8 +14,8 @@
             <h1 class="search-text">그룹 선택</h1>
             <select-box
                 id="artist"
-                v-model="artistList"
-                v-bind="selectBoxOptions.artist"
+                v-model="groupList"
+                v-bind="selectBoxOptions.group"
                 style="width: 100%"
                 :multiplied="true"
                 use-chips
@@ -44,7 +44,7 @@
             <li class="card-title pb-3">즐겨찾기</li>
           </ul>
 
-          <ul class="favor-list row">
+<!--          <ul class="favor-list row">
             <li class="col-2">몬스타엑스</li>
             <li class="col-1">형원</li>
             <li class="col-8 cafe-text">
@@ -52,7 +52,7 @@
               <span>@with_my_H</span>
             </li>
             <li class="col-1 text-right"><font-awesome-icon :icon="['fas', 'heart']" style="color: #4e84c1" /></li>
-          </ul>
+          </ul>-->
         </q-card-section>
       </q-card>
     </div>
@@ -60,7 +60,7 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, onBeforeMount, ref, watch} from 'vue';
+import {computed, defineComponent, onBeforeMount, ref, watch} from 'vue';
 import mixinPageCommon from "@/pages/mixin/mixinPageCommon"
 import {Archive, ArchiveSearchParams} from "@/types/Archive"
 import cscript from "@/composables/comScripts"
@@ -68,6 +68,8 @@ import {useQuasar} from "quasar"
 import ccobject from "@/composables/createComObject"
 import {useArchiveStore} from '@/stores/archive';
 import { useFavoriteStore } from '@/stores/favorite';
+import {useUserStore} from '@/stores/user';
+import {User} from '@/types/User';
 
 export default defineComponent({
   name: "favorite",
@@ -77,11 +79,12 @@ export default defineComponent({
     const $q = useQuasar()
     const archiveParams = ref({} as Archive)
 
-    const artistList = ref([] as string[])
+    const groupList = ref([] as string[])
 
-    const {selectBoxOptions: selectBoxOptions} = ccobject.$createSelectAll(["artist"]);
+    const {selectBoxOptions: selectBoxOptions} = ccobject.$createSelectAll(["group"]);
     const {schParams: archiveSchParams} = ccobject.$createSchParams<ArchiveSearchParams>();
 
+    const userStore = useUserStore();
     const favoriteGroupsStore = useFavoriteStore();
 
     onBeforeMount(() => {
@@ -93,7 +96,16 @@ export default defineComponent({
     };
 
     watch(() => favoriteGroupsStore.favoriteGroups, async () => {
-      console.log('favoriteGroupsStore : ', favoriteGroupsStore);
+      const favoriteGroupsList = JSON.parse(JSON.stringify(favoriteGroupsStore.favoriteGroups));
+      selectBoxOptions.value.group = {
+        name     : 'favoriteGroupsStatusOptions',
+        clearable: true,
+        style    : 'width: 250px',
+      };
+      selectBoxOptions.value.group.data = await cscript.$getComboOptions(favoriteGroupsList.FavoriteGroupList);
+
+      //초기값 셋팅
+      archiveSchParams.value.group = null;
     });
 
     function resetFunc() {
@@ -112,7 +124,7 @@ export default defineComponent({
 
     // 필수 입력 항목 체크
     async function isMstValid() {
-      if (cscript.$isEmpty(artistList.value)) {
+      if (cscript.$isEmpty(groupList.value)) {
         alert('그룹 선택은 필수입니다.');
         return false;
       }
@@ -130,7 +142,7 @@ export default defineComponent({
     }
 
     return {
-      artistList,
+      groupList,
       archiveSchParams,
       selectBoxOptions,
       resetFunc,

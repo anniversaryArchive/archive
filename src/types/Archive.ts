@@ -42,6 +42,7 @@ export const ArchiveType: Record<string, string> = {
 
 export interface ArchiveSearchParams extends CommonSch {
   artist    : string | null;
+  group     : string | null;
   schBeginDe: string;
   schEndDe  : string;
 }

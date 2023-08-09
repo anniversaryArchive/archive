@@ -1,11 +1,6 @@
-query ($page: Int, $perPage: Int, $filter: FilterOption) {
-  favoriteGroups: FavoritePagination (page: $page, perPage: $perPage, filter: $filter) {
-    data {
-      _id
-      user {
-        name
-      }
-    }
-    total
+query {
+  FavoriteGroupList {
+    _id
+    name
   }
 }
