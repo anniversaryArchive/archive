@@ -60,31 +60,28 @@
 </template>
 
 <script lang="ts">
-import {computed, defineComponent, onBeforeMount, ref, watch} from 'vue';
+import { defineComponent, onBeforeMount, ref, watch} from 'vue';
 import mixinPageCommon from "@/pages/mixin/mixinPageCommon"
 import {Archive, ArchiveSearchParams} from "@/types/Archive"
 import cscript from "@/composables/comScripts"
 import {useQuasar} from "quasar"
 import ccobject from "@/composables/createComObject"
-import {useArchiveStore} from '@/stores/archive';
 import { useFavoriteStore } from '@/stores/favorite';
 import {useUserStore} from '@/stores/user';
-import {User} from '@/types/User';
 
 export default defineComponent({
   name: "favorite",
   components: {},
   mixins: [mixinPageCommon],
   setup() {
-    const $q = useQuasar()
-    const archiveParams = ref({} as Archive)
+    //const $q = useQuasar()
+    //const archiveParams = ref({} as Archive)
 
     const groupList = ref([] as string[])
 
     const {selectBoxOptions: selectBoxOptions} = ccobject.$createSelectAll(["group"]);
     const {schParams: archiveSchParams} = ccobject.$createSchParams<ArchiveSearchParams>();
 
-    const userStore = useUserStore();
     const favoriteGroupsStore = useFavoriteStore();
 
     onBeforeMount(() => {
