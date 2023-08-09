@@ -21,6 +21,10 @@ export interface FavoriteArchive {
         favorite    : boolean,
         startDate   : string,
         endDate     : string,
+        group       : {
+            _id     : string,
+            name    : string
+        },
         artist      : {
             _id     : string,
             name    : string

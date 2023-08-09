@@ -194,6 +194,11 @@ body {
   font-size: 16px;
   line-height: 20px;
   color: #000000;
+  text-align: left;
+}
+
+.favor-list .cafe-text {
+  cursor: pointer;
 }
 
 .favor-list li span {

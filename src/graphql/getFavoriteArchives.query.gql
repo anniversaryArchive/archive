@@ -9,6 +9,10 @@ query FavoritePagination($sortOrder: Int, $page: Int, $perPage: Int, $group: ID)
         favorite
         startDate
         endDate
+        group {
+          _id
+          name
+        }
         artist {
           _id
           name

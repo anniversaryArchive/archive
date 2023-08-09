@@ -5,9 +5,6 @@
     <div class="row bg-div">
       <q-card class="my-card info-card col-3 mr-12" color="white">
         <q-card-section>
-          <br>
-          {{archiveSchParams.group}}
-          <br>
           <ul>
             <li class="card-title pb-3">프로필 정보</li>
             <li class="info-text pb-5">닉네임</li>
@@ -43,26 +40,25 @@
 
       <q-card class="my-card favorite-card col-8" color="white">
         <q-card-section>
-          <ul>
-            <li class="card-title pb-3">즐겨찾기</li>
-            <li>
-              <div class="list-order">
-                <q-select class="order-select" v-model="orderData" :options="orderOptions"
-                          @update:model-value="orderSelectChange()"
-                          borderless style="width: 50%"></q-select>
-              </div>
+          <ul class="row">
+            <li class="card-title col-10">
+              즐겨찾기
+            </li>
+            <li class="card-title col-2">
+              <q-select class="order-select" v-model="orderData" :options="orderOptions"
+                        @update:model-value="orderSelectChange()" borderless ></q-select>
             </li>
           </ul>
 
-<!--          <ul class="favor-list row">
-            <li class="col-2">몬스타엑스</li>
-            <li class="col-1">형원</li>
-            <li class="col-8 cafe-text">
-              나의 하루는 오늘도 너에게
-              <span>@with_my_H</span>
+          <ul v-for="(item) in archiveParams" v-bind:key="archiveParams" class="favor-list row">
+            <li class="col-2">{{item.archive.group.name}}</li>
+            <li class="col-2">{{item.archive.artist.name}}</li>
+            <li class="col-8 cafe-text" @click="detailBtnFunc(item.archive._id)">
+              {{item.archive.themeName}}
+              <span>{{item.archive.organizer}}</span>
             </li>
             <li class="col-1 text-right"><font-awesome-icon :icon="['fas', 'heart']" style="color: #4e84c1" /></li>
-          </ul>-->
+          </ul>
         </q-card-section>
       </q-card>
     </div>
@@ -88,7 +84,7 @@ export default defineComponent({
   components: {},
   mixins: [mixinPageCommon],
   setup() {
-    const $q = useQuasar()
+    //const $q = useQuasar()
     const archiveParams = ref({} as FavoriteArchive)
 
     const groupList = ref([] as string[])
@@ -147,7 +143,6 @@ export default defineComponent({
       // orderData 확인 (최신순, 오래된순)
       archiveList = orderDataFunc(archiveList, orderData.value.value);
       archiveParams.value = _.cloneDeep(archiveList);
-      console.log(archiveParams.value);
 
       // 페이지네이션 설정
 
@@ -163,6 +158,8 @@ export default defineComponent({
       // 검색 조건
       archiveSchParams.value = {
         group: null,
+        schBeginDe: '',
+        schEndDe: ''
       } as ArchiveSearchParams;
 
       reset();
@@ -198,6 +195,9 @@ export default defineComponent({
         perPage: paginationData.value.perPage,
         group: archiveSchParams.value.group,
       } as variables;
+
+      console.log('searchDate : ', searchDate);
+      console.log('result : ', result);
 
       favoriteArchiveStore.getFavoriteArchives(result, searchDate);
     }
@@ -239,13 +239,19 @@ export default defineComponent({
       }).reverse();
     }
 
+    function detailBtnFunc(id: string) {
+      this.$router.push(`/archive/${id}`);
+    }
+
     return {
       groupList,
+      archiveParams,
       archiveSchParams,
       selectBoxOptions,
       orderData,
       orderOptions,
       resetFunc,
+      detailBtnFunc,
       searchBtnFunc,
       orderSelectChange
     }
