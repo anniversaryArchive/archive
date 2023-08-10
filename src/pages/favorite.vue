@@ -72,7 +72,7 @@ import {ArchiveSearchParams} from "@/types/Archive"
 import cscript from "@/composables/comScripts"
 import ccobject from "@/composables/createComObject"
 import { useFavoriteGroupStore } from '@/stores/favoriteGroup';
-import {Pagination, variables} from '@/types/CommonTypes';
+import {Pagination, Variables} from '@/types/CommonTypes';
 import moment from 'moment/moment';
 import {useFavoriteArchiveStore} from '@/stores/favoriteArchive';
 import {FavoriteArchive} from '@/types/Favorite';
@@ -193,7 +193,7 @@ export default defineComponent({
         page : paginationData.value.current-1,
         perPage: paginationData.value.perPage,
         group: archiveSchParams.value.group,
-      } as variables;
+      } as Variables;
 
       favoriteArchiveStore.getFavoriteArchives(result, searchDate);
     }

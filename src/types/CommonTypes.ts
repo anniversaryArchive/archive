@@ -106,9 +106,9 @@ export interface WatchQuery<T> {
     fetch: FetchFunc;
 }
 
-export interface variables {
+export interface Variables {
     perPage     : number,
     page        : number,
     sortOrder?  : number,
-    group       : string
+    group?      : string
 }

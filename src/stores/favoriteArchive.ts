@@ -1,23 +1,12 @@
 import { defineStore } from 'pinia';
 import {query} from '@/composables/graphqlUtils';
-import {QueryExecutionOpts} from 'villus';
-import {computed, ComputedRef} from 'vue';
+import {computed} from 'vue';
 import {FavoriteArchive} from '@/types/Favorite';
 import getFavoriteArchives from '@/graphql/getFavoriteArchives.query.gql';
-import { variables} from '@/types/CommonTypes';
-
-interface FetchFunc {
-  (overrideOpts?: Partial<QueryExecutionOpts<any>>): Promise<any>
-}
-
-interface WatchQuery {
-  list: FavoriteArchive[];
-  total: ComputedRef<number>;
-  fetch: FetchFunc;
-}
+import {Variables, WatchQuery} from '@/types/CommonTypes';
 
 interface FavoriteState {
-  data?: WatchQuery;
+  data?: WatchQuery<FavoriteArchive>;
 }
 
 interface searchDate {
@@ -33,7 +22,7 @@ export const useFavoriteArchiveStore = defineStore({
     total (): number { return this.data?.total || 0 },
   },
   actions: {
-    getFavoriteArchives(result: variables, searchDate?: searchDate) {
+    getFavoriteArchives(result: Variables, searchDate?: searchDate) {
       query(getFavoriteArchives, {
         page: result.page,
         perPage : result.perPage,

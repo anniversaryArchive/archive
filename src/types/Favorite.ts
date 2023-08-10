@@ -1,3 +1,7 @@
+import {Archive} from '@/types/Archive';
+import group from '@/pages/Admin/Group.vue';
+import {Group} from '@/types/Group';
+import {Artist} from '@/types/Artist';
 
 export interface Favorite {
     user        : string, // 즐겨찾기한 유저
@@ -14,22 +18,9 @@ export interface FavoriteGroup {
 
 export interface FavoriteArchive {
     _id         : string,
-    archive     : {
-        _id         : string,
-        themeName   : string,
-        organizer   : string,
-        favorite    : boolean,
-        startDate   : string,
-        endDate     : string,
-        group       : {
-            _id     : string,
-            name    : string
-        },
-        artist      : {
-            _id     : string,
-            name    : string
-        }
-    },
+    archive     : [
+        Archive : [ group: [Group], artist: [Artist] ]
+    ]
 }
 
 const FavoriteType: { [key: string]: string } = {

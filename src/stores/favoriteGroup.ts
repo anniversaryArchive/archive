@@ -1,22 +1,12 @@
 import { defineStore } from 'pinia';
 import {query} from '@/composables/graphqlUtils';
-import {QueryExecutionOpts} from 'villus';
-import {computed, ComputedRef} from 'vue';
+import {computed} from 'vue';
 import {FavoriteGroup} from '@/types/Favorite';
 import getFavoritesGroup from '@/graphql/getFavoritesGroup.query.gql';
-
-interface FetchFunc {
-  (overrideOpts?: Partial<QueryExecutionOpts<any>>): Promise<any>
-}
-
-interface WatchQuery {
-  list: FavoriteGroup[];
-  total: ComputedRef<number>;
-  fetch: FetchFunc;
-}
+import {WatchQuery} from '@/types/CommonTypes';
 
 interface FavoriteState {
-  data?: WatchQuery;
+  data?: WatchQuery<FavoriteGroup>;
 }
 
 export const useFavoriteGroupStore = defineStore({
