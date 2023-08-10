@@ -19,6 +19,7 @@ export interface Archive {
   favorite: boolean;      // 즐겨찾기
   phoneNumber?: string;   // 전화번호
   link?: string;          // 대표 링크
+  favorite: boolean;      // 즐겨찾기 여부 
 }
 
 export const ArchiveType: Record<string, string> = {

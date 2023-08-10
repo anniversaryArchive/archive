@@ -26,14 +26,8 @@
       </div>
 
       <q-list v-if="archiveParams">
-        <q-item v-for="(archive) in archiveParams" v-bind:key="archiveParams" class="archive-item" clickable
-                @click="$q.screen.xs ? detailBtnFunc(archive._id) : onLoadMarker(archive)">
-          <q-item-section>
-            <q-item-label class="archive-title">{{archive.themeName}}</q-item-label>
-            <q-item-label class="archive-account">{{archive.organizer}}</q-item-label>
-            <q-item-label class="archive-address">{{archive.address}}</q-item-label>
-          </q-item-section>
-        </q-item>
+        <CafeItem v-for="archive in archiveParams" :archive="archive"
+          @click="$q.screen.xs ? detailBtnFunc(archive._id) : onLoadMarker(archive)" />
       </q-list>
 
       <div v-if="paginationData.maxCnt" class="flex q-pa-lg flex-center">
@@ -91,11 +85,12 @@ import {useArchiveStore} from '@/stores/archive';
 import _ from 'lodash';
 import {Pagination} from '@/types/CommonTypes';
 import moment from 'moment';
-import {useQuasar} from "quasar"
+import {useQuasar} from 'quasar';
+import CafeItem from '@/components/CafeItem.vue';
 
 export default defineComponent({
   name      : 'cafeMap',
-  components: {NaverMap, NaverMarker, NaverInfoWindow},
+  components: { NaverMap, NaverMarker, NaverInfoWindow, CafeItem },
   mixins    : [mixinPageCommon],
   setup() {
     const $q = useQuasar();
@@ -135,7 +130,7 @@ export default defineComponent({
 
     const paginationData = ref({
       current: 1,
-      perPage: 10,
+      perPage: 2,
     } as Pagination);
 
     const marker = ref([] as unknown);
@@ -372,4 +367,77 @@ export default defineComponent({
 </script>
 
 <style scoped>
+
+.my-card {
+  width: 25%;
+  float: left;
+}
+
+.infowindow-style {
+  color: black;
+  background-color: white;
+  text-align: left;
+}
+
+.infowindow-btn-box {
+  text-align: center;
+  padding-bottom: 5px;
+}
+
+.infowindow-btn-box button {
+  min-height: 1.5em;
+  font-size: 12px;
+  font-weight: 400;
+  color: #000000;
+}
+
+.search-box {
+  padding: 15px;
+  border-bottom: 1px solid #CCCCCC;
+}
+
+.list-order {
+  padding-left: 15px;
+  border-bottom: 1px solid #CCCCCC;
+}
+
+.search-text {
+  padding-top : 15px;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 30px;
+}
+
+.archive-item {
+  border-bottom: 1px solid #CCCCCC;
+}
+
+.infowindow-style .archive-item {
+  border-bottom: 0;
+  padding: 16px;
+  width: 300px;
+}
+
+.btn-box {
+  padding-top : 15px;
+}
+
+.btn-box button,
+.infowindow-btn-box button{
+  border: 1px solid #CCCCCC;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+.search-btn {
+  float: right;
+}
+
+@media screen and (max-width: 767px){
+  .my-card {
+    width: 100%;
+    float: left;
+  }
+}
+
 </style>
