@@ -51,7 +51,7 @@ export default defineComponent({
     $q.screen.setSizes({sm: 360, md: 800, lg: 1500, xl: 2000})
 
     const userStore = useUserStore()
-    const loggedIn = userStore.loggedIn;
+    const loggedIn = computed(() => userStore.loggedIn);
     const isOpenSignInDialog = ref(false)
 
     return {
