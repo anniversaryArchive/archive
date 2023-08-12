@@ -15,7 +15,7 @@ export interface FavoriteGroup {
 
 export interface FavoriteArchive {
     _id         : string,
-    archive     : [Archive]
+    archive     : Archive
 }
 
 const FavoriteType: { [key: string]: string } = {
