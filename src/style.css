@@ -2,93 +2,298 @@
 @tailwind components;
 @tailwind utilities;
 
-html, body, #app {
+html,
+body,
+#app {
   height: 100%;
 }
-:root, body {
-  font-family: 'SUIT', Inter, Avenir, Helvetica, Arial, sans-serif !important;
-}
-
-/*
-:root {
-  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
-  font-size: 16px;
-  line-height: 24px;
-  font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  -webkit-text-size-adjust: 100%;
-}
-
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-
+:root,
 body {
-  margin: 0;
+  font-family: "SUIT", Inter, Avenir, Helvetica, Arial, sans-serif !important;
+}
+
+/* Layout */
+.toolbar-title {
+  text-align: left;
+}
+
+.layout-title {
+  font-style: normal;
+  font-weight: 900;
+  font-size: 2rem;
+  line-height: 60px;
+  padding-left: 50px;
+}
+
+.menu-ul {
   display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+.menu-ul li {
+  padding: 0 30px;
 }
 
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+.menu-ul li .q-btn:before {
+  box-shadow: none !important;
 }
 
-.card {
-  padding: 2em;
+.menu-ul li button {
+  font-size: 18px;
+  line-height: 25px;
+  letter-spacing: -0.015em;
+  color: #000000;
+  font-weight: 400;
+  padding: 0;
 }
 
-#app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+.menu-ul li button:hover {
+  font-weight: 700;
+}
+
+.menu-ul li .q-hoverable:hover > .q-focus-helper {
+  background: none !important;
+  background-color: transparent !important;
+}
+
+/* End Layout */
+
+/* cafeMap.vue */
+.my-card {
+  width: 25%;
+  float: left;
+}
+
+.infowindow-style {
+  color: black;
+  background-color: white;
+  text-align: left;
+}
+
+.infowindow-btn-box {
   text-align: center;
+  padding-bottom: 5px;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+.infowindow-btn-box button {
+  min-height: 1.5em;
+  font-size: 12px;
+  font-weight: 400;
+  color: #000000;
 }
-*/
+
+.search-box {
+  padding: 15px;
+  border-bottom: 1px solid #cccccc;
+}
+
+.list-order {
+  padding-left: 15px;
+  border-bottom: 1px solid #cccccc;
+}
+
+.search-text {
+  padding-top: 15px;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 30px;
+}
+
+.archive-item {
+  border-bottom: 1px solid #cccccc;
+}
+
+.infowindow-style .archive-item {
+  border-bottom: 0;
+  padding: 16px;
+  width: 300px;
+}
+
+.archive-title {
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 30px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.archive-account {
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 22px;
+  color: #767676;
+}
+
+.archive-address {
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 25px;
+  color: #767676;
+}
+
+.btn-box {
+  padding-top: 15px;
+}
+
+.btn-box button,
+.infowindow-btn-box button {
+  border: 1px solid #cccccc;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+.search-btn {
+  float: right;
+}
+/* End cafeMap.vue */
+
+/* favorite.vue */
+.bg-div {
+  /*background: #ddf1ff;*/
+  padding: 64px 210px;
+}
+
+.info-card,
+.favorite-card {
+  padding: 20px;
+}
+
+.favorite-card .card-title,
+.info-card ul,
+.favor-list {
+  border-bottom: 1px solid #cccccc;
+}
+
+.card-title {
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 30px;
+}
+
+.info-text {
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 30px;
+}
+
+.favor-list {
+  text-align: center;
+  padding: 20px;
+}
+
+.favor-list li {
+  display: table-cell;
+  margin: auto;
+  vertical-align: middle;
+  /* padding: 0 20px; */
+
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 20px;
+  color: #000000;
+  text-align: left;
+}
+
+.favor-list .cafe-text {
+  cursor: pointer;
+}
+
+.favor-list li span {
+  display: block;
+  font-size: 12px;
+  line-height: 15px;
+  color: #767676;
+}
+
+/* End favorite.vue */
+
+/* 모바일 화면 */
+@media screen and (max-width: 767px) {
+  /* Layout */
+  .toolbar-title {
+    text-align: center;
+  }
+  /* End Layout */
+
+  /* cafeMap.vue */
+  .my-card {
+    width: 100%;
+    float: left;
+  }
+  /* End cafeMap.vue */
+
+  /* SelectGroup.vue */
+  .main-div {
+    width: 100%;
+  }
+
+  .main-title {
+    font-size: 2.5rem;
+  }
+
+  .main-text {
+    font-size: 1.5rem;
+    line-height: 1.85rem;
+    margin: 0;
+  }
+
+  .search-text {
+    width: 100%;
+    font-size: 1.25rem;
+    line-height: 1.25em;
+  }
+
+  .group-div {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+  }
+  /* End SelectGroup.vue */
+
+  /* ArchiveDetail.vue */
+  .left-40 {
+    left: 1.25rem;
+  }
+
+  .text-2xl {
+    font-size: 1.25rem;
+  }
+
+  .text-5xl {
+    font-size: 2rem;
+  }
+
+  .text-lg {
+    font-size: 0.8rem;
+  }
+
+  .px-40 {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+
+  .pt-20 {
+    padding-top: 3rem;
+  }
+
+  .text-3xl {
+    font-size: 1.5rem;
+  }
+
+  .mt-11 {
+    margin-top: 1rem;
+  }
+
+  .w-8 {
+    width: 1.5rem;
+  }
+
+  .text-xl {
+    font-size: 1rem;
+    line-height: 0;
+  }
+  /* End ArchiveDetail.vue */
+}
