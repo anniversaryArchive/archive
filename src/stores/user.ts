@@ -9,7 +9,6 @@ import providerSignUp from '@/graphql/providerSignUp.mutate.gql';
 
 interface UserState {
   user?: User;
-  openSignInDialog: boolean;
   providerInfo?: ProviderInfo;
 }
 
@@ -19,20 +18,13 @@ export const useUserStore = defineStore({
 
   state: (): UserState => ({
     user: undefined,
-    openSignInDialog: false,
     providerInfo: undefined,
   }),
 
   getters: {
     loggedIn(state): boolean { return !!state.user; },
-    isOpenSignInDialog(state): boolean { return state.openSignInDialog; },
   },
-
   actions: {
-    openDialog() {
-      this.openSignInDialog = true;
-    },
-
     doLogin(provider: string): Promise<User | null | undefined> {
       this.providerInfo = undefined;
       switch (provider) {

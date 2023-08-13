@@ -57,9 +57,11 @@ function closeDialog () {
 async function doLogin(provider: string) {
   try {
     const user: User | null | undefined = await userStore.doLogin(provider);
-    if (user == null && user != undefined) { // 회원가입 한 유저 정보가 없는 경우
+    if (user) { // 로그인 성공
+      emit('close');
+    } else if (user !== undefined) { // 회원가입하지 않은 계정인 경우, 회원가입 페이지로 이동
       router.push('/signUp');
-    } else { emit('close'); }
+    }
   } catch (error) {
     console.error(error);
   }
