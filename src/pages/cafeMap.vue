@@ -181,6 +181,7 @@ export default defineComponent({
 
     const userStore = useUserStore();
 
+    /*
     async function doNaverSignUp(code: string) {
       userStore.openSignInDialog = false;
       try {
@@ -188,34 +189,10 @@ export default defineComponent({
         if (!success) { location.href.value = ''; }
       } catch (error) { console.error(error); }
     }
-
-    async function doNaverLogin(code: string) {
-      try {
-        const user = await userStore.doNaverLogin(code);
-        if (user == null) {
-          userStore.openDialog('signUp');
-        } else if (user == undefined) {
-          location.href.value = '';
-        } else {
-          // TODO:
-          $router.push('/cafeMap');
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    }
+    */
 
     onBeforeMount(() => {
       initialize();
-
-      const route = useRoute();
-      const code: string | undefined = route.query.code;
-      if (!code) { return; }
-      if (userStore.signUpMode) {
-        doNaverSignUp(code);
-      } else {
-        doNaverLogin(code);
-      }
     });
 
 

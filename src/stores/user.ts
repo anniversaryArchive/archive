@@ -6,21 +6,30 @@ import { mutate } from '@/composables/graphqlUtils';
 import signIn from '@/graphql/signIn.mutate.gql';
 import signUp from '@/graphql/signUp.mutate.gql';
 
+interface ProviderInfo {
+  id: string;
+  name: string;
+  email: string;
+  provider: string;
+}
+
 interface UserState {
   user?: User;
   openSignInDialog: boolean;
   signInDialogMode: 'signIn' | 'signUp';
+  providerInfo?: ProviderInfo;
 }
 
 export const useUserStore = defineStore({
   id: 'user',
   persist: true,
 
-  state : (): UserState => ({ 
+  state: (): UserState => ({
     user: undefined,
     openSignInDialog: false,
     signInDialogMode: 'signIn',
-   }),
+    providerInfo: undefined,
+  }),
 
   getters: {
     loggedIn(state): boolean { return !!state.user; },
@@ -35,12 +44,12 @@ export const useUserStore = defineStore({
     },
 
     doLogin(provider: string): Promise<User | null | undefined> {
+      this.providerInfo = undefined;
       switch (provider) {
         case 'google': return this.doGoogleLogin();
         case 'naver':
-          console.log('url : ', window.location.origin);
-          const url: string = `https://nid.naver.com/oauth2.0/authorize?client_id=${import.meta.env.VITE_NAVER_CLIENT_ID}&redirect_uri=${window.location.origin}/cafeMap&response_type=code`;
-          window.location.href=url;
+          const url: string = `https://nid.naver.com/oauth2.0/authorize?client_id=${import.meta.env.VITE_NAVER_CLIENT_ID}&redirect_uri=${window.location.origin}/naverOauth&response_type=code`;
+          window.location.href = url;
           break;
       }
       return Promise.resolve(undefined);
@@ -49,15 +58,15 @@ export const useUserStore = defineStore({
     async signIn(provider: string, code: string): Promise<User | null | undefined> {
       try {
         const { data, error } = await mutate(signIn, { token: code, provider });
-        console.log('data : ', data);
         if (error) {
           const code: number | undefined = error?.graphqlErrors && error?.graphqlErrors[0]?.extensions?.code;
           this.onErrorLogin(code);
-          return;
+          throw error;
         }
-        const { user, token }: { user?: User, token?: string } = data?.auth || {};
+        const { user, token, info }: { user?: User, token?: string, info?: ProviderInfo } = data?.auth || {};
         this.user = user;
         if (token) { localStorage.setItem(import.meta.env.VITE_TOKEN_KEY, token); }
+        if (!user) { this.providerInfo = info; }
         return user;
       } catch (error) { console.error(error); }
       return null;
@@ -101,10 +110,10 @@ export const useUserStore = defineStore({
         case 'google': return this.doGoogleSignUp();
         case 'naver':
           const url: string = `https://nid.naver.com/oauth2.0/authorize?client_id=${import.meta.env.VITE_NAVER_CLIENT_ID}&redirect_uri=${window.location.origin}/cafeMap&response_type=code`;
-          window.location.href=url;
+          window.location.href = url;
           break;
       }
-      return Promise.resolve(false); 
+      return Promise.resolve(false);
     },
 
     async signUp(provider: string, code: string): Promise<boolean> {
@@ -151,5 +160,5 @@ export const useUserStore = defineStore({
           alert('회원가입에 실패했습니다.');
       }
     },
-  }, 
+  },
 });

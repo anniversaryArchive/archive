@@ -8,6 +8,12 @@ mutation ($token: String!, $provider: String) {
       providerId
       image
     }
+    info {
+      id
+      email
+      name
+      provider
+    }
     token
   }
 }
