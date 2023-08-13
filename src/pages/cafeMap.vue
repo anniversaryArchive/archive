@@ -181,16 +181,6 @@ export default defineComponent({
 
     const userStore = useUserStore();
 
-    /*
-    async function doNaverSignUp(code: string) {
-      userStore.openSignInDialog = false;
-      try {
-        const success = await userStore.doNaverSignUp(code);
-        if (!success) { location.href.value = ''; }
-      } catch (error) { console.error(error); }
-    }
-    */
-
     onBeforeMount(() => {
       initialize();
     });

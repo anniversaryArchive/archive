@@ -10,12 +10,12 @@
 
       <div class="w-full h-[1px] bg-gray-300 mt-10 mb-8"></div>
 
-      <button class="w-4/5" @click="doAction('google')">
+      <button class="w-4/5" @click="doLogin('google')">
         <img :src="googleLoginBtnImage"
           @mouseover="hoverGoogleLoginBtn = true" @mouseleave="hoverGoogleLoginBtn = false"
           @mousedown="pressedGoogleLoginBtn = true" @mouseup="pressedGoogleLoginBtn = false" />
       </button>
-      <button @click="doAction('naver')">NAVER LOGIN</button>
+      <button @click="doLogin('naver')">NAVER LOGIN</button>
     </div>
   </CommonDialog>
 </template>
@@ -54,10 +54,6 @@ function closeDialog () {
   emit('close')
 }
 
-function doAction(provider: string) {
-  doLogin(provider);
-}
-
 async function doLogin(provider: string) {
   try {
     const user: User | null | undefined = await userStore.doLogin(provider);
@@ -68,18 +64,6 @@ async function doLogin(provider: string) {
     console.error(error);
   }
 }
-
-/*
-async function doSignUp(provider: string) {
-  try {
-    const success: boolean = await userStore.doSignUp(provider);
-    if (!success) { return false; }
-    emit('close');
-  } catch (error) {
-    console.error(error);
-  }
-}
-*/
 </script>
 
 <style scoped>

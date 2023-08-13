@@ -1,0 +1,10 @@
+mutation ($info: ProviderInfoInput!) {
+  user: providerSignUp (info: $info) {
+    _id
+    name
+    email
+    provider
+    providerId
+    image
+  }
+}

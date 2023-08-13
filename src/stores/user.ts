@@ -1,22 +1,15 @@
 import { defineStore } from 'pinia';
 import { User } from '@/types/User';
+import { ProviderInfo } from '@/types/ProviderInfo';
 import { googleTokenLogin, googleLogout } from 'vue3-google-login';
 import { mutate } from '@/composables/graphqlUtils';
 
 import signIn from '@/graphql/signIn.mutate.gql';
-import signUp from '@/graphql/signUp.mutate.gql';
-
-interface ProviderInfo {
-  id: string;
-  name: string;
-  email: string;
-  provider: string;
-}
+import providerSignUp from '@/graphql/providerSignUp.mutate.gql';
 
 interface UserState {
   user?: User;
   openSignInDialog: boolean;
-  signInDialogMode: 'signIn' | 'signUp';
   providerInfo?: ProviderInfo;
 }
 
@@ -27,20 +20,17 @@ export const useUserStore = defineStore({
   state: (): UserState => ({
     user: undefined,
     openSignInDialog: false,
-    signInDialogMode: 'signIn',
     providerInfo: undefined,
   }),
 
   getters: {
     loggedIn(state): boolean { return !!state.user; },
     isOpenSignInDialog(state): boolean { return state.openSignInDialog; },
-    signUpMode(state): boolean { return state.signInDialogMode == 'signUp'; },
   },
 
   actions: {
-    openDialog(mode: 'signIn' | 'signUp') {
+    openDialog() {
       this.openSignInDialog = true;
-      this.signInDialogMode = mode;
     },
 
     doLogin(provider: string): Promise<User | null | undefined> {
@@ -105,20 +95,9 @@ export const useUserStore = defineStore({
       location.href = '/';
     },
 
-    doSignUp(provider: string): Promise<boolean> {
-      switch (provider) {
-        case 'google': return this.doGoogleSignUp();
-        case 'naver':
-          const url: string = `https://nid.naver.com/oauth2.0/authorize?client_id=${import.meta.env.VITE_NAVER_CLIENT_ID}&redirect_uri=${window.location.origin}/cafeMap&response_type=code`;
-          window.location.href = url;
-          break;
-      }
-      return Promise.resolve(false);
-    },
-
-    async signUp(provider: string, code: string): Promise<boolean> {
+    async doSignUp(): Promise<boolean> {
       try {
-        const { data, error } = await mutate(signUp, { token: code, provider });
+        const { data, error } = await mutate(providerSignUp, { info: this.providerInfo });
         if (error) {
           const code: number | undefined = error?.graphqlErrors && error?.graphqlErrors[0]?.extensions?.code;
           this.onErrorSignUp(code);
@@ -130,22 +109,6 @@ export const useUserStore = defineStore({
         return true;
       } catch (error) { console.error(error); }
       return false;
-    },
-
-    async doNaverSignUp(code: string): Promise<boolean> {
-      try {
-        return await this.signUp('naver', code);
-      } catch (error) { console.error(error); }
-      return true;
-    },
-
-    async doGoogleSignUp(): Promise<boolean> {
-      try {
-        var response = await googleTokenLogin();
-        if (!response?.access_token) { return false; }
-        return await this.signUp('google', response.access_token);
-      } catch (error) { console.error(error); }
-      return true;
     },
 
     onErrorSignUp(code: number | undefined) {
