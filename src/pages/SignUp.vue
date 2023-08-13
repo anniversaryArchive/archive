@@ -46,7 +46,6 @@ onBeforeMount(() => {
 async function doSignUp() {
   try {
     const success: boolean = await userStore.doSignUp();
-    // TODO: 로그인 실패 시?
     if (!success) { return false; }
     router.push('/cafeMap');
   } catch (error) {

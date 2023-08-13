@@ -74,7 +74,7 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, onBeforeMount, onMounted, ref, watch} from 'vue';
+import {defineComponent, onBeforeMount, ref, watch} from 'vue';
 import {NaverInfoWindow, NaverMap, NaverMarker} from 'vue3-naver-maps';
 import mixinPageCommon from '@/pages/mixin/mixinPageCommon';
 import ccobject from '@/composables/createComObject';
@@ -86,8 +86,6 @@ import _ from 'lodash';
 import {Pagination} from '@/types/CommonTypes';
 import moment from 'moment';
 import { useQuasar } from "quasar"
-import { useRoute, useRouter } from 'vue-router';
-import { useUserStore } from '@/stores/user';
 import CafeItem from '@/components/CafeItem.vue';
 
 export default defineComponent({
@@ -178,8 +176,6 @@ export default defineComponent({
 
     const artistStore = useArtistStore();
     const archiveStore = useArchiveStore();
-
-    const userStore = useUserStore();
 
     onBeforeMount(() => {
       initialize();
