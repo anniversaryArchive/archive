@@ -4,6 +4,7 @@ query ($page: Int, $perPage: Int, $filter: FilterOption, $start: Date, $end: Dat
       _id
       name
       themeName
+      favorite
       address
       detailAddress
       lat
@@ -36,6 +37,7 @@ query ($page: Int, $perPage: Int, $filter: FilterOption, $start: Date, $end: Dat
         name
         path
       }
+      favorite
       organizer
       phoneNumber
       link

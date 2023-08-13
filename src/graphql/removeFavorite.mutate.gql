@@ -1,0 +1,3 @@
+mutation ($archive: ID!) {
+  success: removeFavorite(archive: $archive)
+}

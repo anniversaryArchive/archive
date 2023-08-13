@@ -26,14 +26,8 @@
       </div>
 
       <q-list v-if="archiveParams">
-        <q-item v-for="(archive) in archiveParams" v-bind:key="archiveParams" class="archive-item" clickable
-                @click="$q.screen.xs ? detailBtnFunc(archive._id) : onLoadMarker(archive)">
-          <q-item-section>
-            <q-item-label class="archive-title">{{archive.themeName}}</q-item-label>
-            <q-item-label class="archive-account">{{archive.organizer}}</q-item-label>
-            <q-item-label class="archive-address">{{archive.address}}</q-item-label>
-          </q-item-section>
-        </q-item>
+        <CafeItem v-for="archive in archiveParams" :archive="archive"
+          @click="$q.screen.xs ? detailBtnFunc(archive._id) : onLoadMarker(archive)" />
       </q-list>
 
       <div v-if="paginationData.maxCnt" class="flex q-pa-lg flex-center">
@@ -91,13 +85,14 @@ import {useArchiveStore} from '@/stores/archive';
 import _ from 'lodash';
 import {Pagination} from '@/types/CommonTypes';
 import moment from 'moment';
-import {useQuasar} from "quasar"
+import { useQuasar } from "quasar"
 import { useRoute, useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/user';
+import CafeItem from '@/components/CafeItem.vue';
 
 export default defineComponent({
   name      : 'cafeMap',
-  components: {NaverMap, NaverMarker, NaverInfoWindow},
+  components: { NaverMap, NaverMarker, NaverInfoWindow, CafeItem },
   mixins    : [mixinPageCommon],
   setup() {
     const $q = useQuasar();
@@ -185,7 +180,7 @@ export default defineComponent({
     const archiveStore = useArchiveStore();
 
     const userStore = useUserStore();
-    
+
     async function doNaverSignUp(code: string) {
       userStore.openSignInDialog = false;
       try {
@@ -197,12 +192,12 @@ export default defineComponent({
     async function doNaverLogin(code: string) {
       try {
         const user = await userStore.doNaverLogin(code);
-        if (user == null) { 
-          userStore.openDialog('signUp'); 
+        if (user == null) {
+          userStore.openDialog('signUp');
         } else if (user == undefined) {
           location.href.value = '';
         } else {
-          // TODO: 
+          // TODO:
           $router.push('/cafeMap');
         }
       } catch (error) {
@@ -410,100 +405,4 @@ export default defineComponent({
 </script>
 
 <style scoped>
-
-.my-card {
-  width: 25%;
-  float: left;
-}
-
-.infowindow-style {
-  color: black;
-  background-color: white;
-  text-align: left;
-}
-
-.infowindow-btn-box {
-  text-align: center;
-  padding-bottom: 5px;
-}
-
-.infowindow-btn-box button {
-  min-height: 1.5em;
-  font-size: 12px;
-  font-weight: 400;
-  color: #000000;
-}
-
-.search-box {
-  padding: 15px;
-  border-bottom: 1px solid #CCCCCC;
-}
-
-.list-order {
-  padding-left: 15px;
-  border-bottom: 1px solid #CCCCCC;
-}
-
-.search-text {
-  padding-top : 15px;
-  font-weight: 400;
-  font-size: 16px;
-  line-height: 30px;
-}
-
-.archive-item {
-  border-bottom: 1px solid #CCCCCC;
-}
-
-.infowindow-style .archive-item {
-  border-bottom: 0;
-  padding: 16px;
-  width: 300px;
-}
-
-.archive-title {
-  font-weight: 400;
-  font-size: 16px;
-  line-height: 30px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
-}
-
-.archive-account {
-  font-weight: 400;
-  font-size: 12px;
-  line-height: 22px;
-  color: #767676;
-}
-
-.archive-address {
-  font-weight: 400;
-  font-size: 14px;
-  line-height: 25px;
-  color: #767676;
-}
-
-.btn-box {
-  padding-top : 15px;
-}
-
-.btn-box button,
-.infowindow-btn-box button{
-  border: 1px solid #CCCCCC;
-  border-radius: 5px;
-  margin-bottom: 10px;
-}
-
-.search-btn {
-  float: right;
-}
-
-@media screen and (max-width: 767px){
-  .my-card {
-    width: 100%;
-    float: left;
-  }
-}
-
 </style>
