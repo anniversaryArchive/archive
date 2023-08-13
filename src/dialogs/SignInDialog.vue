@@ -10,13 +10,13 @@
 
       <div class="w-full h-[1px] bg-gray-300 mt-10 mb-8"></div>
 
-      <button class="w-4/5 h-14" @click="doLogin('google')">
-        <img class="h-full m-auto" :src="googleLoginBtnImage"
+      <button class="w-4/5" @click="doLogin('google')">
+        <img class="m-auto" :src="googleLoginBtnImage"
           @mouseover="hoverGoogleLoginBtn = true" @mouseleave="hoverGoogleLoginBtn = false"
           @mousedown="pressedGoogleLoginBtn = true" @mouseup="pressedGoogleLoginBtn = false" />
       </button>
-      <button class="w-4/5 text-center h-14" @click="doLogin('naver')">
-        <img src="@/assets/images/btn_naver_signin.png" class="h-full m-auto" />
+      <button class="w-4/5 text-center" @click="doLogin('naver')">
+        <img src="@/assets/images/btn_naver_signin.png" class="px-1 m-auto" />
       </button>
     </div>
   </CommonDialog>
