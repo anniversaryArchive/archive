@@ -1,6 +1,6 @@
-import {createRouter, createWebHistory, RouteRecordRaw, NavigationGuardNext, RouteLocationNormalized} from "vue-router"
-import {useUserStore} from "@/stores/user"
-import {computed, ref} from "vue"
+import { createRouter, createWebHistory, RouteRecordRaw, NavigationGuardNext, RouteLocationNormalized } from "vue-router"
+import { useUserStore } from "@/stores/user"
+import { computed } from "vue"
 
 const authUser = (to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) => {
   const userStore = useUserStore()
@@ -14,50 +14,56 @@ const authUser = (to: RouteLocationNormalized, from: RouteLocationNormalized, ne
   }
 }
 
+const requireAdmin = (_: RouteLocationNormalized, __: RouteLocationNormalized, next: NavigationGuardNext) => {
+  const userStore = useUserStore();
+  if (!userStore.isAdmin) { return next('/'); }
+  next();
+}
+
 const routes: Array<RouteRecordRaw> = [
   {
-    meta: {title: "Home"},
+    meta: { title: "Home" },
     path: "/",
     component: () => import("@/pages/SelectGroup.vue")
   },
   {
-    meta: {title: "cafeMap"},
+    meta: { title: "cafeMap" },
     path: "/cafeMap",
     component: () => import("@/pages/cafeMap.vue")
   },
   {
-    meta: {title: "Archive"},
+    meta: { title: "Archive" },
     path: "/archive/:id",
     component: () => import("@/pages/ArchiveDetail.vue")
   },
   {
-    meta: {title: "favorite"},
+    meta: { title: "favorite" },
     path: "/favorite",
     beforeEnter: authUser,
     component: () => import("@/pages/favorite.vue")
   },
   {
     path: "/admin",
-    // beforeEnter: authUser,
+    beforeEnter: requireAdmin,
     children: [
       {
         path: "",
-        meta: {title: "관리자 화면"},
+        meta: { title: "관리자 화면" },
         component: () => import("@/pages/Admin/Admin.vue")
       },
       {
         path: "group",
-        meta: {title: "그룹 추가 화면"},
+        meta: { title: "그룹 추가 화면" },
         component: () => import("@/pages/Admin/Group.vue")
       },
       {
         path: "artist",
-        meta: {title: "아티스트 추가 화면"},
+        meta: { title: "아티스트 추가 화면" },
         component: () => import("@/pages/Admin/Artists.vue")
       },
       {
         path: "archive",
-        meta: {title: "카페 추가 화면"},
+        meta: { title: "카페 추가 화면" },
         component: () => import("@/pages/Admin/Archive.vue")
       }
     ]

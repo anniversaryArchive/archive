@@ -14,10 +14,11 @@ export const useUserStore = defineStore({
   id: 'user',
   persist: true,
 
-  state : (): UserState => ({ user: undefined }),
+  state: (): UserState => ({ user: undefined }),
 
   getters: {
     loggedIn(state): boolean { return !!state.user },
+    isAdmin(state): boolean { return state.user?.role === 'admin'; },
   },
 
   actions: {
@@ -67,7 +68,7 @@ export const useUserStore = defineStore({
       switch (provider) {
         case 'google': return this.doGoogleSignUp();
       }
-      return Promise.resolve(false); 
+      return Promise.resolve(false);
     },
 
     async doGoogleSignUp(): Promise<boolean> {
@@ -100,5 +101,5 @@ export const useUserStore = defineStore({
           alert('회원가입에 실패했습니다.');
       }
     },
-  }, 
+  },
 });

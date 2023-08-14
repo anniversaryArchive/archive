@@ -12,7 +12,7 @@
 
       <div v-if="signUpMode" class="mb-6 text-xlg">회원가입 하시겠습니까?</div>
       <button class="w-4/5" @click="doAction('google')">
-        <img :src="googleLoginBtnImage" 
+        <img :src="googleLoginBtnImage"
           @mouseover="hoverGoogleLoginBtn = true" @mouseleave="hoverGoogleLoginBtn = false"
           @mousedown="pressedGoogleLoginBtn = true" @mouseup="pressedGoogleLoginBtn = false" />
       </button>
@@ -22,6 +22,7 @@
 
 <script setup lang="ts">
 import { ref, Ref, computed, ComputedRef } from 'vue';
+import { useRouter } from 'vue-router';
 import CommonDialog from './CommonDialog.vue';
 import { useUserStore } from '@/stores/user';
 
@@ -37,6 +38,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), { });
 const emit = defineEmits(['done', 'close']);
 
+const router = useRouter();
 const userStore = useUserStore();
 const signUpMode: Ref<boolean> = ref(false);    // 회원가입 모드
 
@@ -62,10 +64,15 @@ function doAction(provider: string) {
 async function doLogin(provider: string) {
   try {
     const user: User | null | undefined = await userStore.doLogin(provider);
-    if (user == null) { // 회원가입 한 유저 정보가 없는 경우 
+    if (user == null) { // 회원가입 한 유저 정보가 없는 경우
       signUpMode.value = true;
       alert('회원가입이 필요합니다');
-    } else { emit('close'); }
+      return;
+    }
+    emit('close');
+    if (user?.role === 'admin') { // 어드민 계정인 경우, 어드민 페이지로 이동
+      router.push('/admin/group');
+    }
   } catch (error) {
     console.error(error);
   }
