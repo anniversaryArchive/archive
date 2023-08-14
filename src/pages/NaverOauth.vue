@@ -31,7 +31,7 @@ async function doNaverLogin(code: string) {
     }
   } catch (error) {
     console.error(error);
-    location.href.value = '';
+    router.push('/');
   }
 }
 
