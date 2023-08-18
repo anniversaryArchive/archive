@@ -1,0 +1,17 @@
+query ($sortOrder: Int, $page: Int, $perPage: Int, $filter: FilterOption) {
+  communicationBoard: CommunicationBoardPagination(sortOrder: $sortOrder, page: $page, perPage: $perPage, filter: $filter) {
+    data {
+      _id
+      seq
+      createdAt
+      updatedAt
+      division
+      title
+      author {
+        _id
+        name
+      }
+    }
+    total
+  }
+}

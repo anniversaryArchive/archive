@@ -12,7 +12,6 @@ import createArchive from '@/graphql/createArchive.mutate.gql';
 import updateArchive from '@/graphql/updateArchive.mutate.gql';
 import removeArchive from '@/graphql/removeArchive.mutate.gql';
 
-
 interface ArchiveState {
   data?: WatchQuery<Archive>;
   group?: Group;
@@ -31,21 +30,21 @@ export const useArchiveStore = defineStore({
     group: undefined,
   }),
   getters: {
-    archives (): Archive[] { return this.data?.list || [] },
-    total (): number { return this.data?.total || 0 },
-    groupId (): string | undefined { return this.group?._id },
+    archives(): Archive[] { return this.data?.list || [] },
+    total(): number { return this.data?.total || 0 },
+    groupId(): string | undefined { return this.group?._id },
   },
   actions: {
-    setGroup (group: Group) {
+    setGroup(group: Group) {
       this.group = group;
     },
-    getArchive (id: string) {
+    getArchive(id: string) {
       return query(getArchive, { id }, false);
     },
-    getArchives (pageData? : number | null, perPageData? : number | null, filterData? : object, searchDate?: searchDate) {
+    getArchives(pageData?: number | null, perPageData?: number | null, filterData?: object, searchDate?: searchDate) {
       query(getArchives, {
         page: pageData,
-        perPage : perPageData,
+        perPage: perPageData,
         filter: filterData,
         start: searchDate?.start,
         end: searchDate?.end
@@ -60,7 +59,7 @@ export const useArchiveStore = defineStore({
       });
     },
 
-    async createArchive (input: Record<string ,any>): Promise<{ id?: string, error: CombinedError | null } | undefined> {
+    async createArchive(input: Record<string, any>): Promise<{ id?: string, error: CombinedError | null } | undefined> {
       try {
         const { data, error } = await mutate(createArchive, { input });
         const id: string | undefined = data?.archive?._id;
@@ -70,7 +69,7 @@ export const useArchiveStore = defineStore({
       return;
     },
 
-    async updateArchive (id: string, input: Record<string, any>): Promise<boolean> {
+    async updateArchive(id: string, input: Record<string, any>): Promise<boolean> {
       try {
         const { data, error } = await mutate(updateArchive, { id, input });
         const success: boolean = data?.success || false;
@@ -80,7 +79,7 @@ export const useArchiveStore = defineStore({
       return false;
     },
 
-    async removeArchive (id: string): Promise<boolean> {
+    async removeArchive(id: string): Promise<boolean> {
       try {
         const { data, error } = await mutate(removeArchive, { id });
         const success: boolean = data?.success || false;
