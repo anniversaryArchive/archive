@@ -18,7 +18,7 @@
               <q-btn @click="$router.push('/favorite')" flat>즐겨찾기</q-btn>
             </li>
             <li>
-              <q-btn flat>소통창구</q-btn>
+              <q-btn @click="$router.push('/communicationBoard')" flat>소통창구</q-btn>
             </li>
           </ul>
         </div>
