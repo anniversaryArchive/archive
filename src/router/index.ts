@@ -21,7 +21,7 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import("@/pages/SelectGroup.vue")
   },
   {
-    meta: { title: "cafeMap" },
+    meta: { title: "cafeMap", layout: "MainLayout" },
     path: "/cafeMap",
     component: () => import("@/pages/cafeMap.vue")
   },
