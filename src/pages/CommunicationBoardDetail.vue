@@ -32,12 +32,15 @@ import { CommunicationBoard } from '@/types/CommnunicationBoard';
 
 import getCommunicationBoard from '@/graphql/getCommunicationBoard.query.gql';
 
+const router = useRouter();
+const route = useRoute();
+
 const communicaitonBoard: Ref<CommnunicationBoard | undefined> = ref();
 
 onBeforeMount(() => {
-  const route = useRoute();
+  // const route = useRoute();
   const id: string = route.params.id || '';
-  if (!id) { return router.replace('/communicationBoards'); }
+  if (!id) { return router.replace('/communication-board'); }
   getData(id);
 });
 
@@ -48,8 +51,12 @@ function getData(id: string) {
 }
 
 function onClickTable() {
-  const router = useRouter();
-  router.replace('/communicationBoard')
+  const lastPath = router.options.history.state.back;
+  if (lastPath === '/communication-board') {
+    router.go(-1);
+  } else {
+    router.push('/communication-board');
+  }
 }
 
 

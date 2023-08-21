@@ -39,12 +39,12 @@ const routes: Array<RouteRecordRaw> = [
 
   {
     meta: { title: "소통 창구", layout: "MainLayout" },
-    path: "/communicationBoard",
+    path: "/communication-board",
     component: () => import("@/pages/CommunicationBoard.vue")
   },
   {
     meta: { title: "소통 창구 상세", layout: "MainLayout" },
-    path: "/communicationBoardDetail/:id",
+    path: "/communication-board/:id",
     component: () => import("@/pages/communicationBoardDetail.vue")
   },
   {

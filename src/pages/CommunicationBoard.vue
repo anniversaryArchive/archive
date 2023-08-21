@@ -95,7 +95,7 @@ function onChangePage(event) {
 }
 
 function onClick(_, row) {
-  router.push(`/communicationBoardDetail/${row._id}`);
+  router.push(`/communication-board/${row._id}`);
 }
 </script>
 
