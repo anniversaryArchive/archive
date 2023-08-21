@@ -5,19 +5,34 @@
         <div class="w-20 font-bold text-primary">{{communicaitonBoard.division}}</div>
         <div class="flex-1">
           <div>{{communicaitonBoard.title}}</div>
-          <div class="mt-2 text-sm text-gray-600">
-            <div class="inline-block mr-4">{{communicaitonBoard.author.name}}</div>
-            <div class="inline-block">{{communicaitonBoard.createdAt}}</div>
+          <div class="flex mt-2 text-sm">
+            <div class="text-gray-600">
+              <div class="inline-block mr-4">{{communicaitonBoard.author.name}}</div>
+              <div class="inline-block">{{communicaitonBoard.createdAt}}</div>
+            </div>
+            <div class="flex-1"></div>
+            <div v-if="!editMode">
+              <button class="hover:text-gray-800" @click="onClickEditBtn">수정</button>
+            </div>
           </div>
         </div>
       </div>
 
       <div class="flex-1 w-full py-5 pl-20 my-2 overflow-y-scroll leading-6 break-words border-t border-b border-gray-200">
-        {{ communicaitonBoard.content }}
+        <textarea v-if="editMode" v-model="communicaitonBoard.content"
+          class="w-full h-full p-4 border border-gray-200 rounded"></textarea>
+        <div v-else v-html="communicaitonBoard.content.replaceAll('\n', '<br/>')">
+        </div>
       </div>
 
       <div class="text-right">
-        <button class="px-8 py-2 border border-gray-200 rounded hover:bg-gray-100"
+        <tempalte v-if="editMode">
+          <button class="px-8 py-2 mr-2 font-bold border border-gray-200 rounded hover:bg-gray-100"
+            @click="onClickCancel">취소</button>
+          <button class="px-8 py-2 font-bold text-white border rounded bg-primary/80 hover:bg-primary"
+            @click="onClickSave">저장</button>
+        </tempalte>
+        <button v-else class="px-8 py-2 border border-gray-200 rounded hover:bg-gray-100"
           @click="onClickTable">목록</button>
       </div>
     </div>
@@ -27,15 +42,18 @@
 <script setup lang="ts">
 import { onBeforeMount, ref, Ref, computed, ComputedRef } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { query } from '@/composables/graphqlUtils';
+import { query, mutate } from '@/composables/graphqlUtils';
 import { CommunicationBoard } from '@/types/CommnunicationBoard';
 
 import getCommunicationBoard from '@/graphql/getCommunicationBoard.query.gql';
+import patchCommunicationBoard from '@/graphql/patchCommunicationBoard.mutate.gql';
 
 const router = useRouter();
 const route = useRoute();
 
 const communicaitonBoard: Ref<CommnunicationBoard | undefined> = ref();
+const communicaitonBoardOrg: Ref<CommnunicationBoard | undefined> = ref();
+const editMode: Ref<boolean> = ref(false);
 
 onBeforeMount(() => {
   // const route = useRoute();
@@ -47,6 +65,7 @@ onBeforeMount(() => {
 function getData(id: string) {
   query(getCommunicationBoard, { id }).then((resp) => {
     communicaitonBoard.value = resp.data?.value?.CommunicationBoard;
+    communicaitonBoardOrg.value = JSON.parse(JSON.stringify(communicaitonBoard.value));
   });
 }
 
@@ -59,7 +78,28 @@ function onClickTable() {
   }
 }
 
+function onClickEditBtn() {
+  editMode.value = true;
+}
 
+function onClickCancel() {
+  communicaitonBoard.value = JSON.parse(JSON.stringify(communicaitonBoardOrg.value));
+  editMode.value = false;
+}
+
+function onClickSave() {
+  const fields: string[] = ['division', 'title', 'content'];
+  const input = {};
+  for (const field of fields) { input[field] = communicaitonBoard.value[field]; }
+  mutate(patchCommunicationBoard, { id: communicaitonBoard.value._id, input }).then((resp) => {
+    if (resp.data.success) {
+      communicaitonBoardOrg.value = JSON.parse(JSON.stringify(communicaitonBoard.value));
+      editMode.value = false;
+    } else {
+      // TODO: 재시도 alert
+    }
+  });
+}
 </script>
 
 <style scoped>
