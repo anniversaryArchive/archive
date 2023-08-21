@@ -13,6 +13,8 @@
             <div class="flex-1"></div>
             <div v-if="!editMode">
               <button class="hover:text-gray-800" @click="onClickEditBtn">수정</button>
+              <span class="mx-2">|</span>
+              <button class="hover:text-gray-800" @click="onClickDeleteBtn">삭제</button>
             </div>
           </div>
         </div>
@@ -33,7 +35,7 @@
             @click="onClickSave">저장</button>
         </tempalte>
         <button v-else class="px-8 py-2 border border-gray-200 rounded hover:bg-gray-100"
-          @click="onClickTable">목록</button>
+          @click="goToTableView">목록</button>
       </div>
     </div>
   </div>
@@ -47,6 +49,7 @@ import { CommunicationBoard } from '@/types/CommnunicationBoard';
 
 import getCommunicationBoard from '@/graphql/getCommunicationBoard.query.gql';
 import patchCommunicationBoard from '@/graphql/patchCommunicationBoard.mutate.gql';
+import removeCommunicationBoard from '@/graphql/removeCommunicationBoard.mutate.gql';
 
 const router = useRouter();
 const route = useRoute();
@@ -69,7 +72,7 @@ function getData(id: string) {
   });
 }
 
-function onClickTable() {
+function goToTableView() {
   const lastPath = router.options.history.state.back;
   if (lastPath === '/communication-board') {
     router.go(-1);
@@ -80,6 +83,18 @@ function onClickTable() {
 
 function onClickEditBtn() {
   editMode.value = true;
+}
+
+function onClickDeleteBtn() {
+  const value: boolean = confirm('정말 삭제하시겠습니까?');
+  if (!value) { return; }
+  mutate(removeCommunicationBoard, { id: communicaitonBoard.value._id }).then((resp) => {
+    if (resp.data.success) {
+      goToTableView();
+    } else {
+      // TODO: 재시도 alert
+    }
+  });
 }
 
 function onClickCancel() {
