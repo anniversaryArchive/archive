@@ -1,36 +1,41 @@
 <template>
-  <div>
-    <div class="text-3xl">소통 창구 {{ communicationBoards.length }}</div>
-    <!-- 번호 / 분류 / 제목 / 날짜 / 작성자 -->
-     <q-table
-      :rows="communicationBoards"
-      :columns="columns"
-      row-key="seq"
-      hide-pagination
-    />
-    <div class="row justify-center q-mt-md">
-      <q-pagination
-        v-model="currentPage"
-        color="grey-8"
-        :max="maxPage"
-        size="sm"
-        @update:model-value="onChangePage"
+  <div class="flex flex-col justify-center h-full">
+    <div class="w-4/5 m-auto bg-white rounded h-4/5">
+      <!-- 번호 / 분류 / 제목 / 날짜 / 작성자 -->
+      <q-table
+        :rows="communicationBoards"
+        :columns="columns"
+        row-key="_id"
+        hide-pagination
+        @row-click="onClick"
       />
+      <div class="justify-center row q-mt-md">
+        <q-pagination
+          v-model="currentPage"
+          color="grey-8"
+          :max="maxPage"
+          size="sm"
+          @update:model-value="onChangePage"
+        />
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { onBeforeMount, ref, Ref, computed, ComputedRef } from 'vue';
+import { useRouter } from 'vue-router';
 import moment from 'moment/moment';
 import { query } from '@/composables/graphqlUtils';
 import { CommunicationBoard } from '@/types/CommnunicationBoard';
 
 import getCommunicationBoardsQuery from '@/graphql/getCommunicationBoards.query.gql';
 
+const router = useRouter();
+
 const currentPage: Ref<number> = ref(1);
 const total: Ref<number> = ref(0);
-const perPage: number = 1;
+const perPage: number = 5;
 
 const maxPage: ComputedRef<number> = computed(() => {
   return Math.ceil(total.value / perPage);
@@ -87,6 +92,10 @@ function getCommunicationBoards() {
 
 function onChangePage(event) {
   getCommunicationBoards();
+}
+
+function onClick(_, row) {
+  router.push(`/communicationBoardDetail/${row._id}`);
 }
 </script>
 

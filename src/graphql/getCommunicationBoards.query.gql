@@ -11,6 +11,7 @@ query ($sortOrder: Int, $page: Int, $perPage: Int, $filter: FilterOption) {
         _id
         name
       }
+      status
     }
     total
   }

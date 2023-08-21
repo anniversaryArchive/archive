@@ -43,6 +43,11 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import("@/pages/CommunicationBoard.vue")
   },
   {
+    meta: { title: "소통 창구 상세", layout: "MainLayout" },
+    path: "/communicationBoardDetail/:id",
+    component: () => import("@/pages/communicationBoardDetail.vue")
+  },
+  {
     path: "/admin",
     // beforeEnter: authUser,
     children: [
