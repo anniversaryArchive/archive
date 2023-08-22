@@ -2,16 +2,25 @@
   <div v-if="communicaitonBoard" class="flex flex-col justify-center h-full">
     <div class="flex flex-col w-4/5 p-6 m-auto bg-white rounded h-4/5">
       <div class="flex w-full">
-        <div class="w-20 font-bold text-primary">{{communicaitonBoard.division}}</div>
+        <div class="w-20 font-bold text-primary">
+          <q-select v-if="editMode" v-model="communicaitonBoard.division"
+            :options="divisionOptions"
+            :option-label="opt => divisionLabel[opt]"></q-select>
+          <span v-else>{{communicaitonBoard.division}}</span>
+        </div>
         <div class="flex-1">
-          <div>{{communicaitonBoard.title}}</div>
-          <div class="flex mt-2 text-sm">
+          <input v-if="editMode" type="text" v-model="communicaitonBoard.title"
+            class="w-full h-full px-2 py-1 border border-gray-200 rounded" />
+          <div v-else>
+            {{communicaitonBoard.title}}
+          </div>
+          <div v-if="!editMode" class="flex mt-2 text-sm">
             <div class="text-gray-600">
-              <div class="inline-block mr-4">{{communicaitonBoard.author.name}}</div>
+              <div class="inline-block mr-4">{{communicaitonBoard.author?.name}}</div>
               <div class="inline-block">{{communicaitonBoard.createdAt}}</div>
             </div>
             <div class="flex-1"></div>
-            <div v-if="!editMode">
+            <div>
               <button class="hover:text-gray-800" @click="onClickEditBtn">수정</button>
               <span class="mx-2">|</span>
               <button class="hover:text-gray-800" @click="onClickDeleteBtn">삭제</button>
@@ -48,6 +57,7 @@ import { query, mutate } from '@/composables/graphqlUtils';
 import { CommunicationBoard } from '@/types/CommnunicationBoard';
 
 import getCommunicationBoard from '@/graphql/getCommunicationBoard.query.gql';
+import createCommunicationBoard from '@/graphql/createCommunicationBoard.mutate.gql';
 import patchCommunicationBoard from '@/graphql/patchCommunicationBoard.mutate.gql';
 import removeCommunicationBoard from '@/graphql/removeCommunicationBoard.mutate.gql';
 
@@ -56,17 +66,37 @@ const route = useRoute();
 
 const communicaitonBoard: Ref<CommnunicationBoard | undefined> = ref();
 const communicaitonBoardOrg: Ref<CommnunicationBoard | undefined> = ref();
+
+const createMode: Ref<boolean> = ref(false);
 const editMode: Ref<boolean> = ref(false);
 
+const divisionLabel: Record<string, string> = {
+  notice: '공지',
+  group: '그룹 제안',
+  artist: '아티스트 제안',
+  archive: '카페 제안',
+  improvement: '기능 개선',
+  error: '에러'
+};
+const divisionOptions: ComputedRef<string[]> = computed(() => {
+  return Object.keys(divisionLabel);
+});
+
 onBeforeMount(() => {
-  // const route = useRoute();
   const id: string = route.params.id || '';
   if (!id) { return router.replace('/communication-board'); }
   getData(id);
 });
 
 function getData(id: string) {
+  if (id === 'create') {
+    createMode.value = editMode.value = true;
+    communicaitonBoard.value = { division: 'notice' } as CommunicationBoard;
+    communicaitonBoardOrg.value = JSON.parse(JSON.stringify(communicaitonBoard.value));
+    return;
+  }
   query(getCommunicationBoard, { id }).then((resp) => {
+    // TODO: 데이터가 없는 경우
     communicaitonBoard.value = resp.data?.value?.CommunicationBoard;
     communicaitonBoardOrg.value = JSON.parse(JSON.stringify(communicaitonBoard.value));
   });
@@ -106,8 +136,9 @@ function onClickSave() {
   const fields: string[] = ['division', 'title', 'content'];
   const input = {};
   for (const field of fields) { input[field] = communicaitonBoard.value[field]; }
-  mutate(patchCommunicationBoard, { id: communicaitonBoard.value._id, input }).then((resp) => {
-    if (resp.data.success) {
+  const variables = { id: communicaitonBoard.value._id, input };
+  mutate(createMode.value ? createCommunicationBoard : patchCommunicationBoard, variables).then((resp) => {
+    if (resp.data[createMode.value ? 'communicationBoard' : 'success']) {
       communicaitonBoardOrg.value = JSON.parse(JSON.stringify(communicaitonBoard.value));
       editMode.value = false;
     } else {

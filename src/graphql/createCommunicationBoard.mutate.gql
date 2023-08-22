@@ -1,0 +1,5 @@
+mutation ($input: CommunicationBoardInput!) {
+  communicationBoard: createCommunicationBoard(input: $input) {
+    _id
+  }
+}
