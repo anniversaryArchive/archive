@@ -78,9 +78,7 @@ const divisionLabel: Record<string, string> = {
   improvement: '기능 개선',
   error: '에러'
 };
-const divisionOptions: ComputedRef<string[]> = computed(() => {
-  return Object.keys(divisionLabel);
-});
+const divisionOptions: ComputedRef<string[]> = computed(() => Object.keys(divisionLabel));
 
 onBeforeMount(() => {
   const id: string = route.params.id || '';
