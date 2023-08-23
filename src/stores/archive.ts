@@ -41,13 +41,24 @@ export const useArchiveStore = defineStore({
     getArchive(id: string) {
       return query(getArchive, { id }, false);
     },
-    getArchives(pageData?: number | null, perPageData?: number | null, filterData?: object, searchDate?: searchDate) {
+    getArchives(args: {
+      page?: number,
+      perPage?: number,
+      filter?: object,
+      search?: searchDate,
+      sortOrder?: number,
+      sortField?: string,
+    }) {
+      const { page, perPage, filter, search, sortOrder, sortField } = args;
+
       query(getArchives, {
-        page: pageData,
-        perPage: perPageData,
-        filter: filterData,
-        start: searchDate?.start,
-        end: searchDate?.end
+        page,
+        perPage,
+        filter,
+        sortOrder,
+        sortField,
+        start: search?.start,
+        end: search?.end,
       }, false).then(({ data, error, execute }) => {
         this.data = {
           list: computed(() => {

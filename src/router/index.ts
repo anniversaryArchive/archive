@@ -14,6 +14,12 @@ const authUser = (to: RouteLocationNormalized, from: RouteLocationNormalized, ne
   }
 }
 
+const requireAdmin = (_: RouteLocationNormalized, __: RouteLocationNormalized, next: NavigationGuardNext) => {
+  const userStore = useUserStore();
+  if (!userStore.isAdmin) { return next('/'); }
+  next();
+}
+
 const routes: Array<RouteRecordRaw> = [
   {
     meta: { title: "Home" },
@@ -48,8 +54,18 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import("@/pages/CommunicationBoard/communicationBoardDetail.vue")
   },
   {
+    path: "/signUp",
+    meta: { title: "회원가입" },
+    component: () => import("@/pages/SignUp.vue"),
+  },
+  {
+    path: '/naverOauth',
+    meta: { title: "네이버 로그인" },
+    component: () => import("@/pages/NaverOauth.vue"),
+  },
+  {
     path: "/admin",
-    // beforeEnter: authUser,
+    beforeEnter: requireAdmin,
     children: [
       {
         path: "",

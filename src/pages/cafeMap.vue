@@ -85,7 +85,7 @@ import {useArchiveStore} from '@/stores/archive';
 import _ from 'lodash';
 import {Pagination} from '@/types/CommonTypes';
 import moment from 'moment';
-import {useQuasar} from 'quasar';
+import { useQuasar } from "quasar"
 import CafeItem from '@/components/CafeItem.vue';
 
 export default defineComponent({
@@ -181,6 +181,7 @@ export default defineComponent({
       initialize();
     });
 
+
     const initialize = () => {
       // 임시 그룹 데이터
       const artistFilterData = {
@@ -189,7 +190,7 @@ export default defineComponent({
         },
       };
       artistStore.getArtists(artistFilterData);
-      archiveStore.getArchives();
+      getArchives();
     };
 
     watch(() => artistStore.artists, async () => {
@@ -209,10 +210,7 @@ export default defineComponent({
     watch(() => archiveStore.archives, async () => {
       // 카페 목록 초기화 및 검색 버튼 이후에 할당
       if (!cscript.$isEmpty(artistList.value)) {
-        let archiveList = JSON.parse(JSON.stringify(archiveStore.archives));
-
-        // orderData 확인
-        archiveList = orderDataFunc(archiveList, orderData.value.value);
+        const archiveList = JSON.parse(JSON.stringify(archiveStore.archives));
         archiveParams.value = _.cloneDeep(archiveList);
 
         // 페이지네이션 설정
@@ -238,6 +236,23 @@ export default defineComponent({
       return true;
     }
 
+    // 현재 설정값에 맞춰 archiveStore.getArchives를 호출하여, 데이터를 가져오는 함수
+    function getArchives() {
+      const { schBeginDe, schEndDe } = archiveSchParams.value;
+
+      archiveStore.getArchives({
+        page: paginationData.value.current - 1,
+        perPage: paginationData.value.perPage,
+        filter: { flds: { artist: Array.from(artistList.value) } },
+        search: {
+          start: schBeginDe && moment(schBeginDe).format('YYYY-MM-DD'),
+          end: schEndDe && moment(schEndDe).format('YYYY-MM-DD')
+        },
+        sortOrder: orderData.value.value === 'newest' ? -1 : 1,
+        sortField: 'startDate',
+      });
+    }
+
     // 아카이브 검색
     async function searchBtnFunc() {
       // 검색 조건 확인
@@ -255,42 +270,7 @@ export default defineComponent({
       Object.entries(artistList.value).forEach(([, val]) => {
         artistListSave.push(val);
       });
-
-      const filterData = {
-        "flds": {
-          "artist" : artistListSave
-        }
-      }
-
-      const searchDate = {
-        "start": archiveSchParams.value.schBeginDe ? moment(archiveSchParams.value.schBeginDe).format('YYYY-MM-DD') : "",
-        "end": archiveSchParams.value.schEndDe ? moment(archiveSchParams.value.schEndDe).format('YYYY-MM-DD') : ""
-      }
-
-      // console.log('filterData : ', filterData);
-      archiveStore.getArchives(paginationData.value.current-1, paginationData.value.perPage, filterData, searchDate);
-    }
-
-    function orderDataFunc(list: any, key: string) {
-      switch (key) {
-        case 'newest': return descOrdSortDate(list);
-        case 'oldest': return ascOrdSortDate(list);
-        default: return list;
-      }
-    }
-
-    // 오름차순
-    function ascOrdSortDate(list : any) {
-      return list.sort(function (a: { startDate: string | number | Date; }, b: { startDate: string | number | Date; }) {
-        return new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
-      });
-    }
-
-    // 내림차순
-    function descOrdSortDate(list : any) {
-      return list.sort(function (a: { startDate: string | number | Date; }, b: { startDate: string | number | Date; }) {
-        return new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
-      }).reverse();
+      getArchives();
     }
 
     function resetFunc() {
@@ -320,11 +300,10 @@ export default defineComponent({
       paginationData.value.maxCnt = null;
     }
 
+    // 정렬 방식 변경 시, 호출되는 함수
     function orderSelectChange() {
-      if(!cscript.$isEmpty(archiveParams.value)){
-        const changeData = orderDataFunc(archiveParams.value, orderData.value.value);
-        archiveParams.value = _.cloneDeep(changeData);
-      }
+      if (cscript.$isEmpty(archiveParams.value)) { return; }
+      getArchives();
     }
 
     function detailBtnFunc(id: string) {
