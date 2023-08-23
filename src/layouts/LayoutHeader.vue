@@ -27,14 +27,8 @@
     <div id="signinBox" style="display: none"></div>
   </q-layout>
 
-  <SignInDialog
-      :show="isOpenSignInDialog"
-      @close="
-      () => {
-        isOpenSignInDialog = false
-      }
-    "
-  />
+  <SignInDialog :show="isOpenSignInDialog"
+    @close="() => { isOpenSignInDialog = false; }" />
 </template>
 
 <script lang="ts">
@@ -52,7 +46,7 @@ export default defineComponent({
 
     const userStore = useUserStore()
     const loggedIn = computed(() => userStore.loggedIn);
-    const isOpenSignInDialog = ref(false)
+    const isOpenSignInDialog = ref(false);
 
     return {
       userStore,
@@ -61,7 +55,7 @@ export default defineComponent({
     }
   },
   methods: {
-    // 로그인 버튼 클릭 시, 로그인/회원가입 Dialog을 띄워준다
+    // 로그인 버튼 클릭 시, 로그인/회원가입 Dialog을 띄워준다.
     doLogin() {
       this.isOpenSignInDialog = true;
     },
