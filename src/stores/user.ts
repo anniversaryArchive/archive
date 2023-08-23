@@ -23,6 +23,7 @@ export const useUserStore = defineStore({
 
   getters: {
     loggedIn(state): boolean { return !!state.user; },
+    isAdmin(state): boolean { return state.user?.role === 'admin'; },
   },
   actions: {
     doLogin(provider: string): Promise<User | null | undefined> {

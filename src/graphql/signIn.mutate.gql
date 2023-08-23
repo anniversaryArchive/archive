@@ -7,6 +7,7 @@ mutation ($token: String!, $provider: String) {
       provider
       providerId
       image
+      role
     }
     info {
       id

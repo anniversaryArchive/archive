@@ -14,6 +14,12 @@ const authUser = (to: RouteLocationNormalized, from: RouteLocationNormalized, ne
   }
 }
 
+const requireAdmin = (_: RouteLocationNormalized, __: RouteLocationNormalized, next: NavigationGuardNext) => {
+  const userStore = useUserStore();
+  if (!userStore.isAdmin) { return next('/'); }
+  next();
+}
+
 const routes: Array<RouteRecordRaw> = [
   {
     meta: { title: "Home" },
@@ -48,7 +54,7 @@ const routes: Array<RouteRecordRaw> = [
   },
   {
     path: "/admin",
-    // beforeEnter: authUser,
+    beforeEnter: requireAdmin,
     children: [
       {
         path: "",

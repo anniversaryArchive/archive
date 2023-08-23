@@ -40,8 +40,8 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), { });
 const emit = defineEmits(['done', 'close']);
 
-const userStore = useUserStore();
 const router = useRouter();
+const userStore = useUserStore();
 
 const hoverGoogleLoginBtn: Ref<boolean> = ref<boolean>(false);
 const pressedGoogleLoginBtn: Ref<boolean> = ref<boolean>(false);
@@ -61,6 +61,9 @@ async function doLogin(provider: string) {
     const user: User | null | undefined = await userStore.doLogin(provider);
     if (user) { // 로그인 성공
       emit('close');
+      if (user.role === 'admin') { // 어드민 계정인 경우, 어드민 페이지로 이동
+        router.push('/admin/group');
+      }
     } else if (user !== undefined) { // 회원가입하지 않은 계정인 경우, 회원가입 페이지로 이동
       router.push('/signUp');
     }

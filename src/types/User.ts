@@ -5,4 +5,5 @@ export interface User {
   provider: string;
   providerId: string;
   image?: string;
+  role: 'user' | 'admin';
 }
