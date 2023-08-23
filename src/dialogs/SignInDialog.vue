@@ -42,7 +42,6 @@ const emit = defineEmits(['done', 'close']);
 
 const router = useRouter();
 const userStore = useUserStore();
-const router = useRouter();
 
 const hoverGoogleLoginBtn: Ref<boolean> = ref<boolean>(false);
 const pressedGoogleLoginBtn: Ref<boolean> = ref<boolean>(false);
