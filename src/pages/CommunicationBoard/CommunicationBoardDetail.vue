@@ -3,10 +3,11 @@
     <div class="flex flex-col w-4/5 p-6 m-auto bg-white rounded h-4/5">
       <div class="flex w-full">
         <div class="w-20 font-bold text-primary">
-          <q-select v-if="editMode" v-model="communicaitonBoard.division"
+          <q-select v-if="editMode" :model-value="communicaitonBoard.division"
             :options="divisionOptions"
-            :option-label="opt => divisionLabel[opt]"></q-select>
-          <span v-else>{{communicaitonBoard.division}}</span>
+            :option-label="opt => DIVISION_LABEL[opt]"
+            @update:model-value="onChangeDivision"></q-select>
+          <span v-else>{{DIVISION_LABEL[communicaitonBoard.division]}}</span>
         </div>
         <div class="flex-1">
           <input v-if="editMode" type="text" v-model="communicaitonBoard.title"
@@ -31,8 +32,32 @@
 
       <div class="flex-1 w-full py-5 pl-20 my-2 overflow-y-scroll leading-6 break-words border-t border-b border-gray-200">
         <textarea v-if="editMode" v-model="communicaitonBoard.content"
-          class="w-full h-full p-4 border border-gray-200 rounded"></textarea>
-        <div v-else v-html="communicaitonBoard.content.replaceAll('\n', '<br/>')">
+          class="w-full p-4 border border-gray-200 rounded"
+          :class="formData ? 'h-1/2' : 'h-full'"></textarea>
+        <div v-else v-html="communicaitonBoard.content.replaceAll('\n', '<br/>')"></div>
+        <div v-if="formData && proposalData" class="h-1/2">
+          <div v-for="field in formData" class="mb-2">
+            <div class="mb-1 font-bold">
+              {{field.label}}
+              <span v-if="field.required" class="ml-2 text-red-700">*</span>
+            </div>
+            <q-input v-if="field.type === 'text'" v-model="proposalData[field.key]"
+              :placeholder="field.label" class="w-full" />
+            <q-input v-else-if="field.type === 'date'" type="date"
+              v-model="proposalData[field.key]" />
+            <q-file v-else-if="field.type === 'image'" name="data_file"
+              v-model="proposalData[field.key]" filled :label="field.label" />
+            <q-input v-else-if="field.type === 'color'"
+              filled v-model="proposalData[field.key]" :rules="['anyColor']">
+              <template v-slot:append>
+                <q-icon name="colorize" class="cursor-pointer">
+                  <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+                    <q-color v-model="proposalData[field.key]" />
+                  </q-popup-proxy>
+                </q-icon>
+              </template>
+            </q-input>
+          </div>
         </div>
       </div>
 
@@ -53,8 +78,11 @@
 <script setup lang="ts">
 import { onBeforeMount, ref, Ref, computed, ComputedRef } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { useQuasar } from 'quasar';
+import axios from 'axios';
 import { query, mutate } from '@/composables/graphqlUtils';
 import { CommunicationBoard } from '@/types/CommnunicationBoard';
+import { DIVISION_LABEL, DATA_FORM } from './data';
 
 import getCommunicationBoard from '@/graphql/getCommunicationBoard.query.gql';
 import createCommunicationBoard from '@/graphql/createCommunicationBoard.mutate.gql';
@@ -63,6 +91,7 @@ import removeCommunicationBoard from '@/graphql/removeCommunicationBoard.mutate.
 
 const router = useRouter();
 const route = useRoute();
+const $q = useQuasar();
 
 const communicaitonBoard: Ref<CommnunicationBoard | undefined> = ref();
 const communicaitonBoardOrg: Ref<CommnunicationBoard | undefined> = ref();
@@ -70,15 +99,14 @@ const communicaitonBoardOrg: Ref<CommnunicationBoard | undefined> = ref();
 const createMode: Ref<boolean> = ref(false);
 const editMode: Ref<boolean> = ref(false);
 
-const divisionLabel: Record<string, string> = {
-  notice: '공지',
-  group: '그룹 제안',
-  artist: '아티스트 제안',
-  archive: '카페 제안',
-  improvement: '기능 개선',
-  error: '에러'
-};
-const divisionOptions: ComputedRef<string[]> = computed(() => Object.keys(divisionLabel));
+const divisionOptions: ComputedRef<string[]> = computed(() => Object.keys(DIVISION_LABEL));
+const formData: ComputedRef<Record<string, any>[] | undefined | null> = computed(() => {
+  if (!communicaitonBoard.value?.division) { return null; }
+  return DATA_FORM[communicaitonBoard.value.division];
+});
+const proposalData: ComputedRef<Record<string, any> | undefined> = computed(() => {
+  return communicaitonBoard.value && communicaitonBoard.value.data;
+});
 
 onBeforeMount(() => {
   const id: string = route.params.id || '';
@@ -96,8 +124,14 @@ function getData(id: string) {
   query(getCommunicationBoard, { id }).then((resp) => {
     // TODO: 데이터가 없는 경우
     communicaitonBoard.value = resp.data?.value?.CommunicationBoard;
+    communicaitonBoard.value.data = communicaitonBoard.value.data || {};
     communicaitonBoardOrg.value = JSON.parse(JSON.stringify(communicaitonBoard.value));
   });
+}
+
+function onChangeDivision(event) {
+  communicaitonBoard.value.data = {};
+  communicaitonBoard.value.division = event;
 }
 
 function goToTableView() {
@@ -130,10 +164,76 @@ function onClickCancel() {
   editMode.value = false;
 }
 
-function onClickSave() {
+function checkRequiredFields(): boolean {
+  if (!communicaitonBoard.value.title) {
+    $q.notify('제목은 필수입니다.');
+    return false;
+  }
+  if (!formData.value) { return true; }
+  if (!proposalData.value) { return false; }
+
+  for (const field of formData.value) {
+    if (!field.required) {
+      proposalData.value[field.key] = proposalData.value[field.key] || field.default;
+    } else if (!proposalData.value[field.key]) {
+      $q.notify(`${field.label}은 필수입니다.`);
+      return false;
+    }
+  }
+  return true;
+}
+
+async function uploadFiles(): Promise<boolean> {
+  if (!proposalData.value || !formData.value) { return; }
+  try {
+    const promises = formData.value.reduce((acc, field) => {
+      if (field.type !== 'image') { return acc; }
+      const file = proposalData.value[field.key];
+      if (!file || file._id) { return acc; }
+      const formData: FormData = new FormData();
+      formData.append('file', file);
+      acc.push(axios.post(`http://localhost:3000/file`, formData, {}).then((response) => {
+        const fileData = response.data?.data && response.data.data;
+        if (fileData) {
+          proposalData.value[field.key] = fileData;
+          return true;
+        }
+        return false;
+      }));
+      return acc;
+    }, []);
+
+    const result = await Promise.all(promises);
+    return true;
+  } catch (error) { throw error; }
+  return false;
+}
+
+function getInput() {
   const fields: string[] = ['division', 'title', 'content'];
   const input = {};
   for (const field of fields) { input[field] = communicaitonBoard.value[field]; }
+  if (formData.value) {
+    input[communicaitonBoard.value.division] = {};
+    for (const field of formData.value) {
+      if (!proposalData.value[field.key]) { continue; }
+      input[communicaitonBoard.value.division][field.key] = field.type === 'image' ? proposalData.value[field.key]._id : proposalData.value[field.key];
+    }
+  }
+  return input;
+}
+
+async function onClickSave() {
+  if (!checkRequiredFields()) { return; }
+
+  // TODO: 파일 업로드
+  try {
+    await uploadFiles();
+  } catch (error) { console.log('error : ', error); }
+
+  const fields: string[] = ['division', 'title', 'content'];
+  const input = getInput();
+  console.log('chloe test input : ', input);
   const variables = { id: communicaitonBoard.value._id, input };
   mutate(createMode.value ? createCommunicationBoard : patchCommunicationBoard, variables).then((resp) => {
     if (resp.data[createMode.value ? 'communicationBoard' : 'success']) {

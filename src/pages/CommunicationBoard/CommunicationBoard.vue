@@ -71,7 +71,7 @@ const columns = [
     name: 'author',
     required: true,
     label: '작성자',
-    field: row => row.author.name,
+    field: row => row.author?.name,
   }
 ];
 
