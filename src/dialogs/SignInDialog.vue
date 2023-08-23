@@ -10,18 +10,20 @@
 
       <div class="w-full h-[1px] bg-gray-300 mt-10 mb-8"></div>
 
-      <div v-if="signUpMode" class="mb-6 text-xlg">회원가입 하시겠습니까?</div>
-      <button class="w-4/5" @click="doAction('google')">
-        <img :src="googleLoginBtnImage"
+      <button class="w-4/5" @click="doLogin('google')">
+        <img class="m-auto" :src="googleLoginBtnImage"
           @mouseover="hoverGoogleLoginBtn = true" @mouseleave="hoverGoogleLoginBtn = false"
           @mousedown="pressedGoogleLoginBtn = true" @mouseup="pressedGoogleLoginBtn = false" />
+      </button>
+      <button class="w-4/5 text-center" @click="doLogin('naver')">
+        <img src="@/assets/images/btn_naver_signin.png" class="px-1 m-auto" />
       </button>
     </div>
   </CommonDialog>
 </template>
 
 <script setup lang="ts">
-import { ref, Ref, computed, ComputedRef } from 'vue';
+import { ref, Ref, computed, ComputedRef, onBeforeMount } from 'vue';
 import { useRouter } from 'vue-router';
 import CommonDialog from './CommonDialog.vue';
 import { useUserStore } from '@/stores/user';
@@ -40,7 +42,7 @@ const emit = defineEmits(['done', 'close']);
 
 const router = useRouter();
 const userStore = useUserStore();
-const signUpMode: Ref<boolean> = ref(false);    // 회원가입 모드
+const router = useRouter();
 
 const hoverGoogleLoginBtn: Ref<boolean> = ref<boolean>(false);
 const pressedGoogleLoginBtn: Ref<boolean> = ref<boolean>(false);
@@ -49,40 +51,23 @@ const googleLoginBtnImage: ComputedRef<string> = computed<string>(() => {
   if (pressedGoogleLoginBtn.value) { return pressedGoogleBtnImage; }
   if (hoverGoogleLoginBtn.value) { return focusGoogleBtnImage; }
   return nomarlGoogleBtnImage;
-})
+});
 
 function closeDialog () {
   emit('close')
 }
 
-function doAction(provider: string) {
-  if (signUpMode.value) {
-    doSignUp(provider);
-  } else { doLogin(provider); }
-}
-
 async function doLogin(provider: string) {
   try {
     const user: User | null | undefined = await userStore.doLogin(provider);
-    if (user == null) { // 회원가입 한 유저 정보가 없는 경우
-      signUpMode.value = true;
-      alert('회원가입이 필요합니다');
-      return;
+    if (user) { // 로그인 성공
+      emit('close');
+      if (user.role === 'admin') { // 어드민 계정인 경우, 어드민 페이지로 이동
+        router.push('/admin/group');
+      }
+    } else if (user !== undefined) { // 회원가입하지 않은 계정인 경우, 회원가입 페이지로 이동
+      router.push('/signUp');
     }
-    emit('close');
-    if (user?.role === 'admin') { // 어드민 계정인 경우, 어드민 페이지로 이동
-      router.push('/admin/group');
-    }
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-async function doSignUp(provider: string) {
-  try {
-    const success: boolean = await userStore.doSignUp(provider);
-    if (!success) { return false; }
-    emit('close');
   } catch (error) {
     console.error(error);
   }

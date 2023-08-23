@@ -43,6 +43,16 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import("@/pages/favorite.vue")
   },
   {
+    path: "/signUp",
+    meta: { title: "회원가입" },
+    component: () => import("@/pages/SignUp.vue"),
+  },
+  {
+    path: '/naverOauth',
+    meta: { title: "네이버 로그인" },
+    component: () => import("@/pages/NaverOauth.vue"),
+  },
+  {
     path: "/admin",
     beforeEnter: requireAdmin,
     children: [
