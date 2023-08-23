@@ -85,7 +85,7 @@ import {useArchiveStore} from '@/stores/archive';
 import _ from 'lodash';
 import {Pagination} from '@/types/CommonTypes';
 import moment from 'moment';
-import {useQuasar} from 'quasar';
+import { useQuasar } from "quasar"
 import CafeItem from '@/components/CafeItem.vue';
 
 export default defineComponent({
@@ -180,6 +180,7 @@ export default defineComponent({
     onBeforeMount(() => {
       initialize();
     });
+
 
     const initialize = () => {
       // 임시 그룹 데이터
