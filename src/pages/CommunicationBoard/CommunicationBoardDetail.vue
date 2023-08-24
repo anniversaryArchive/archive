@@ -213,16 +213,38 @@ async function uploadFiles(): Promise<boolean> {
   return false;
 }
 
+function getInputFields(fields: any, data: any) {
+  const input = {};
+
+  for (const field of fields) {
+    const { key } = field;
+    if (!data[key]) { continue; }
+
+    switch (field.type) {
+      case 'image': case 'select':
+        input[key] = data[key]._id;
+        break;
+      case 'objectList':
+        input[key] = [];
+        for (const object of data) {
+          input[key].push(getInputFields(field.objectFields, object));
+        }
+        break;
+      default:
+        input[key] = data[key];
+    }
+  }
+  return input;
+}
+
 function getInput() {
   const fields: string[] = ['division', 'title', 'content'];
   const input = {};
   for (const field of fields) { input[field] = communicaitonBoard.value[field]; }
   if (formData.value) {
-    input[communicaitonBoard.value.division] = {};
-    for (const field of formData.value) {
-      if (!proposalData.value[field.key]) { continue; }
-      input[communicaitonBoard.value.division][field.key] = field.type === 'image' ? proposalData.value[field.key]._id : proposalData.value[field.key];
-    }
+    const { division } = communicaitonBoard.value;
+
+    input[division] = getInputFields(formData.value, proposalData.value);
   }
   return input;
 }
@@ -236,7 +258,6 @@ async function onClickSave() {
 
   const fields: string[] = ['division', 'title', 'content'];
   const input = getInput();
-  console.log('chloe test input : ', input);
   const variables = { id: communicaitonBoard.value._id, input };
   mutate(createMode.value ? createCommunicationBoard : patchCommunicationBoard, variables).then((resp) => {
     if (resp.data[createMode.value ? 'communicationBoard' : 'success']) {

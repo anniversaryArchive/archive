@@ -1,5 +1,5 @@
 <template>
-  <!-- TODO: multi_image / select -->
+  <!-- TODO: multi_image -->
 
   <q-file v-if="field.type === 'image'" name="data_file"
     :model-value="modelValue" @update:model-value="onUpdate" filled
@@ -32,6 +32,10 @@
     <button v-if="!disabled" class="w-full py-1 text-center border rounded border-primary hover:bg-primary/20 text-primary"
       @click="addObject">Add</button>
   </div>
+  <div v-else-if="field.type === 'select'">
+    <q-select :model-value="modelValue" @update:model-value="onUpdate"
+      :disable="disabled" :options="selectOptions" :option-label="opt => opt.name"></q-select>
+  </div>
   <q-input v-else :type="field.type"
     :model-value="modelValue" @update:model-value="onUpdate"
     :placeholder="field.label" class="w-full" :disable="disabled" />
@@ -44,6 +48,9 @@ export default {
 </script>
 
 <script setup lang="ts">
+import { onBeforeMount, computed, ComputedRef } from 'vue';
+import { useGroupStore } from '@/stores/group';
+
 interface Props {
   modelValue: string;
   field: any;
@@ -52,6 +59,21 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {});
 const emit = defineEmits(['update:model-value']);
+
+const groupStore = useGroupStore();
+
+onBeforeMount(() => {
+  const { type, key } = props.field;
+  if (type === 'select' && key === 'group') {
+    groupStore.getGroups();
+  }
+});
+
+const selectOptions: ComputedRef<any> = computed(() => {
+  if (props.field.type !== 'select' || props.disabled) { return []; }
+  if (props.field.key === 'group') { return groupStore.groups; }
+  return [];
+});
 
 function addObject() {
   const list = props.modelValue || [];

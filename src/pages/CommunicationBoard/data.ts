@@ -7,7 +7,15 @@ export const DIVISION_LABEL: Record<string, string> = {
   error: '에러'
 };
 
-const GROUP_FROM: Record<string, any>[] = [
+export interface Field {
+  type: string;
+  label: string;
+  key: string;
+  required: boolean;
+  objectFields?: Field[];
+}
+
+const GROUP_FROM: Field[] = [
   { label: '그룹명(한글)', key: 'name', required: true, type: 'text' },
   { label: '그룹명(영어)', key: 'englishName', required: false, type: 'text' },
   { label: '데뷔 일자', key: 'debutDate', required: true, type: 'date' },
@@ -25,6 +33,13 @@ const GROUP_FROM: Record<string, any>[] = [
   },
 ];
 
-export const DATA_FORM: Record<string, any> = {
+const ARTIST_FORM: Field[] = [
+  { label: '이름', key: 'name', required: true, type: 'text' },
+  { label: '생일', key: 'birthDay', required: true, type: 'date' },
+  { label: '그룹', key: 'group', required: true, type: 'select' },
+];
+
+export const DATA_FORM: Record<string, Field[]> = {
   group: GROUP_FROM,
+  artist: ARTIST_FORM,
 };
