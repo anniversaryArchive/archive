@@ -31,32 +31,24 @@
       </div>
 
       <div class="flex-1 w-full py-5 pl-20 my-2 overflow-y-scroll leading-6 break-words border-t border-b border-gray-200">
-        <textarea v-if="editMode" v-model="communicaitonBoard.content"
-          class="w-full p-4 border border-gray-200 rounded"
-          :class="formData ? 'h-1/2' : 'h-full'"></textarea>
-        <div v-else v-html="communicaitonBoard.content.replaceAll('\n', '<br/>')"></div>
-        <div v-if="formData && proposalData" class="h-1/2">
+        <!-- Content -->
+        <div class="mb-2" :class="{ formData: 'h-1/2' }">
+          <textarea v-if="editMode" v-model="communicaitonBoard.content"
+            class="w-full h-full p-4 border border-gray-200 rounded"></textarea>
+          <div v-else v-html="communicaitonBoard.content.replaceAll('\n', '<br/>')"></div>
+        </div>
+
+        <!-- 제안 Form -->
+        <div v-if="formData && proposalData" class="p-4 border border-gray-300 rounded"
+          :class="editMode ? '' : 'overflow-y-scroll'">
           <div v-for="field in formData" class="mb-2">
             <div class="mb-1 font-bold">
               {{field.label}}
-              <span v-if="field.required" class="ml-2 text-red-700">*</span>
+              <span v-if="editMode && field.required" class="ml-2 text-red-700">*</span>
             </div>
-            <q-input v-if="field.type === 'text'" v-model="proposalData[field.key]"
-              :placeholder="field.label" class="w-full" />
-            <q-input v-else-if="field.type === 'date'" type="date"
-              v-model="proposalData[field.key]" />
-            <q-file v-else-if="field.type === 'image'" name="data_file"
-              v-model="proposalData[field.key]" filled :label="field.label" />
-            <q-input v-else-if="field.type === 'color'"
-              filled v-model="proposalData[field.key]" :rules="['anyColor']">
-              <template v-slot:append>
-                <q-icon name="colorize" class="cursor-pointer">
-                  <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-                    <q-color v-model="proposalData[field.key]" />
-                  </q-popup-proxy>
-                </q-icon>
-              </template>
-            </q-input>
+
+            <CustomInput v-model="proposalData[field.key]"
+              :field="field" :disabled="!editMode" />
           </div>
         </div>
       </div>
@@ -83,6 +75,7 @@ import axios from 'axios';
 import { query, mutate } from '@/composables/graphqlUtils';
 import { CommunicationBoard } from '@/types/CommnunicationBoard';
 import { DIVISION_LABEL, DATA_FORM } from './data';
+import CustomInput from './components/CustomInput.vue';
 
 import getCommunicationBoard from '@/graphql/getCommunicationBoard.query.gql';
 import createCommunicationBoard from '@/graphql/createCommunicationBoard.mutate.gql';
