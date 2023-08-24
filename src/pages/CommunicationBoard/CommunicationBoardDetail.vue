@@ -72,6 +72,7 @@ import { onBeforeMount, ref, Ref, computed, ComputedRef } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
 import axios from 'axios';
+import _ from 'lodash';
 import { query, mutate } from '@/composables/graphqlUtils';
 import { CommunicationBoard } from '@/types/CommnunicationBoard';
 import { DIVISION_LABEL, DATA_FORM } from './data';
@@ -111,14 +112,14 @@ function getData(id: string) {
   if (id === 'create') {
     createMode.value = editMode.value = true;
     communicaitonBoard.value = { division: 'notice' } as CommunicationBoard;
-    communicaitonBoardOrg.value = JSON.parse(JSON.stringify(communicaitonBoard.value));
+    communicaitonBoardOrg.value = _.cloneDeep(communicaitonBoard.value);
     return;
   }
   query(getCommunicationBoard, { id }).then((resp) => {
     // TODO: 데이터가 없는 경우
-    communicaitonBoard.value = resp.data?.value?.CommunicationBoard;
+    communicaitonBoard.value = _.cloneDeep(resp.data?.value?.CommunicationBoard);
     communicaitonBoard.value.data = communicaitonBoard.value.data || {};
-    communicaitonBoardOrg.value = JSON.parse(JSON.stringify(communicaitonBoard.value));
+    communicaitonBoardOrg.value = _.cloneDeep(communicaitonBoard.value);
   });
 }
 
@@ -153,11 +154,29 @@ function onClickDeleteBtn() {
 }
 
 function onClickCancel() {
-  communicaitonBoard.value = JSON.parse(JSON.stringify(communicaitonBoardOrg.value));
+  communicaitonBoard.value = _.cloneDeep(communicaitonBoardOrg.value);
   editMode.value = false;
 }
 
-function checkRequiredFields(): boolean {
+function checkRequiredFields(fields: any, data: any): boolean {
+  for (const field of fields) {
+    if (field.type === 'objectList') {
+      if (!data[field.key]) { return !field.required; }
+      for (const object of data[field.key]) {
+        if (!checkRequiredFields(field.objectFields, object)) { return false; }
+      }
+    }
+    if (!field.required) {
+      data[field.key] = data[field.key] || field.default;
+    } else if (!data[field.key]) {
+      $q.notify(`${field.label}은 필수입니다.`);
+      return false;
+    }
+  }
+  return true;
+}
+
+function checkRequired(): boolean {
   if (!communicaitonBoard.value.title) {
     $q.notify('제목은 필수입니다.');
     return false;
@@ -165,15 +184,7 @@ function checkRequiredFields(): boolean {
   if (!formData.value) { return true; }
   if (!proposalData.value) { return false; }
 
-  for (const field of formData.value) {
-    if (!field.required) {
-      proposalData.value[field.key] = proposalData.value[field.key] || field.default;
-    } else if (!proposalData.value[field.key]) {
-      $q.notify(`${field.label}은 필수입니다.`);
-      return false;
-    }
-  }
-  return true;
+  return checkRequiredFields(formData.value, proposalData.value);
 }
 
 async function uploadFiles(): Promise<boolean> {
@@ -217,9 +228,8 @@ function getInput() {
 }
 
 async function onClickSave() {
-  if (!checkRequiredFields()) { return; }
+  if (!checkRequired()) { return; }
 
-  // TODO: 파일 업로드
   try {
     await uploadFiles();
   } catch (error) { console.log('error : ', error); }
@@ -230,7 +240,7 @@ async function onClickSave() {
   const variables = { id: communicaitonBoard.value._id, input };
   mutate(createMode.value ? createCommunicationBoard : patchCommunicationBoard, variables).then((resp) => {
     if (resp.data[createMode.value ? 'communicationBoard' : 'success']) {
-      communicaitonBoardOrg.value = JSON.parse(JSON.stringify(communicaitonBoard.value));
+      communicaitonBoardOrg.value = _.cloneDeep(communicaitonBoardOrg.value);
       editMode.value = false;
     } else {
       // TODO: 재시도 alert

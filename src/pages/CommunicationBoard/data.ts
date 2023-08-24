@@ -19,8 +19,8 @@ const GROUP_FROM: Record<string, any>[] = [
     required: false,
     type: 'objectList',
     objectFields: [
-      { name: '아티스트 이름', key: 'name', required: true, type: 'text' },
-      { name: '생일', key: 'birthDate', required: true, type: 'date' },
+      { label: '아티스트 이름', key: 'name', required: true, type: 'text' },
+      { label: '생일', key: 'birthDay', required: true, type: 'date' },
     ],
   },
 ];
