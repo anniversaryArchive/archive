@@ -1,12 +1,19 @@
 <template>
   <div class="flex flex-col justify-center h-full">
-    <div class="w-4/5 m-auto bg-white rounded h-4/5">
+    <div class="w-4/5 p-10 m-auto bg-white rounded h-4/5">
+      <header class="flex pb-4 border-b border-gray-400">
+        <div class="flex-1 text-2xl font-bold">소통창구</div>
+        <div v-if="loggedIn">
+          <router-link to="/communication-board/create"
+            class="px-4 py-1 border border-gray-300 rounded hover:bg-gray-200">글쓰기</router-link>
+        </div>
+      </header>
       <!-- 번호 / 분류 / 제목 / 날짜 / 작성자 -->
       <q-table
         :rows="communicationBoards"
         :columns="columns"
         row-key="_id"
-        hide-pagination
+        hide-pagination flat
         @row-click="onClick"
       />
       <div class="justify-center row q-mt-md">
@@ -28,15 +35,18 @@ import { useRouter } from 'vue-router';
 import moment from 'moment/moment';
 import { query } from '@/composables/graphqlUtils';
 import { CommunicationBoard } from '@/types/CommnunicationBoard';
+import { useUserStore } from '@/stores/user';
 
 import getCommunicationBoardsQuery from '@/graphql/getCommunicationBoards.query.gql';
 
 const router = useRouter();
+const userStore = useUserStore();
 
 const currentPage: Ref<number> = ref(1);
 const total: Ref<number> = ref(0);
 const perPage: number = 5;
 
+const loggedIn: ComputedRef<boolean> = computed(() => userStore.loggedIn);
 const maxPage: ComputedRef<number> = computed(() => {
   return Math.ceil(total.value / perPage);
 });

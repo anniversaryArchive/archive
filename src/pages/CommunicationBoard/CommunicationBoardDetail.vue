@@ -75,6 +75,7 @@ import axios from 'axios';
 import _ from 'lodash';
 import { query, mutate } from '@/composables/graphqlUtils';
 import { CommunicationBoard } from '@/types/CommnunicationBoard';
+import { useUserStore } from '@/stores/user';
 import { DIVISION_LABEL, DATA_FORM } from './data';
 import CustomInput from './components/CustomInput.vue';
 
@@ -86,6 +87,7 @@ import removeCommunicationBoard from '@/graphql/removeCommunicationBoard.mutate.
 const router = useRouter();
 const route = useRoute();
 const $q = useQuasar();
+const userStore = useUserStore();
 
 const communicaitonBoard: Ref<CommnunicationBoard | undefined> = ref();
 const communicaitonBoardOrg: Ref<CommnunicationBoard | undefined> = ref();
@@ -104,7 +106,11 @@ const proposalData: ComputedRef<Record<string, any> | undefined> = computed(() =
 
 onBeforeMount(() => {
   const id: string = route.params.id || '';
-  if (!id) { return router.replace('/communication-board'); }
+  // 로그인하지 않은 유저가 게시글 생성으로 접근한 경우, notify를 띄워주고 소통창구 table view로 되돌려보낸다.
+  if (id === 'create' && !userStore.loggedIn) {
+    $q.notify(`게시글 작성은 로그인한 유저만 가능합니다.`);
+    return goToTableView();
+  }
   getData(id);
 });
 
@@ -154,6 +160,7 @@ function onClickDeleteBtn() {
 }
 
 function onClickCancel() {
+  if (createMode.value) { return goToTableView(); }
   communicaitonBoard.value = _.cloneDeep(communicaitonBoardOrg.value);
   editMode.value = false;
 }
