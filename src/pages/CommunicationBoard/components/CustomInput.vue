@@ -18,11 +18,15 @@
   <div v-else-if="field.type === 'objectList'">
     <template v-if="modelValue">
       <div v-for="object in modelValue"
-        class="px-4 py-2 m-2 border border-gray-100 rounded shadow">
-        <div v-for="objectField in field.objectFields" class="my-2">
+        class="relative px-4 py-2 m-2 border border-gray-100 rounded shadow">
+        <div v-if="!disabled" class="absolute text-right top-4 right-4">
+          <button class="px-4 py-1 text-sm text-red-600 border border-red-600 rounded hover:bg-red-300"
+            @click="removeOjbect(index)">제거</button>
+        </div>
+        <div v-for="(objectField, index) in field.objectFields" class="my-2">
           <div class="font-semibold">
             {{objectField.label}}
-            <span v-if="!disabled && objectField.required" class="text-red-600 ml-2">*</span>
+            <span v-if="!disabled && objectField.required" class="ml-2 text-red-600">*</span>
           </div>
           <CustomInput v-model="object[objectField.key]"
             :field="objectField" :disabled="disabled" />
@@ -78,6 +82,10 @@ const selectOptions: ComputedRef<any> = computed(() => {
 function addObject() {
   const list = props.modelValue || [];
   emit('update:model-value', [...list, {}]);
+}
+function removeOjbect(index: number) {
+  const list = [...props.modelValue];
+  emit('update:model-value', list.splice(index, 1));
 }
 
 function onUpdate(event) {

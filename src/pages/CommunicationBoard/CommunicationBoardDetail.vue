@@ -44,6 +44,9 @@
           <div v-for="field in formData" class="mb-2">
             <div class="mb-1 font-bold">
               {{field.label}}
+              <span v-if="field.type === 'objectList'">
+                ({{ proposalData[field.key]?.length || 0 }})
+              </span>
               <span v-if="editMode && field.required" class="ml-2 text-red-700">*</span>
             </div>
 
