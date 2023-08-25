@@ -1,4 +1,6 @@
 import moment from 'moment/moment';
+import { CommunicationBoard } from '@/types/CommunicationBoard';
+import { formatDate } from '@/composables/formatDate';
 
 export const TABLE_COLUMNS: Record<string, any>[] = [
   {
@@ -6,33 +8,33 @@ export const TABLE_COLUMNS: Record<string, any>[] = [
     required: true,
     label: '번호',
     align: 'center',
-    field: (row: any) => row.seq,
-    format: (val: any) => `${val}`,
+    field: (row: CommunicationBoard) => row.seq,
+    format: (val: number) => `${val}`,
   }, {
     name: 'division',
     required: true,
     label: '분류',
     align: 'center',
-    field: (row: any) => DIVISION_LABEL[row.division],
+    field: (row: CommunicationBoard) => DIVISION_LABEL[row.division],
   }, {
     name: 'title',
     required: true,
     label: '제목',
     align: 'center',
-    field: (row: any) => row.title,
+    field: (row: CommunicationBoard) => row.title,
   }, {
     name: 'createdAt',
     required: true,
     label: '날짜',
     align: 'center',
-    field: (row: any) => row.createdAt,
-    format: (val: any) => moment(val).format('YYYY.MM.DD HH:mm').toString(),
+    field: (row: CommunicationBoard) => row.createdAt,
+    format: (val: string) => formatDate(val),
   }, {
     name: 'author',
     required: true,
     label: '작성자',
     align: 'center',
-    field: (row: any) => row.author?.name,
+    field: (row: CommunicationBoard) => row.author?.name,
   }
 ];
 

@@ -6,6 +6,7 @@
       </header>
 
       <div class="flex w-full pt-4 pb-2">
+        <!-- 구분 -->
         <div class="w-40 text-lg font-extrabold text-center text-primary">
           <q-select v-if="editMode" :model-value="communicaitonBoard.division"
             :options="divisionOptions"
@@ -14,21 +15,26 @@
             class="mr-4"></q-select>
           <span v-else>{{DIVISION_LABEL[communicaitonBoard.division]}}</span>
         </div>
+
         <div class="flex-1 text-base">
+          <!-- 제목 -->
           <q-input v-if="editMode" type="text" v-model="communicaitonBoard.title"
             class="w-full h-full"
             placeholder="제목을 입력해주세요." />
           <div v-else>
             {{communicaitonBoard.title}}
           </div>
+
+          <!-- 정보 -->
           <div v-if="!editMode" class="flex mt-2 text-sm">
             <div class="text-gray-600">
               <div class="inline-block mr-4">{{communicaitonBoard.author?.name}}</div>
               <div class="inline-block">
-                {{ formatDate(communicaitonBoard.createdAt, 'YYYY.MM.DD HH:mm.ss') }}
+                {{ formatDate(communicaitonBoard.createdAt) }}
               </div>
             </div>
             <div class="flex-1"></div>
+            <!-- 수정 | 삭제 -->
             <div v-if="communicaitonBoard.author?._id === userId">
               <button class="hover:text-gray-800" @click="onClickEditBtn">수정</button>
               <span class="mx-2">|</span>
@@ -40,7 +46,7 @@
 
       <div class="flex-1 w-full py-5 pl-40 my-2 overflow-y-scroll leading-6 break-words border-t border-b border-gray-200">
         <!-- Content -->
-        <div class="mb-2" :class="formData && editMode ? 'h-1/2' : 'h-full'">
+        <div class="mb-2" :class="editMode ? (formFields ? 'h-1/2' : 'h-full') : ''">
           <textarea v-if="editMode" v-model="communicaitonBoard.content"
             placeholder="글 내용을 입력해주세요."
             class="w-full h-full p-4 border border-gray-200 rounded"></textarea>
@@ -48,9 +54,9 @@
         </div>
 
         <!-- 제안 Form -->
-        <div v-if="formData && proposalData" class="p-4 mt-6 border border-gray-300 rounded"
+        <div v-if="formFields && proposalData" class="p-4 mt-6 border border-gray-300 rounded"
           :class="editMode ? '' : 'overflow-y-scroll'">
-          <div v-for="field in formData" class="mb-2">
+          <div v-for="field in formFields" class="mb-2">
             <div class="mb-1 font-bold">
               {{field.label}}
               <span v-if="field.type === 'objectList'">
@@ -111,12 +117,11 @@ const createMode: Ref<boolean> = ref(false);
 const editMode: Ref<boolean> = ref(false);
 
 const divisionOptions: ComputedRef<string[]> = computed(() => Object.keys(DIVISION_LABEL));
-const formData: ComputedRef<Record<string, any>[] | undefined | null> = computed(() => {
-  if (!communicaitonBoard.value?.division) { return null; }
-  return DATA_FORM[communicaitonBoard.value.division];
+const formFields: ComputedRef<Record<string, any>[] | undefined> = computed(() => {
+  return communicaitonBoard.value?.division && DATA_FORM[communicaitonBoard.value.division];
 });
 const proposalData: ComputedRef<Record<string, any> | undefined> = computed(() => {
-  return communicaitonBoard.value && communicaitonBoard.value.data;
+  return communicaitonBoard.value?.data;
 });
 
 onBeforeMount(() => {
@@ -129,43 +134,50 @@ onBeforeMount(() => {
   getData(id);
 });
 
+function setCommunicationBoardData(data: CommnunicationBoard | undefined) {
+  communicaitonBoard.value = _.cloneDeep(data || {} as CommunicationBoard);
+  communicaitonBoard.value.data = communicaitonBoard.value.data || {};
+  communicaitonBoardOrg.value = _.cloneDeep(communicaitonBoard.value);
+}
+
+// 소통창구 게시글 가져오는 함수
 function getData(id: string) {
-  if (id === 'create') {
+  if (id === 'create') { // 생성인 경우
     createMode.value = editMode.value = true;
-    communicaitonBoard.value = { division: 'notice' } as CommunicationBoard;
-    communicaitonBoardOrg.value = _.cloneDeep(communicaitonBoard.value);
+    setCommunicationBoardData({ division: 'notice' } as CommunicationBoard);
     return;
   }
+
   query(getCommunicationBoard, { id }).then((resp) => {
     const data = resp.data?.value?.CommunicationBoard;
     if (!data) {
       $q.notify('존재하지 않는 게시글입니다.');
       return goToTableView();
     }
-    communicaitonBoard.value = _.cloneDeep(resp.data?.value?.CommunicationBoard);
-    communicaitonBoard.value.data = communicaitonBoard.value.data || {};
-    communicaitonBoardOrg.value = _.cloneDeep(communicaitonBoard.value);
+    setCommunicationBoardData(resp.data?.value?.CommunicationBoard);
   });
 }
 
-function onChangeDivision(event) {
+// 구분 변경 시
+function onChangeDivision(event: string) {
   communicaitonBoard.value.data = {};
   communicaitonBoard.value.division = event;
 }
 
+// 소통창구 테이블 화면으로 되돌아가기
 function goToTableView() {
   const lastPath = router.options.history.state.back;
   if (lastPath === '/communication-board') {
     router.go(-1);
-  } else {
-    router.push('/communication-board');
-  }
+  } else { router.push('/communication-board'); }
 }
 
+// 수정 버튼 클릭 시
 function onClickEditBtn() {
   editMode.value = true;
 }
 
+// 삭제 버튼 클릭 시
 function onClickDeleteBtn() {
   const value: boolean = confirm('정말 삭제하시겠습니까?');
   if (!value) { return; }
@@ -176,6 +188,7 @@ function onClickDeleteBtn() {
   });
 }
 
+// 취소 버튼 클릭 시
 function onClickCancel() {
   if (createMode.value) { return goToTableView(); }
   communicaitonBoard.value = _.cloneDeep(communicaitonBoardOrg.value);
@@ -200,21 +213,23 @@ function checkRequiredFields(fields: any, data: any): boolean {
   return true;
 }
 
+// 필수 필드 모두 입력됐는 지 확인
 function checkRequired(): boolean {
   if (!communicaitonBoard.value.title) {
     $q.notify('제목은 필수입니다.');
     return false;
   }
-  if (!formData.value) { return true; }
+  if (!formFields.value) { return true; }
   if (!proposalData.value) { return false; }
 
-  return checkRequiredFields(formData.value, proposalData.value);
+  return checkRequiredFields(formFields.value, proposalData.value);
 }
 
+// 파일 업로드
 async function uploadFiles(): Promise<boolean> {
-  if (!proposalData.value || !formData.value) { return; }
+  if (!proposalData.value || !formFields.value) { return; }
   try {
-    const promises = formData.value.reduce((acc, field) => {
+    const promises = formFields.value.reduce((acc, field) => {
       if (field.type !== 'image') { return acc; }
       const file = proposalData.value[field.key];
       if (!file || file._id) { return acc; }
@@ -250,7 +265,7 @@ function getInputFields(fields: any, data: any) {
         break;
       case 'objectList':
         input[key] = [];
-        for (const object of data) {
+        for (const object of data[key]) {
           input[key].push(getInputFields(field.objectFields, object));
         }
         break;
@@ -261,27 +276,28 @@ function getInputFields(fields: any, data: any) {
   return input;
 }
 
+// mutation varialbes로 보낼 input 반환하는 함수
 function getInput() {
   const fields: string[] = ['division', 'title', 'content'];
   const input = {};
   for (const field of fields) { input[field] = communicaitonBoard.value[field]; }
-  if (formData.value) {
+  if (formFields.value) {
     const { division } = communicaitonBoard.value;
-
-    input[division] = getInputFields(formData.value, proposalData.value);
+    input[division] = getInputFields(formFields.value, proposalData.value);
   }
   if (createMode.value) {
-    input.status = formData.value ? 'request' : 'none';
+    input.status = formFields.value ? 'request' : 'none';
   }
   return input;
 }
 
+// 저장 버튼 클릭 시
 async function onClickSave() {
   if (!checkRequired()) { return; }
 
   try {
     await uploadFiles();
-  } catch (error) { console.log('error : ', error); }
+  } catch (error) { console.error('error : ', error); }
 
   const fields: string[] = ['division', 'title', 'content'];
   const input = getInput();

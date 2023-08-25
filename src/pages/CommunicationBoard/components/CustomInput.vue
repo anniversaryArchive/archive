@@ -1,7 +1,10 @@
 <template>
+  <!-- 이미지 -->
   <q-file v-if="field.type === 'image'" name="data_file"
     :model-value="modelValue" @update:model-value="onUpdate" filled
     :label="field.label" :disable="disabled" />
+
+  <!-- 컬러 -->
   <q-input v-else-if="field.type === 'color'"
     filled :model-value="modelValue" @update:model-value="onUpdate"
     :rules="['anyColor']" :disable="disabled">
@@ -13,6 +16,8 @@
       </q-icon>
     </template>
   </q-input>
+
+  <!-- Object List Ex) artist -->
   <div v-else-if="field.type === 'objectList'">
     <template v-if="modelValue">
       <div v-for="object in modelValue"
@@ -34,10 +39,14 @@
     <button v-if="!disabled" class="w-full py-1 text-center border rounded border-primary hover:bg-primary/20 text-primary"
       @click="addObject">Add</button>
   </div>
+
+  <!-- Select -->
   <div v-else-if="field.type === 'select'">
     <q-select :model-value="modelValue" @update:model-value="onUpdate"
       :disable="disabled" :options="selectOptions" :option-label="opt => opt.name"></q-select>
   </div>
+
+  <!-- 그 외 (text, date ..) -->
   <q-input v-else :type="field.type"
     :model-value="modelValue" @update:model-value="onUpdate"
     :placeholder="field.label" class="w-full" :disable="disabled" />
@@ -52,15 +61,16 @@ export default {
 <script setup lang="ts">
 import { onBeforeMount, computed, ComputedRef } from 'vue';
 import { useGroupStore } from '@/stores/group';
+import { Field } from '../data';
 
 interface Props {
   modelValue: string;
-  field: any;
+  field: Field;
   disabled: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {});
-const emit = defineEmits(['update:model-value']);
+const emit = defineEmits(['update:modelValue']);
 
 const groupStore = useGroupStore();
 
@@ -71,7 +81,7 @@ onBeforeMount(() => {
   }
 });
 
-const selectOptions: ComputedRef<any> = computed(() => {
+const selectOptions: ComputedRef<Record<string, any>[]> = computed(() => {
   if (props.field.type !== 'select' || props.disabled) { return []; }
   if (props.field.key === 'group') { return groupStore.groups; }
   return [];
@@ -79,15 +89,15 @@ const selectOptions: ComputedRef<any> = computed(() => {
 
 function addObject() {
   const list = props.modelValue || [];
-  emit('update:model-value', [...list, {}]);
+  emit('update:modelValue', [...list, {}]);
 }
 function removeOjbect(index: number) {
   const list = [...props.modelValue];
-  emit('update:model-value', list.splice(index, 1));
+  emit('update:modelValue', list.splice(index, 1));
 }
 
 function onUpdate(event) {
-  emit('update:model-value', event);
+  emit('update:modelValue', event);
 }
 </script>
 
