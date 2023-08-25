@@ -66,12 +66,12 @@
       </div>
 
       <div class="text-right">
-        <tempalte v-if="editMode">
+        <template v-if="editMode">
           <button class="px-8 py-2 mr-2 font-bold border border-gray-200 rounded hover:bg-gray-100"
             @click="onClickCancel">취소</button>
           <button class="px-8 py-2 font-bold text-white border rounded bg-primary/80 hover:bg-primary"
             @click="onClickSave">저장</button>
-        </tempalte>
+        </template>
         <button v-else class="px-8 py-2 border border-gray-200 rounded hover:bg-gray-100"
           @click="goToTableView">목록</button>
       </div>
@@ -137,7 +137,11 @@ function getData(id: string) {
     return;
   }
   query(getCommunicationBoard, { id }).then((resp) => {
-    // TODO: 데이터가 없는 경우
+    const data = resp.data?.value?.CommunicationBoard;
+    if (!data) {
+      $q.notify('존재하지 않는 게시글입니다.');
+      return goToTableView();
+    }
     communicaitonBoard.value = _.cloneDeep(resp.data?.value?.CommunicationBoard);
     communicaitonBoard.value.data = communicaitonBoard.value.data || {};
     communicaitonBoardOrg.value = _.cloneDeep(communicaitonBoard.value);
@@ -168,9 +172,7 @@ function onClickDeleteBtn() {
   mutate(removeCommunicationBoard, { id: communicaitonBoard.value._id }).then((resp) => {
     if (resp.data.success) {
       goToTableView();
-    } else {
-      // TODO: 재시도 alert
-    }
+    } else { $q.notify('삭제에 실패했습니다. 다시 시도해주세요.'); }
   });
 }
 
@@ -290,9 +292,7 @@ async function onClickSave() {
       if (createMode.value) { communicaitonBoard.value = _.cloneDeep(data); }
       communicaitonBoardOrg.value = _.cloneDeep(communicaitonBoardOrg.value);
       editMode.value = false;
-    } else {
-      // TODO: 재시도 alert
-    }
+    } else { $q.notify('저장에 실패했습니다. 다시 시도해주세요.'); }
   });
 }
 </script>

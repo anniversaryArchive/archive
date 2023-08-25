@@ -1,6 +1,4 @@
 <template>
-  <!-- TODO: multi_image -->
-
   <q-file v-if="field.type === 'image'" name="data_file"
     :model-value="modelValue" @update:model-value="onUpdate" filled
     :label="field.label" :disable="disabled" />
