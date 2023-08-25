@@ -1,5 +1,19 @@
 mutation ($input: CommunicationBoardInput!) {
   communicationBoard: createCommunicationBoard(input: $input) {
     _id
+    seq
+    createdAt
+    updatedAt
+    division
+    title
+    content
+    author {
+      _id
+      name
+    }
+    data
+    fixed
+    status
+    message
   }
 }

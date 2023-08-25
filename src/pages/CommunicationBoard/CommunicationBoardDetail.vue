@@ -1,27 +1,35 @@
 <template>
   <div v-if="communicaitonBoard" class="flex flex-col justify-center h-full">
-    <div class="flex flex-col w-4/5 p-6 m-auto bg-white rounded h-4/5">
-      <div class="flex w-full">
-        <div class="w-20 font-bold text-primary">
+    <div class="flex flex-col w-4/5 p-10 m-auto bg-white rounded h-4/5">
+      <header class="flex pb-4 border-b border-gray-400">
+        <div class="flex-1 text-2xl font-bold">소통창구</div>
+      </header>
+
+      <div class="flex w-full pt-4 pb-2">
+        <div class="w-40 text-lg font-extrabold text-center text-primary">
           <q-select v-if="editMode" :model-value="communicaitonBoard.division"
             :options="divisionOptions"
             :option-label="opt => DIVISION_LABEL[opt]"
-            @update:model-value="onChangeDivision"></q-select>
+            @update:model-value="onChangeDivision"
+            class="mr-4"></q-select>
           <span v-else>{{DIVISION_LABEL[communicaitonBoard.division]}}</span>
         </div>
-        <div class="flex-1">
-          <input v-if="editMode" type="text" v-model="communicaitonBoard.title"
-            class="w-full h-full px-2 py-1 border border-gray-200 rounded" />
+        <div class="flex-1 text-base">
+          <q-input v-if="editMode" type="text" v-model="communicaitonBoard.title"
+            class="w-full h-full"
+            placeholder="제목을 입력해주세요." />
           <div v-else>
             {{communicaitonBoard.title}}
           </div>
           <div v-if="!editMode" class="flex mt-2 text-sm">
             <div class="text-gray-600">
               <div class="inline-block mr-4">{{communicaitonBoard.author?.name}}</div>
-              <div class="inline-block">{{communicaitonBoard.createdAt}}</div>
+              <div class="inline-block">
+                {{ formatDate(communicaitonBoard.createdAt, 'YYYY.MM.DD HH:mm.ss') }}
+              </div>
             </div>
             <div class="flex-1"></div>
-            <div v-if="communicaitonBoard.author._id === userId">
+            <div v-if="communicaitonBoard.author?._id === userId">
               <button class="hover:text-gray-800" @click="onClickEditBtn">수정</button>
               <span class="mx-2">|</span>
               <button class="hover:text-gray-800" @click="onClickDeleteBtn">삭제</button>
@@ -30,16 +38,17 @@
         </div>
       </div>
 
-      <div class="flex-1 w-full py-5 pl-20 my-2 overflow-y-scroll leading-6 break-words border-t border-b border-gray-200">
+      <div class="flex-1 w-full py-5 pl-40 my-2 overflow-y-scroll leading-6 break-words border-t border-b border-gray-200">
         <!-- Content -->
-        <div class="mb-2" :class="{ formData: 'h-1/2' }">
+        <div class="mb-2" :class="formData && editMode ? 'h-1/2' : 'h-full'">
           <textarea v-if="editMode" v-model="communicaitonBoard.content"
+            placeholder="글 내용을 입력해주세요."
             class="w-full h-full p-4 border border-gray-200 rounded"></textarea>
           <div v-else v-html="communicaitonBoard.content.replaceAll('\n', '<br/>')"></div>
         </div>
 
         <!-- 제안 Form -->
-        <div v-if="formData && proposalData" class="p-4 border border-gray-300 rounded"
+        <div v-if="formData && proposalData" class="p-4 mt-6 border border-gray-300 rounded"
           :class="editMode ? '' : 'overflow-y-scroll'">
           <div v-for="field in formData" class="mb-2">
             <div class="mb-1 font-bold">
@@ -81,6 +90,7 @@ import { CommunicationBoard } from '@/types/CommnunicationBoard';
 import { useUserStore } from '@/stores/user';
 import { DIVISION_LABEL, DATA_FORM } from './data';
 import CustomInput from './components/CustomInput.vue';
+import { formatDate } from '@/composables/formatDate';
 
 import getCommunicationBoard from '@/graphql/getCommunicationBoard.query.gql';
 import createCommunicationBoard from '@/graphql/createCommunicationBoard.mutate.gql';
@@ -258,6 +268,9 @@ function getInput() {
 
     input[division] = getInputFields(formData.value, proposalData.value);
   }
+  if (createMode.value) {
+    input.status = formData.value ? 'request' : 'none';
+  }
   return input;
 }
 
@@ -272,7 +285,9 @@ async function onClickSave() {
   const input = getInput();
   const variables = { id: communicaitonBoard.value._id, input };
   mutate(createMode.value ? createCommunicationBoard : patchCommunicationBoard, variables).then((resp) => {
-    if (resp.data[createMode.value ? 'communicationBoard' : 'success']) {
+    const data = resp.data[createMode.value ? 'communicationBoard' : 'success'];
+    if (data) {
+      if (createMode.value) { communicaitonBoard.value = _.cloneDeep(data); }
       communicaitonBoardOrg.value = _.cloneDeep(communicaitonBoardOrg.value);
       editMode.value = false;
     } else {
