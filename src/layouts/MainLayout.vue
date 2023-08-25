@@ -1,7 +1,7 @@
 <template>
   <q-layout view="hHh LpR fFf" container class="rounded-borders">
     <LayoutHeader />
-    <q-page-container>
+    <q-page-container class="pt-14">
       <q-page>
         <div id="troublemaker" class="bg-[#DDF1FF] h-screen mt-[-3.5rem] pt-14">
           <slot />
