@@ -21,7 +21,7 @@
               <div class="inline-block">{{communicaitonBoard.createdAt}}</div>
             </div>
             <div class="flex-1"></div>
-            <div>
+            <div v-if="communicaitonBoard.author._id === userId">
               <button class="hover:text-gray-800" @click="onClickEditBtn">수정</button>
               <span class="mx-2">|</span>
               <button class="hover:text-gray-800" @click="onClickDeleteBtn">삭제</button>
@@ -91,6 +91,8 @@ const router = useRouter();
 const route = useRoute();
 const $q = useQuasar();
 const userStore = useUserStore();
+
+const userId: ComputedRef<string | undefined> = computed(() => userStore.id);
 
 const communicaitonBoard: Ref<CommnunicationBoard | undefined> = ref();
 const communicaitonBoardOrg: Ref<CommnunicationBoard | undefined> = ref();
