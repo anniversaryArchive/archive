@@ -33,7 +33,7 @@ const router = useRouter();
 const userStore = useUserStore();
 const info: Ref<ProviderInfo | undefined>  = ref();
 
-const infoLabel = {
+const infoLabel: Record<string, string> = {
   name: '이름',
   email: '이메일',
   provider: 'SSO'

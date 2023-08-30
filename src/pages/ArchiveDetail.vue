@@ -54,6 +54,7 @@ import { onBeforeMount, ref, Ref, computed, ComputedRef } from 'vue';
 import { useRoute } from 'vue-router';
 import { useArchiveStore } from '@/stores/archive';
 import { Archive } from '@/types/Archive';
+import { Image } from '@/types/Image';
 import ImageSlide from '@/components/common/imageSlide.vue';
 import LayoutHeader from '@/layouts/LayoutHeader.vue';
 import moment from 'moment';
@@ -72,11 +73,11 @@ const height: ComputedRef<string | undefined> = computed(() => {
 
 /**
  * ====================
- * Archive View 관련 computed .. 
+ * Archive View 관련 computed ..
  * ====================
  */
 const mainImage: ComputedRef<string | undefined> = computed(() => {
-  return archive.value?.mainImage?.path;
+  return archive.value?.mainImage?.hasOwnProperty('path') && (archive.value.mainImage as Image).path;
 });
 const startDate: ComputedRef<string | undefined> = computed(() => {
   if (!archive.value) { return; }
@@ -115,15 +116,15 @@ onBeforeMount(() => {
 });
 
 async function getArchive() {
-  const id: string = route.params.id;
+  const id: string = String(route.params.id);
   try {
     const { data } = await archiveStore.getArchive(id);
     archive.value = (data.value.archive || {}) as Archive;
   } catch (error) { console.error(error); }
 }
 
-function numToTime(num: int): string {
-  return num < 10 ? `0${num}` : num; 
+function numToTime(num: number): string {
+  return num < 10 ? `0${num}` : String(num);
 }
 
 </script>

@@ -18,7 +18,7 @@
     </div>
 </template>
 
-<script>
+<script lang="ts">
 import {computed, defineComponent, ref} from 'vue';
 import cscript from '@/composables/comScripts';
 import moment from 'moment/moment';
@@ -67,7 +67,7 @@ export default defineComponent({
         };
         const inputRef = ref(null); // 마운트 이후 바인딩
         const val = computed({
-            get: () => getVal(props.modelValue),
+            get: () => getVal(),
             set: (value) => emit('update:modelValue', setVal(value)),
         });
 
@@ -81,7 +81,7 @@ export default defineComponent({
             return resultVal;
         }
 
-        function setVal(value) {
+        function setVal(value: string) {
             let resultVal = '';
             if (!cscript.$isEmpty(value)) {
                 resultVal = moment(value).format(props.dateFormat).toString() === value ? moment(value).format(props.returnDataFormat).toString() : value;

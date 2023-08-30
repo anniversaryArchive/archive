@@ -42,7 +42,7 @@ export const useUserStore = defineStore({
       try {
         const { data, error } = await mutate(signIn, { token: code, provider });
         if (error) {
-          const code: number | undefined = error?.graphqlErrors && error?.graphqlErrors[0]?.extensions?.code;
+          const code: number = Number(error?.graphqlErrors && error?.graphqlErrors[0]?.extensions?.code);
           this.onErrorLogin(code);
           throw error;
         }
@@ -71,7 +71,7 @@ export const useUserStore = defineStore({
       return;
     },
 
-    onErrorLogin(code: number | undefined) {
+    onErrorLogin(code: number) {
       switch (code) {
         case 401:
           alert('유효하지 않은 토큰입니다.');
@@ -92,7 +92,7 @@ export const useUserStore = defineStore({
       try {
         const { data, error } = await mutate(providerSignUp, { info: this.providerInfo });
         if (error) {
-          const code: number | undefined = error?.graphqlErrors && error?.graphqlErrors[0]?.extensions?.code;
+          const code: number = Number(error?.graphqlErrors && error?.graphqlErrors[0]?.extensions?.code);
           this.onErrorSignUp(code);
           return false;
         }
@@ -104,7 +104,7 @@ export const useUserStore = defineStore({
       return false;
     },
 
-    onErrorSignUp(code: number | undefined) {
+    onErrorSignUp(code: number) {
       switch (code) {
         case 401:
           alert('유효하지 않은 토큰입니다.');

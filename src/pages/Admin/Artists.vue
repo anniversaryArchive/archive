@@ -31,7 +31,7 @@
           <tr>
             <th>데뷔일</th>
             <td colspan="3">
-              <DatePicker :ref='el => { refs["debutDate"] = el }' :id="inputArtist.debutDate" 
+              <DatePicker :ref='el => { refs["debutDate"] = el }' :id="inputArtist.debutDate"
                 v-model='inputArtist.debutDate' :clearable='true' returnDataFormat="YYYY.MM.DD" />
             </td>
           </tr>
@@ -109,6 +109,8 @@ import cscript from '@/composables/comScripts';
 import caggrid, { DateFormatter } from '@/composables/customAgGridUtils';
 import { CellFocusedEvent, GetRowIdParams, GridOptions, RowNode } from '@ag-grid-community/core';
 import { Artist, ArtistType } from '@/types/Artist';
+import { Group } from '@/types/Group';
+import { Image } from '@/types/Image';
 import { useGroupStore } from '@/stores/group';
 import { useArtistStore } from '@/stores/artist';
 import moment from 'moment';
@@ -130,19 +132,19 @@ const lastActionId: Ref<string | undefined> = ref(); // 마지막으로 생성/�
 const total: ComputedRef<number> = computed(() => artistStore.total);
 watch(() => artistStore.artists, () => {
   grdApi.value.setRowData(artistStore.artists);
-  const rowIndex: number = lastActionId.value ? artistStore.artists.findIndex((artist) => {
+  const rowIndex: number = lastActionId.value ? artistStore.artists.findIndex((artist: Artist) => {
     return artist[grdMstKey.value] === lastActionId.value;
   }) : 0;
   grdApi.value.setFocusedCell(rowIndex, grdMstKey.value);
 });
 
 // Artist Input Box 관련 변수
-const refs: Ref<string, any> = ref({});
+const refs: Ref<Record<string, any>> = ref({});
 const inputArtist: Ref<Artist> = ref(cinitial.$inItData('', ArtistType) as Artist);
 const inputArtistOrg: Ref<Artist> = ref(JSON.parse(JSON.stringify(inputArtist.value)));
 
 // Groups 관련 변수
-const groups: ref<ComboBoxModel[]> = ref([]);
+const groups: Ref<ComboBoxModel[]> = ref([]);
 const artistGroup: Ref<ComboBoxModel | undefined> = ref();
 
 onBeforeMount(() => {
@@ -152,7 +154,7 @@ onBeforeMount(() => {
 async function getGroups() {
   try {
     const result = await groupStore.getGroupsQuery();
-    groups.value = (result.data.value.groups.data || []).map((group) => {
+    groups.value = (result.data.value.groups.data || []).map((group: Group) => {
       return { id: group._id, name: group.name, unavailable: false } as ComboBoxModel;
     });
   } catch (error) {
@@ -163,19 +165,19 @@ async function getGroups() {
 function setInputArtist(value: Artist) {
   value.image = value.image;
   for (const key of ['debutDate', 'birthDay']) {
-    if (value[key]) { 
+    if (value[key]) {
       value[key] = moment(value[key]).format('YYYY.MM.DD');
     }
   }
   inputArtist.value = value;
   inputArtistOrg.value = JSON.parse(JSON.stringify(inputArtist.value));
   const groupId: string | undefined = value.group?._id;
-  artistGroup.value = groupId && groups.value.find((group) => group.id === groupId);
+  artistGroup.value = groupId ? groups.value.find((group) => group.id === groupId) : undefined;
 }
 
 /**
  * =================================
- * 상단 버튼(Action) 관련 Functions .. 
+ * 상단 버튼(Action) 관련 Functions ..
  * =================================
  */
 const fnCallFunc = (id: string) => {
@@ -230,8 +232,14 @@ async function checkDiffData(): Promise<boolean> {
   // 그룹이 변경됐는 지 확인
   const groupDiff = artistGroup.value?.id !== inputArtistOrg.value.group?._id;
 
-  // 이미지가 변경됐는 지 확인 
-  const imageDiff = (inputArtist.value.image?._id || inputArtist.value.image?.name) !== (inputArtistOrg.value.image?._id || inputArtistOrg.value.image?.name);
+  // 이미지가 변경됐는 지 확인
+  const imageDiff = (() => {
+    const currentImage = inputArtist.value.image;
+    const current = currentImage && (currentImage?.hasOwnProperty('_id') ? (currentImage as Image)._id : currentImage.name);
+    const orgImage = inputArtistOrg.value.image;
+    const org = orgImage && (orgImage.hasOwnProperty('_id') ? (orgImage as Image)._id : orgImage.name);
+    return current !== org;
+  })();
 
   // inputArtist 데이터가 변경되었는 지
   let dataDiff: boolean = false;
@@ -257,7 +265,7 @@ function isMstValid(): boolean {
   return true;
 }
 
-// 저장 버튼 클릭 시 
+// 저장 버튼 클릭 시
 async function onClickSaveBtn() {
   if (inputArtist.value._id) {
     try {
@@ -288,14 +296,14 @@ async function onClickSaveBtn() {
   if (artistGroup.value) {
     const { id, name } = artistGroup.value;
     inputArtist.value.group = { _id: id, name };
-  } else { inputArtist.value.group = undefined; }
+  } else { delete inputArtist.value.group; }
   setInputArtist(inputArtist.value);
   alert('저장 완료했습니다!');
 }
 
 // 생성 / 수정 시 mutation에 넘길 input을 만들어서 반환하는 함수
-async function getInput(): Record<string, any> | undefined {
-  const input = Object.assign({}, inputArtist.value);
+async function getInput(): Promise<Record<string, any> | undefined> {
+  const input: Record<string, any> = Object.assign({}, inputArtist.value);
   input.group = artistGroup.value?.id;
   for (const field of ['birthDay', 'debutDate']) {
     if (!input[field]) { continue; }
@@ -308,10 +316,11 @@ async function getInput(): Record<string, any> | undefined {
   } catch (_) {
     return undefined;
   } finally {
-    input.image = inputArtist.value.image?._id;
+    const { image } = inputArtist.value;
+    input.image = image?.hasOwnProperty('_id') && (image as Image)._id;
   }
   delete input._id;
-  
+
   return input;
 }
 
@@ -322,7 +331,7 @@ async function createArtist(): Promise<boolean> {
     if (!input) { return false; }
     const id: string | undefined = await artistStore.createArtist(input);
     lastActionId.value = id;
-    return id && true;
+    return !!id;
   } catch (error) { console.error(error); }
   return false;
 }
@@ -342,7 +351,7 @@ async function updateArtist(): Promise<boolean> {
 // 선택한 Artist를 반환하는 함수, 없으면 undefined를 반환한다.
 function getSelectedArtist (required: boolean = false): Artist | undefined {
   const selectedRows = grdApi.value.getSelectedRows();
-  // 선택한 아티스트가 없는 경우 
+  // 선택한 아티스트가 없는 경우
   if (!selectedRows.length) {
     if (required) { alert('아티스트를 선택해주세요!'); }
     return;
@@ -372,9 +381,10 @@ const onRejected = () => {
  */
 
 function uploadFile(): Promise<boolean> {
-  if (!inputArtist.value.image || inputArtist.value.image._id) { return true; }
+  const { image } = inputArtist.value;
+  if (!image || image.hasOwnProperty('_id')) { return Promise.resolve(true); }
   const formData: FormData = new FormData();
-  formData.append('file', inputArtist.value.image);
+  formData.append('file', inputArtist.value.image as Blob);
 
   return new Promise((rejolve, reject) => {
     axios.post(`http://localhost:3000/file`, formData, {}).then((response) => {
@@ -388,10 +398,10 @@ function uploadFile(): Promise<boolean> {
 
 /**
  * =================================
- * Grid 관련 변수 및 Functions .. 
+ * Grid 관련 변수 및 Functions ..
  * =================================
  */
-// 변경사항 체크 
+// 변경사항 체크
 async function confirmDiffData(): Promise<boolean> {
   try {
     const diff = await checkDiffData();
@@ -401,14 +411,14 @@ async function confirmDiffData(): Promise<boolean> {
   return true;
 }
 
-// Grid Cell 포커스 
+// Grid Cell 포커스
 async function onCellFocused(event: CellFocusedEvent) {
   // 포커스 셀 변경 시 해당 셀의 행 선택
   const focusNode = grdApi.value.getRenderedNodes().find((node: RowNode) => {
     return node.childIndex === event.rowIndex;
   });
 
-  // 변경사항 체크 
+  // 변경사항 체크
   try {
     const confirm: boolean = await confirmDiffData();
     if (!confirm) { return; }
@@ -436,7 +446,7 @@ function initGrid () {
   const columnDefs = [
     { headerName: 'No', valueGetter: 'node.rowIndex + 1', width: 60, sortable: true },
     ... gridFields.map((field) => {
-      const def = { headerName: field.text, field: field.key, width: 150, cellStyle : {textAlign: 'left'}, flex: 1 };
+      const def: Record<string, any> = { headerName: field.text, field: field.key, width: 150, cellStyle : {textAlign: 'left'}, flex: 1 };
       if (field.key === 'birthDay' || field.key === 'debutDate') {
         def.valueFormatter = DateFormatter;
       }

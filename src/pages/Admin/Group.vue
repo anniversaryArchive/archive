@@ -36,7 +36,7 @@
         <tr>
           <th>데뷔일</th>
           <td colspan="3">
-            <date-picker :ref='el => { divs["debutDate"] = el }' :id="groupParams.debutDate" v-model='groupParams.debutDate' :clearable='true'/>
+            <date-picker :ref='(el: any) => { divs["debutDate"] = el }' :id="groupParams.debutDate" v-model='groupParams.debutDate' :clearable='true'/>
           </td>
         </tr>
         <tr>

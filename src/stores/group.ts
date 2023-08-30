@@ -30,7 +30,7 @@ export const useGroupStore = defineStore({
     getGroups() {
       query(getGroups, {}, false).then(this.setGroups);
     },
-    getGroupsQuery(variables: Record<string, any>) {
+    getGroupsQuery(variables: Record<string, any> = {}) {
       return query(getGroups, variables);
     },
 

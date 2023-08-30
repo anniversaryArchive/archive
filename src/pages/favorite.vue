@@ -50,9 +50,9 @@
             </li>
           </ul>
 
-          <ul v-for="(item) in archiveParams" v-bind:key="archiveParams" class="favor-list row">
-            <li class="col-2">{{item.archive.group.name}}</li>
-            <li class="col-2">{{item.archive.artist.name}}</li>
+          <ul v-for="(item) in archiveParams" v-bind:key="item._id" class="favor-list row">
+            <li class="col-2">{{item.archive.group?.name}}</li>
+            <li class="col-2">{{item.archive.artist?.name}}</li>
             <li class="col-8 cafe-text" @click="detailBtnFunc(item.archive._id)">
               {{item.archive.themeName}}
               <span>{{item.archive.organizer}}</span>
@@ -66,7 +66,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onBeforeMount, ref, watch} from 'vue';
+import { defineComponent, onBeforeMount, ref, Ref, watch} from 'vue';
 import mixinPageCommon from "@/pages/mixin/mixinPageCommon"
 import {ArchiveSearchParams} from "@/types/Archive"
 import cscript from "@/composables/comScripts"
@@ -84,7 +84,7 @@ export default defineComponent({
   mixins: [mixinPageCommon],
   setup() {
     //const $q = useQuasar()
-    const archiveParams = ref({} as FavoriteArchive)
+    const archiveParams: Ref<FavoriteArchive[]> = ref([])
 
     const groupList = ref([] as string[])
 
@@ -200,7 +200,7 @@ export default defineComponent({
 
     function reset() {
       // 카페 목록
-      archiveParams.value = {} as FavoriteArchive;
+      archiveParams.value = [];
 
       // 페이지네이션
       paginationData.value.maxCnt = null;
@@ -251,7 +251,8 @@ export default defineComponent({
       }).reverse();
     }
 
-    function detailBtnFunc(id: string) {
+    function detailBtnFunc(id: string | undefined) {
+      if (!id) { return; }
       this.$router.push(`/archive/${id}`);
     }
 

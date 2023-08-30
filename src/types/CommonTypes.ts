@@ -112,3 +112,8 @@ export interface Variables {
     sortOrder?: number,
     group?: string
 }
+
+export interface Time {
+    hour: number;
+    minute: number;
+}

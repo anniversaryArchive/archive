@@ -65,7 +65,7 @@ async function onClickFavoriteIcon() {
 async function doCreateFavorite(): Promise<boolean> {
   try {
     const { data } = await mutate(createFavorite, { archive: archive.value._id });
-    return data.favorite?._id && true;
+    return !!data.favorite?._id;
   } catch (_) {}
   return false;
 }

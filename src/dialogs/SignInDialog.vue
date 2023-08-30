@@ -27,6 +27,7 @@ import { ref, Ref, computed, ComputedRef, onBeforeMount } from 'vue';
 import { useRouter } from 'vue-router';
 import CommonDialog from './CommonDialog.vue';
 import { useUserStore } from '@/stores/user';
+import { User } from '@/types/User';
 
 // images
 import nomarlGoogleBtnImage from '@/assets/images/btn_google_signin_light_normal.png';
