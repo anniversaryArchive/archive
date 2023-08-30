@@ -1,5 +1,5 @@
-import {GridOptions} from '@ag-grid-community/core';
-import {AllCommunityModules} from '@ag-grid-community/all-modules';
+import { GridOptions } from '@ag-grid-community/core';
+import { AllCommunityModules } from '@ag-grid-community/all-modules';
 import { QueryExecutionOpts } from 'villus';
 import { ComputedRef } from 'vue';
 
@@ -101,14 +101,14 @@ export interface FetchFunc {
 }
 
 export interface WatchQuery<T> {
-    list: ComputedRef<T[]>;
-    total: ComputedRef<number>;
+    list: T[];
+    total: number;
     fetch: FetchFunc;
 }
 
 export interface Variables {
-    perPage     : number,
-    page        : number,
-    sortOrder?  : number,
-    group?      : string
+    perPage: number,
+    page: number,
+    sortOrder?: number,
+    group?: string
 }
