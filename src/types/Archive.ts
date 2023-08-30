@@ -19,7 +19,6 @@ export interface Archive {
   favorite: boolean;      // 즐겨찾기
   phoneNumber?: string;   // 전화번호
   link?: string;          // 대표 링크
-  favorite: boolean;      // 즐겨찾기 여부 
 }
 
 export const ArchiveType: Record<string, string> = {
@@ -42,8 +41,8 @@ export const ArchiveType: Record<string, string> = {
 }
 
 export interface ArchiveSearchParams extends CommonSch {
-  artist    : string | null;
-  group     : string | null;
+  artist: string | null;
+  group: string | null;
   schBeginDe: string;
-  schEndDe  : string;
+  schEndDe: string;
 }

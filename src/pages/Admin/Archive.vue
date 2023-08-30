@@ -68,7 +68,7 @@
           <tr>
             <th>카페 종료일</th>
             <td colspan="3">
-              <DatePicker :ref='el => { refs["endDate"] = el }' :id="inputArchive.endDate" 
+              <DatePicker :ref='el => { refs["endDate"] = el }' :id="inputArchive.endDate"
                 v-model='inputArchive.endDate' :clearable='true' returnDataFormat="YYYY.MM.DD" />
             </td>
           </tr>
@@ -290,7 +290,7 @@ async function getGroups () {
 function setInputArchive(value: Archive) {
   value.mainImage = value.mainImage;
   for (const key of ['startDate', 'endDate']) {
-    if (value[key]) { 
+    if (value[key]) {
       value[key] = moment(value[key]).format('YYYY.MM.DD');
     }
   }
@@ -305,7 +305,7 @@ function setInputArchive(value: Archive) {
 /**
  * Input Box 내 Action 관련 함수
  */
-// 주소 찾기 버튼 클릭 시 
+// 주소 찾기 버튼 클릭 시
 function onClickFindAddressButton () {
   isOpenFindAddressDialog.value = true;
 }
@@ -321,7 +321,7 @@ function onChangeTimeCheckbox (type: string, event) {
 
 /**
  * =================================
- * 상단 버튼(Action) 관련 Functions .. 
+ * 상단 버튼(Action) 관련 Functions ..
  * =================================
  */
 const fnCallFunc = (id: string) => {
@@ -376,7 +376,7 @@ async function checkDiffData(): Promise<boolean> {
   // 그룹이 변경되었는 지 여부
   const groupDiff = archiveGroup.value?.id !== inputArchiveOrg.value.group?._id;
 
-  // 이미지가 변경됐는 지 확인 
+  // 이미지가 변경됐는 지 확인
   const imageDiff = (inputArchive.value.mainImage?._id || inputArchive.value.mainImage?.name) !== (inputArchiveOrg.value.mainImage?._id || inputArchiveOrg.value.mainImage?.name);
 
   const images = inputArchive.value.images.map(image => image.path);
@@ -406,13 +406,13 @@ async function checkDiffData(): Promise<boolean> {
 // 필수 입력 항목 체크 - 생일, 이미지, 이름
 function isMstValid(): boolean {
   const requireFields = [
-    { key: 'name', text: '카페 이름' }, 
-    { key: 'themeName', text: '카페 테마 명' }, 
-    { key: 'address', text: '주소' }, 
-    { key: 'organizer', text: '주최자' }, 
-    { key: 'startDate', text: '카페 시작일' }, 
-    { key: 'endDate', text: '카페 종료일' }, 
-    { key: 'mainImage', text: '메인 이미지' }, 
+    { key: 'name', text: '카페 이름' },
+    { key: 'themeName', text: '카페 테마 명' },
+    { key: 'address', text: '주소' },
+    { key: 'organizer', text: '주최자' },
+    { key: 'startDate', text: '카페 시작일' },
+    { key: 'endDate', text: '카페 종료일' },
+    { key: 'mainImage', text: '메인 이미지' },
   ];
 
   for (const field of requireFields) {
@@ -425,7 +425,7 @@ function isMstValid(): boolean {
   return true;
 }
 
-// 저장 버튼 클릭 시 
+// 저장 버튼 클릭 시
 async function onClickSaveBtn() {
   if (inputArchive.value._id) {
     try {
@@ -503,6 +503,7 @@ async function getInput(): Record<string, any> | undefined {
     input.images = inputArchive.value.images.map((image) => image._id);
   }
   delete input._id;
+  delete input.favorite;
 
   if (inputArchive.value.address !== inputArchiveOrg.value.address) {
     try {
@@ -548,7 +549,7 @@ async function updateArchive(): Promise<boolean> {
 // 선택한 Archive를 반환하는 함수, 없으면 undefined를 반환한다.
 function getSelectedArchive (required: boolean = false): Archive | undefined {
   const selectedRows = grdApi.value.getSelectedRows();
-  // 선택한 아티스트가 없는 경우 
+  // 선택한 아티스트가 없는 경우
   if (!selectedRows.length) {
     if (required) { alert('아티스트를 선택해주세요!'); }
     return;
@@ -634,10 +635,10 @@ async function uploadImages(): Promise<boolean> {
 
 /**
  * =================================
- * Grid 관련 변수 및 Functions .. 
+ * Grid 관련 변수 및 Functions ..
  * =================================
  */
-// 변경사항 체크 
+// 변경사항 체크
 async function confirmDiffData(): Promise<boolean> {
   try {
     const diff = await checkDiffData();
@@ -647,14 +648,14 @@ async function confirmDiffData(): Promise<boolean> {
   return true;
 }
 
-// Grid Cell 포커스 
+// Grid Cell 포커스
 async function onCellFocused(event: CellFocusedEvent) {
   // 포커스 셀 변경 시 해당 셀의 행 선택
   const focusNode = grdApi.value.getRenderedNodes().find((node: RowNode) => {
     return node.childIndex === event.rowIndex;
   });
 
-  // 변경사항 체크 
+  // 변경사항 체크
   try {
     const confirm: boolean = await confirmDiffData();
     if (!confirm) { return; }
