@@ -76,8 +76,8 @@ const height: ComputedRef<string | undefined> = computed(() => {
  * Archive View 관련 computed ..
  * ====================
  */
-const mainImage: ComputedRef<string | undefined> = computed(() => {
-  return archive.value?.mainImage?.hasOwnProperty('path') && (archive.value.mainImage as Image).path;
+const mainImage: ComputedRef<string | undefined | null> = computed(() => {
+  return archive.value?.mainImage?.hasOwnProperty('path') ? (archive.value.mainImage as Image).path : null;
 });
 const startDate: ComputedRef<string | undefined> = computed(() => {
   if (!archive.value) { return; }

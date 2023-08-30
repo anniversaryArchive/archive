@@ -16,7 +16,9 @@
         <tr>
           <th>로고 파일</th>
           <td colspan="3">
-            <q-file :ref='el => { divs["logo"] = el }' outlined v-model="groupParams.logo" accept=".jpg, .png, image/*" @rejected="onRejected">
+            <q-file :ref='el => { divs["logo"] = el }' outlined
+              v-model="(groupParams.logo as File)"
+              accept=".jpg, .png, image/*" @rejected="onRejected">
               <template v-slot:prepend>
                 <q-icon name="attach_file" />
               </template>
@@ -480,8 +482,9 @@ export default defineComponent({
     }
 
     async function fileChange(){
+      if (!groupParams.value.logo) { return; }
       const formData = new FormData();
-      formData.append("file", groupParams.value.logo);
+      formData.append("file", groupParams.value.logo as Blob);
       let resultModel;
       await axios.post('http://localhost:3000/file', formData, {
         headers: {

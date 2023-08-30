@@ -40,7 +40,7 @@
             <th>이미지</th>
             <td colspan="3">
               <q-file :ref='el => { refs["image"] = el }' outlined
-                v-model="inputArtist.image" accept=".jpg, .png, image/*" @rejected="onRejected">
+                v-model="(inputArtist.image as File)" accept=".jpg, .png, image/*" @rejected="onRejected">
                 <template v-slot:prepend>
                   <q-icon name="attach_file" />
                 </template>

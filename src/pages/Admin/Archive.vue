@@ -91,7 +91,7 @@
             <th>메인 이미지</th>
             <td colspan="3">
               <q-file :ref='el => { refs["mainImage"] = el }' outlined
-                v-model="inputArchive.mainImage" accept=".jpg, .png, image/*" @rejected="onRejected">
+                v-model="(inputArchive.mainImage as File)" accept=".jpg, .png, image/*" @rejected="onRejected">
                 <template v-slot:prepend>
                   <q-icon name="attach_file" />
                 </template>
