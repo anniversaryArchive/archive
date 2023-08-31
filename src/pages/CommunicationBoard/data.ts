@@ -16,19 +16,27 @@ export const TABLE_COLUMNS: Record<string, any>[] = [
     label: '분류',
     align: 'center',
     field: (row: CommunicationBoard) => DIVISION_LABEL[row.division],
+    classes: (row: CommunicationBoard) => {
+      let style = 'font-extrabold';
+      if (row.fixed) { style += ' text-primary'; }
+      return style;
+    },
   }, {
     name: 'title',
     required: true,
     label: '제목',
     align: 'center',
     field: (row: CommunicationBoard) => row.title,
+    classes: (row: CommunicationBoard) => {
+      if (row.fixed) { return 'font-extrabold text-primary'; }
+    },
   }, {
     name: 'createdAt',
     required: true,
     label: '날짜',
     align: 'center',
     field: (row: CommunicationBoard) => row.createdAt,
-    format: (val: string) => formatDate(val),
+    format: (val: string) => formatDate(val, 'YYYY.MM.DD'),
   }, {
     name: 'author',
     required: true,
