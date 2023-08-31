@@ -512,6 +512,7 @@ async function getInput(): Promise<Record<string, any> | undefined> {
     input.images = inputArchive.value.images.map((image) => image._id);
   }
   delete input._id;
+  delete input.favorite;
 
   if (inputArchive.value.address !== inputArchiveOrg.value.address) {
     try {
