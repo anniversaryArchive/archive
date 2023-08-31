@@ -1,6 +1,8 @@
 <template>
   <q-header bordered class="bg-white text-primary h-14">
     <q-toolbar>
+      <slot name="toggle" />
+
       <q-toolbar-title class="toolbar-title">
         <span class="layout-title" @click="$router.push('/')" style="cursor: pointer">ARCHIVE</span>
       </q-toolbar-title>
