@@ -15,6 +15,9 @@
             <q-btn v-if="loggedIn" @click="doLogout">로그아웃</q-btn>
             <q-btn v-else @click="doLogin">로그인</q-btn>
           </li>
+          <li v-if="isAdmin">
+            <q-btn @click="$router.push('/admin/group')" flat>관리자 페이지</q-btn>
+          </li>
           <li>
             <q-btn @click="$router.push('/favorite')" flat>즐겨찾기</q-btn>
           </li>
@@ -46,11 +49,13 @@ export default defineComponent({
 
     const userStore = useUserStore()
     const loggedIn = computed(() => userStore.loggedIn);
+    const isAdmin = computed(() => userStore.isAdmin);
     const isOpenSignInDialog = ref(false);
 
     return {
       userStore,
       loggedIn, // 현재 로그인 여부
+      isAdmin,  // 어드민 유저 여부
       isOpenSignInDialog // 로그인/회원가입 Dialog open 여부
     }
   },
