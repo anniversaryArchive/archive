@@ -1,0 +1,3 @@
+mutation ($id: ID!, $message: String) {
+    success: acceptCommunicationBoard (id: $id, message: $message)
+}

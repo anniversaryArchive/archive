@@ -42,6 +42,10 @@
             </div>
           </div>
         </div>
+
+        <div>
+          {{ STATUS_LABEL[communicaitonBoard.status] }}
+        </div>
       </div>
 
       <div class="flex-1 w-full py-5 pl-40 my-2 overflow-y-scroll leading-6 break-words border-t border-b border-gray-200">
@@ -71,6 +75,17 @@
         </div>
       </div>
 
+      <!-- 현재 계정이 관리자 계정이면서, 해당 게시글의 상태가 제안인 경우 -->
+      <div v-if="isAdmin && communicaitonBoard.status === 'request'"
+        class="flex px-4">
+        <input type="text" class="flex-1 py-1 mr-2 border rounded"
+          :placeholder="메시지" v-model="communicaitonBoard.message" />
+        <button @click="onClickAcceptBtn"
+          class="px-4 py-1 mr-2 font-bold text-white rounded bg-primary/80 hover:bg-primary">승인</button>
+        <button @click="onClickRejectBtn"
+          class="px-4 py-1 font-bold text-white bg-red-600 rounded hover:bg-red-800">거절</button>
+      </div>
+
       <div class="text-right">
         <template v-if="editMode">
           <button class="px-8 py-2 mr-2 font-bold border border-gray-200 rounded hover:bg-gray-100"
@@ -94,7 +109,7 @@ import _ from 'lodash';
 import { query, mutate } from '@/composables/graphqlUtils';
 import { CommunicationBoard } from '@/types/CommnunicationBoard';
 import { useUserStore } from '@/stores/user';
-import { DIVISION_LABEL, DATA_FORM } from './data';
+import { DIVISION_LABEL, DATA_FORM, STATUS_LABEL } from './data';
 import CustomInput from './components/CustomInput.vue';
 import { formatDate } from '@/composables/formatDate';
 
@@ -102,6 +117,8 @@ import getCommunicationBoard from '@/graphql/getCommunicationBoard.query.gql';
 import createCommunicationBoard from '@/graphql/createCommunicationBoard.mutate.gql';
 import patchCommunicationBoard from '@/graphql/patchCommunicationBoard.mutate.gql';
 import removeCommunicationBoard from '@/graphql/removeCommunicationBoard.mutate.gql';
+import acceptCommunicationBoard from '@/graphql/acceptCommunicationBoard.mutate.gql';
+import rejectCommunicationBoard from '@/graphql/rejectCommunicationBoard.mutate.gql';
 
 const router = useRouter();
 const route = useRoute();
@@ -109,6 +126,7 @@ const $q = useQuasar();
 const userStore = useUserStore();
 
 const userId: ComputedRef<string | undefined> = computed(() => userStore.id);
+const isAdmin: ComputedRef<boolean> = computed(() => userStore.isAdmin);
 
 const communicaitonBoard: Ref<CommnunicationBoard | undefined> = ref();
 const communicaitonBoardOrg: Ref<CommnunicationBoard | undefined> = ref();
@@ -309,6 +327,27 @@ async function onClickSave() {
       communicaitonBoardOrg.value = _.cloneDeep(communicaitonBoardOrg.value);
       editMode.value = false;
     } else { $q.notify('저장에 실패했습니다. 다시 시도해주세요.'); }
+  });
+}
+
+// 관리자 계정 - 승인
+function onClickAcceptBtn() {
+  const { _id, message } = communicaitonBoard.value;
+  mutate(acceptCommunicationBoard, { id: _id, message }).then(({ data }) => {
+    const success = !!data?.success;
+    if (!success) { $q.notify('승인에 실패했습니다.'); }
+    communicaitonBoard.value = Object.assign({}, communicaitonBoard.value, { status: 'accept', message });
+  });
+}
+
+// 관리자 계절 - 거절
+function onClickRejectBtn() {
+  const { _id, message } = communicaitonBoard.value;
+  if (!message) { return $q.notify('거절 시에는 메세지가 필수입니다!'); }
+  mutate(rejectCommunicationBoard, { id: _id, message }).then(({ data }) => {
+    const success = !!data?.success;
+    if (!success) { $q.notify('거절에 실패했습니다.'); }
+    communicaitonBoard.value = Object.assign({}, communicaitonBoard.value, { status: 'reject', message });
   });
 }
 </script>

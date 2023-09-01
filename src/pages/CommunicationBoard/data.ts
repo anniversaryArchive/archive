@@ -1,4 +1,3 @@
-import moment from 'moment/moment';
 import { CommunicationBoard } from '@/types/CommunicationBoard';
 import { formatDate } from '@/composables/formatDate';
 
@@ -43,7 +42,13 @@ export const TABLE_COLUMNS: Record<string, any>[] = [
     label: '작성자',
     align: 'center',
     field: (row: CommunicationBoard) => row.author?.name,
-  }
+  }, {
+    name: 'status',
+    required: false,
+    label: '상태',
+    align: 'center',
+    field: (row: CommunicationBoard) => STATUS_LABEL[row.status],
+  },
 ];
 
 export const DIVISION_LABEL: Record<string, string> = {
@@ -53,6 +58,13 @@ export const DIVISION_LABEL: Record<string, string> = {
   // archive: '카페 제안',
   improvement: '기능 개선',
   error: '에러'
+};
+
+export const STATUS_LABEL: Record<string, string> = {
+  none: '',
+  request: '제안',
+  accept: '승인',
+  reject: '거절'
 };
 
 export interface Field {
