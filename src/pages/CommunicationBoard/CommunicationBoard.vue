@@ -19,6 +19,9 @@
           :pagination.sync="{ rowsPerPage: perPage }"
           @row-click="onClick"
           class="flex-1" />
+      </div>
+
+      <footer>
         <div class="justify-center mt-4 row q-mt-md">
           <q-pagination
             v-model="currentPage"
@@ -26,7 +29,7 @@
             :max="maxPage"
             @update:model-value="onChangePage" />
         </div>
-      </div>
+      </footer>
     </div>
   </div>
 </template>
