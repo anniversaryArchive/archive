@@ -1,7 +1,7 @@
 <template>
-  <div>
+  <div class="flex flex-col justify-center h-full">
     <div class="row bg-div">
-      <q-card class="my-card info-card col-4 mr-12" color="white">
+      <q-card class="my-card info-card col-3 mr-12" color="white">
         <q-card-section>
           <ul>
             <li class="card-title pb-3">프로필 정보</li>
@@ -36,7 +36,7 @@
         </q-card-section>
       </q-card>
 
-      <q-card class="my-card favorite-card col-7" color="white">
+      <q-card class="my-card favorite-card col-8" color="white">
         <q-card-section>
           <ul class="row">
             <li class="card-title col-10">
@@ -63,13 +63,23 @@
             </li>
           </ul>
         </q-card-section>
+
+        <footer>
+          <div class="pagination justify-center mt-4 row q-mt-md q-mb-md">
+            <q-pagination
+              v-model="paginationData.current"
+              direction-links
+              :max="maxPage"
+              @update:model-value="onChangePage" />
+          </div>
+        </footer>
       </q-card>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, onBeforeMount, ref, Ref, watch} from 'vue';
+import {computed, ComputedRef, defineComponent, onBeforeMount, ref, Ref, watch} from 'vue';
 import mixinPageCommon from "@/pages/mixin/mixinPageCommon"
 import {Archive, ArchiveSearchParams} from '@/types/Archive';
 import cscript from "@/composables/comScripts"
@@ -89,7 +99,6 @@ export default defineComponent({
   components: {},
   mixins: [mixinPageCommon],
   setup() {
-    //const $q = useQuasar()
     const archiveParams: Ref<FavoriteArchive[]> = ref([])
 
     const groupList = ref([] as string[])
@@ -113,10 +122,14 @@ export default defineComponent({
       'value': 'newest',
     });
 
+    // pagination 관련 변수
     const paginationData = ref({
       current: 1,
       perPage: 10,
     } as Pagination);
+    const total: Ref<number> = ref(0);
+    const perPage: number = 10;
+    const maxPage: ComputedRef<number> = computed(() => Math.ceil(total.value / perPage));
 
     onBeforeMount(() => {
       initialize();
@@ -295,6 +308,11 @@ export default defineComponent({
       return false;
     }
 
+    // 페이지 변경 시
+    function onChangePage() {
+      searchData();
+    }
+
     return {
       groupList,
       archiveParams,
@@ -302,14 +320,24 @@ export default defineComponent({
       selectBoxOptions,
       orderData,
       orderOptions,
+      paginationData,
+      maxPage,
       resetFunc,
       detailBtnFunc,
       searchBtnFunc,
       orderSelectChange,
-      onClickFavoriteIcon
+      onClickFavoriteIcon,
+      onChangePage
     }
   }
 })
 </script>
 
-<style scoped></style>
+<style scoped>
+footer .pagination {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+</style>
