@@ -41,7 +41,7 @@
     </q-card>
 
     <naver-map v-if="!$q.screen.xs" style="width: 75%; height: 100vh; float: right;" :mapOptions="mapOptions" @onLoad="onLoadMap($event)">
-      <span v-if="markerData" v-for="(marker) in markerData" v-bind:key="markerData">
+      <span v-if="markerData" v-for="(marker) in markerData" v-bind:key="marker._id">
         <naver-marker
             @click="onLoadMarker(marker)"
             :latitude="marker.lat"
@@ -306,7 +306,8 @@ export default defineComponent({
       getArchives();
     }
 
-    function detailBtnFunc(id: string) {
+    function detailBtnFunc(id: string | undefined) {
+      if (!id) { return; }
       this.$router.push(`/archive/${id}`);
     }
 

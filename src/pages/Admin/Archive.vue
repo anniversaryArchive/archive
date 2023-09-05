@@ -60,7 +60,7 @@
           <tr>
             <th>카페 시작일</th>
             <td colspan="3">
-              <DatePicker :ref='el => { refs["startDate"] = el }' :id="inputArchive.startDate"
+              <DatePicker :ref='el => { refs["startDate"] = el }'
                 v-model='inputArchive.startDate' :clearable='true' returnDataFormat="YYYY.MM.DD" />
             </td>
           </tr>
@@ -68,7 +68,7 @@
           <tr>
             <th>카페 종료일</th>
             <td colspan="3">
-              <DatePicker :ref='el => { refs["endDate"] = el }' :id="inputArchive.endDate"
+              <DatePicker :ref='el => { refs["endDate"] = el }'
                 v-model='inputArchive.endDate' :clearable='true' returnDataFormat="YYYY.MM.DD" />
             </td>
           </tr>
@@ -91,7 +91,7 @@
             <th>메인 이미지</th>
             <td colspan="3">
               <q-file :ref='el => { refs["mainImage"] = el }' outlined
-                v-model="inputArchive.mainImage" accept=".jpg, .png, image/*" @rejected="onRejected">
+                v-model="(inputArchive.mainImage as File)" accept=".jpg, .png, image/*" @rejected="onRejected">
                 <template v-slot:prepend>
                   <q-icon name="attach_file" />
                 </template>
@@ -199,8 +199,10 @@ import { convertFile } from '@/composables/fileUtils';
 
 // Types
 import { ComboBoxModel } from '@/types/CommonTypes';
+import { Group } from '@/types/Group';
 import { Artist } from '@/types/Artist';
 import { Archive, ArchiveType } from '@/types/Archive';
+import { Image } from '@/types/Image';
 import { CellFocusedEvent, GetRowIdParams, GridOptions, RowNode } from '@ag-grid-community/core';
 import { VueDaumPostcodeCompleteResult } from 'vue-daum-postcode';
 
@@ -252,16 +254,16 @@ watch(() => archiveStroe.archives, () => {
 const isLoading: Ref<boolean> = ref(false);
 
 // Archive Input Box 관련 변수
-const refs: Ref<string, any> = ref({});
+const refs: Ref<Record<string, any>> = ref({});
 const inputArchive: Ref<Archive> = ref(cinitial.$inItData('', ArchiveType) as Archive);
 const inputArchiveOrg: Ref<Archive> = ref(JSON.parse(JSON.stringify(inputArchive.value)));
 
 // Groups 관련 변수
-const groups: ref<ComboBoxModel[]> = ref([]);
+const groups: Ref<ComboBoxModel[]> = ref([]);
 const archiveGroup: Ref<ComboBoxModel | undefined> = ref();
 
 // Artists 관련 변수
-const artists: ref<ComboBoxModel[]> = ref([]);
+const artists: Ref<ComboBoxModel[]> = ref([]);
 const archiveArtist: Ref<ComboBoxModel | undefined> = ref();
 
 onBeforeMount(() => {
@@ -272,7 +274,7 @@ onBeforeMount(() => {
 async function getArtists () {
   try {
     const result = await artistStore.getArtistsQuery();
-    artists.value = (result.data.value.artist.data || []).map((artist) => {
+    artists.value = (result.data.value.artist.data || []).map((artist: Artist) => {
       return { id: artist._id, name: artist.name, unavailable: false } as ComboBoxModel;
     });
   } catch (error) { console.error(error); }
@@ -281,7 +283,7 @@ async function getArtists () {
 async function getGroups () {
   try {
     const result = await groupStore.getGroupsQuery();
-    groups.value = (result.data.value.groups.data || []).map((group) => {
+    groups.value = (result.data.value.groups.data || []).map((group: Group) => {
       return { id: group._id, name: group.name, unavailable: false } as ComboBoxModel;
     });
   } catch (error) { console.error(error); }
@@ -297,9 +299,9 @@ function setInputArchive(value: Archive) {
   inputArchive.value = value;
   inputArchiveOrg.value = JSON.parse(JSON.stringify(inputArchive.value));
   const artistId: string | undefined = value.artist?._id;
-  archiveArtist.value = artistId && artists.value.find(artist => artist.id === artistId);
+  archiveArtist.value = artistId ? artists.value.find((artist: ComboBoxModel) => artist.id === artistId) : undefined;
   const groupId: string | undefined = value.group?._id;
-  archiveGroup.value = groupId && groups.value.find(group => group.id === groupId);
+  archiveGroup.value = groupId ? groups.value.find((group: ComboBoxModel) => group.id === groupId) : undefined;
 }
 
 /**
@@ -315,8 +317,8 @@ function onSelectAddress (address: string) {
   isOpenFindAddressDialog.value = false;
 }
 
-function onChangeTimeCheckbox (type: string, event) {
-  inputArchive.value[type] = event.target.checked ? undefined : { hour: 0, minute: 0 };
+function onChangeTimeCheckbox (type: string, event: Event) {
+  inputArchive.value[type] = (event.target as HTMLInputElement).checked ? undefined : { hour: 0, minute: 0 };
 }
 
 /**
@@ -377,7 +379,13 @@ async function checkDiffData(): Promise<boolean> {
   const groupDiff = archiveGroup.value?.id !== inputArchiveOrg.value.group?._id;
 
   // 이미지가 변경됐는 지 확인
-  const imageDiff = (inputArchive.value.mainImage?._id || inputArchive.value.mainImage?.name) !== (inputArchiveOrg.value.mainImage?._id || inputArchiveOrg.value.mainImage?.name);
+  const imageDiff = (() => {
+    const currentImage = inputArchive.value.mainImage;
+    const current = currentImage && (currentImage.hasOwnProperty('_id') ? (currentImage as Image)._id : currentImage.name);
+    const orgImage = inputArchiveOrg.value.mainImage;
+    const org = orgImage && (orgImage.hasOwnProperty('_id') ? (orgImage as Image)._id : orgImage.name);
+    return current !== org;
+  })();
 
   const images = inputArchive.value.images.map(image => image.path);
   const orgIamges = inputArchiveOrg.value.images.map(image => image.path);
@@ -481,8 +489,8 @@ function getLatLng(): Promise<Record<string, number>> {
 }
 
 // 생성 / 수정 시 mutation에 넘길 input을 만들어서 반환하는 함수
-async function getInput(): Record<string, any> | undefined {
-  const input = Object.assign({}, inputArchive.value);
+async function getInput(): Promise<Record<string, any> | undefined> {
+  const input: Record<string, any> = Object.assign({}, inputArchive.value);
   input.artist = archiveArtist.value?.id;
   input.group = archiveGroup.value?.id;
   for (const field of ['startDate', 'endDate']) {
@@ -499,7 +507,8 @@ async function getInput(): Record<string, any> | undefined {
     console.error(error);
     return undefined;
   } finally {
-    input.mainImage = inputArchive.value.mainImage?._id;
+    const { mainImage } = inputArchive.value;
+    input.mainImage = mainImage?.hasOwnProperty('_id') && (mainImage as Image)._id;
     input.images = inputArchive.value.images.map((image) => image._id);
   }
   delete input._id;
@@ -508,8 +517,8 @@ async function getInput(): Record<string, any> | undefined {
   if (inputArchive.value.address !== inputArchiveOrg.value.address) {
     try {
       const { lat, lng } = await getLatLng();
-      input.lat = inputArchive.lat = lat;
-      input.lng = inputArchive.lng = lng;
+      input.lat = inputArchive.value.lat = lat;
+      input.lng = inputArchive.value.lng = lng;
     } catch (_) {}
   }
   return input;
@@ -524,11 +533,11 @@ async function createArchive(): Promise<boolean | string> {
     if (result) {
       const { id, error } = result;
       lastActionId.value = id;
-      const code: number | undefined = error?.graphqlErrors && error?.graphqlErrors[0]?.extensions?.code;
+      const code: number = Number(error?.graphqlErrors && error?.graphqlErrors[0]?.extensions?.code);
       switch (code) {
         case 1002: return '그룹 혹은 아티스트를 넣어주셔야 합니다.';
       }
-      return id && true;
+      return !!id;
     }
   } catch (error) { console.error(error); }
   return false;
@@ -538,7 +547,7 @@ async function createArchive(): Promise<boolean | string> {
 async function updateArchive(): Promise<boolean> {
   try {
     const input = await getInput();
-    if (!input) { return false; }
+    if (!inputArchive.value._id || !input) { return false; }
     const success: boolean = await archiveStroe.updateArchive(inputArchive.value._id, input);
     if (success) { lastActionId.value = inputArchive.value._id; }
     return success;
@@ -560,7 +569,7 @@ function getSelectedArchive (required: boolean = false): Archive | undefined {
 // Grid에서 선택된 Archive를 삭제하는 함수
 async function deleteSelectedArchive () {
   const archive: Archive | undefined = getSelectedArchive(true);
-  if (!archive) { return; }
+  if (!archive || !archive._id) { return; }
   const confirmResult: boolean = confirm('정말 삭제하시겠습니까?');
   if (!confirmResult) { return; }
   try {
@@ -581,11 +590,12 @@ function onClickAddImage (): void {
   document.getElementById('inputImages')?.click();
 }
 
-function onChangeImage (event) {
-  if (!event.target.files || !event.target.files[0]) { return; }
-  const file = event.target.files[0];
+function onChangeImage (event: Event) {
+  const target: HTMLInputElement = event.target as HTMLInputElement;
+  if (!target.files || !target.files[0]) { return; }
+  const file = target.files[0];
   convertFile(file).then((result) => {
-    const image = result.file || file;
+    const image: Blob = (result.file || file) as Blob;
     inputArchive.value.images.push({
       file: image,
       path: result.path,
@@ -596,9 +606,10 @@ function onChangeImage (event) {
 }
 
 function uploadFile(): Promise<boolean> {
-  if (!inputArchive.value.mainImage || inputArchive.value.mainImage._id) { return true; }
+  const { mainImage } = inputArchive.value;
+  if (!mainImage || mainImage.hasOwnProperty('_id')) { return Promise.resolve(true); }
   const formData: FormData = new FormData();
-  formData.append('file', inputArchive.value.mainImage);
+  formData.append('file', mainImage as Blob);
 
   return new Promise((rejolve, reject) => {
     axios.post(`http://localhost:3000/file`, formData, {}).then((response) => {
@@ -614,7 +625,7 @@ async function uploadImages(): Promise<boolean> {
   const promises = [];
   for (let index = 0; index < inputArchive.value.images.length; index ++) {
     const image = inputArchive.value.images[index];
-    if (image._id) { continue; }
+    if (image.hasOwnProperty('_id') || !image.file) { continue; }
     const formData: FormData = new FormData();
     formData.append('file', image.file);
     promises.push(axios.post(`http://localhost:3000/file`, formData, {}).then((response) => {
@@ -683,7 +694,7 @@ function initGrid () {
   const columnDefs = [
     { headerName: 'No', valueGetter: 'node.rowIndex + 1', width: 60, sortable: true },
     ... gridFields.map((field) => {
-      const def = { headerName: field.text, field: field.key, width: 150, cellStyle : {textAlign: 'left'}, flex: 1 };
+      const def: Record<string, any> = { headerName: field.text, field: field.key, width: 150, cellStyle : {textAlign: 'left'}, flex: 1 };
       if (field.key === 'startDate' || field.key === 'endDate') {
         def.valueFormatter = DateFormatter;
       }

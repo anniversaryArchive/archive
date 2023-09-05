@@ -12,7 +12,7 @@ import MainLayout from './MainLayout.vue';
 
 const route = useRoute();
 
-const layout: ComputedRef<component | null> = computed(() => {
+const layout: ComputedRef<any> = computed(() => {
   switch (route.meta.layout) {
     case 'MainLayout': return MainLayout;
   }

@@ -4,7 +4,7 @@
       <div class="relative w-full overflow-hidden text-left bg-white border border-gray-300 rounded shadow-md cursor-default focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 sm:text-sm">
         <ComboboxInput
           class="w-full py-2 pl-3 pr-10 text-sm leading-5 text-gray-900 border-none focus:ring-0"
-          :displayValue="(option) => option.name"
+          :displayValue="(option) => (option as ComboBoxModel).name"
           @change="query = $event.target.value" />
         <ComboboxButton class="absolute inset-y-0 right-0 flex items-center pr-2">
           <q-icon name="expand_more" />
@@ -67,7 +67,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), { });
 const emit = defineEmits(['update:modelValue']);
 
-const query: Ref<string> = ref(''); 
+const query: Ref<string> = ref('');
 const filterOptions: ComputedRef<ComboBoxModel[]> = computed(() => {
   return query.value === ''
     ? props.options

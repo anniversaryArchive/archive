@@ -35,6 +35,7 @@ export default defineComponent({
             default : 'Select',
         },
         data      : {
+            type: Array,
             required: false,
         },
         style     : {

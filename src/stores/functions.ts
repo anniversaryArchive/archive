@@ -5,7 +5,7 @@ export function parsePaginationData<T>(type: string, { data, execute }: BaseQuer
   arguments
   data = data.value || data;
   if (!data) { return data; }
-  const result = data[type] || {};
+  const result = (data as Record<string, any>)[type] || {};
   return {
     list: result.data || [],
     total: result.total || 0,

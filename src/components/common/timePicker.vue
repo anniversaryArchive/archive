@@ -18,11 +18,7 @@
 
 <script setup lang="ts">
 import { ref, Ref, watch, onBeforeMount, computed, ComputedRef } from 'vue';
-
-interface Time {
-  hour: number;
-  minute: number;
-}
+import { Time } from '@/types/CommonTypes';
 
 interface Props {
   modelValue?: Time;

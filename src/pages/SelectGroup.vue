@@ -1,5 +1,5 @@
 <template>
-  <div class="flex h-full bg-primary"> 
+  <div class="flex h-full bg-primary">
     <div class="flex w-9/12 m-auto max-[640px]:flex-col h-4/5">
       <div class="main-div flex flex-col justify-center text-white">
         <div class="main-title mb-6 text-6xl font-bold">ARCHIVE</div>
@@ -21,8 +21,8 @@
         <q-scroll-area :delay="1200" style="height: 100%;">
           <div class="grid grid-cols-1 grid-cols-2 gap-x-2 gap-y-6 xl:grid-cols-5 lg:grid-cols-3 md:grid-cols-2">
             <div v-for="group in groups" class="text-center" @click="onClickGroup(group)">
-              <template v-if="group.logo">
-                <img :src="group.logo.path"
+              <template v-if="group.logo && group.logo.hasOwnProperty('path')">
+                <img :src="(group.logo as Image).path"
                   class="w-24 h-24 m-auto border border-gray-300 border-solid rounded-full cursor-pointer min-w-[6rem] min-h-[6rem]" />
               </template>
               <div class="mt-2 text-base text-gray-500">
@@ -37,11 +37,12 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeMount, ref, Ref } from 'vue';
+import { onBeforeMount, ref, Ref, computed, ComputedRef } from 'vue';
 import { useRouter } from 'vue-router'
 import { useGroupStore } from '@/stores/group';
 import { useArchiveStore } from '@/stores/archive';
 import { Group } from '@/types/Group';
+import { Image } from '@/types/Image';
 
 const router = useRouter();
 
