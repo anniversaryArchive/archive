@@ -12,7 +12,6 @@ import createArchive from '@/graphql/createArchive.mutate.gql';
 import updateArchive from '@/graphql/updateArchive.mutate.gql';
 import removeArchive from '@/graphql/removeArchive.mutate.gql';
 
-
 interface ArchiveState {
   data?: WatchQuery<Archive>;
   group?: Group;

@@ -27,7 +27,7 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import("@/pages/SelectGroup.vue")
   },
   {
-    meta: { title: "cafeMap" },
+    meta: { title: "cafeMap", layout: "MainLayout" },
     path: "/cafeMap",
     component: () => import("@/pages/cafeMap.vue")
   },
@@ -41,6 +41,17 @@ const routes: Array<RouteRecordRaw> = [
     path: "/favorite",
     beforeEnter: authUser,
     component: () => import("@/pages/favorite.vue")
+  },
+
+  {
+    meta: { title: "소통 창구", layout: "MainLayout" },
+    path: "/communication-board",
+    component: () => import("@/pages/CommunicationBoard/CommunicationBoard.vue")
+  },
+  {
+    meta: { title: "소통 창구 상세", layout: "MainLayout" },
+    path: "/communication-board/:id",
+    component: () => import("@/pages/CommunicationBoard/communicationBoardDetail.vue")
   },
   {
     path: "/signUp",

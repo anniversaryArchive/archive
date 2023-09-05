@@ -1,0 +1,19 @@
+query ($id: ID!) {
+  CommunicationBoard (id: $id) {
+    _id
+    seq
+    createdAt
+    updatedAt
+    division
+    title
+    content
+    author {
+      _id
+      name
+    }
+    data
+    fixed
+    status
+    message
+  }
+}
