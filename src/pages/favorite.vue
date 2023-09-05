@@ -1,13 +1,8 @@
 <template>
-  <div class="flex flex-col justify-center h-full">
+  <div class="xl-flex flex-col justify-center h-full">
     <div class="row bg-div">
-      <q-card class="my-card info-card col-3 mr-12" color="white">
+      <q-card class="my-card info-card col-xl-3 col-xs-12" color="white">
         <q-card-section>
-          <ul>
-            <li class="card-title pb-3">프로필 정보</li>
-            <li class="info-text pb-5">닉네임</li>
-          </ul>
-
           <div>
             <h1 class="search-text">그룹 선택</h1>
             <select-box
@@ -36,18 +31,18 @@
         </q-card-section>
       </q-card>
 
-      <q-card class="my-card favorite-card col-8" color="white">
-        <q-card-section>
-          <ul class="row">
-            <li class="card-title col-10">
-              즐겨찾기
-            </li>
-            <li class="card-title col-2">
-              <q-select class="order-select" v-model="orderData" :options="orderOptions"
-                        @update:model-value="orderSelectChange()" borderless ></q-select>
-            </li>
-          </ul>
+      <q-card class="my-card favorite-card col-xl-8 col-xs-12" color="white">
+        <ul class="row">
+          <li class="card-title col-xl-10 col-xs-8">
+            즐겨찾기
+          </li>
+          <li class="card-title col-xl-2 col-xs-4">
+            <q-select class="order-select" v-model="orderData" :options="orderOptions"
+                      @update:model-value="orderSelectChange()" borderless ></q-select>
+          </li>
+        </ul>
 
+        <q-card-section class="q-card-box">
           <ul v-for="(item) in archiveParams" v-bind:key="item._id" class="favor-list row">
             <li class="col-2">{{item.archive.group?.name}}</li>
             <li class="col-2">{{item.archive.artist?.name}}</li>
@@ -93,6 +88,7 @@ import _ from 'lodash';
 import {mutate} from '@/composables/graphqlUtils';
 import createFavorite from '@/graphql/createFavorite.mutate.gql';
 import removeFavorite from '@/graphql/removeFavorite.mutate.gql';
+import {useUserStore} from '@/stores/user';
 
 export default defineComponent({
   name: "favorite",
@@ -100,12 +96,12 @@ export default defineComponent({
   mixins: [mixinPageCommon],
   setup() {
     const archiveParams: Ref<FavoriteArchive[]> = ref([])
-
     const groupList = ref([] as string[])
 
     const {selectBoxOptions: selectBoxOptions} = ccobject.$createSelectAll(["group"]);
     const {schParams: archiveSchParams} = ccobject.$createSchParams<ArchiveSearchParams>();
 
+    const userStore = useUserStore();
     const favoriteGroupsStore = useFavoriteGroupStore();
     const favoriteArchiveStore = useFavoriteArchiveStore();
 
@@ -116,7 +112,6 @@ export default defineComponent({
       'label': '오래된순',
       'value': 'oldest',
     }];
-
     const orderData = ref({
       'label': '최신순',
       'value': 'newest',
@@ -334,10 +329,40 @@ export default defineComponent({
 </script>
 
 <style scoped>
+.xl-flex {
+  display: flex;
+  flex-wrap: wrap;
+}
+
 footer .pagination {
   position: absolute;
   bottom: 0;
   left: 50%;
   transform: translate(-50%, -50%);
+}
+
+/* 모바일 화면 */
+@media screen and (max-width: 767px) {
+  .xl-flex {
+    display: block;
+    flex-wrap: nowrap;
+  }
+
+  footer .pagination {
+    position: relative;
+    margin-bottom: 0;
+  }
+
+  .q-card-box {
+    padding: 0 0 10px;
+  }
+
+  .favor-list {
+    padding: 10px;
+  }
+
+  .favor-list li {
+    font-size: 12px;
+  }
 }
 </style>

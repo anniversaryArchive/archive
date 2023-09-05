@@ -157,6 +157,10 @@ body {
   justify-content: center;
 }
 
+.info-card {
+  margin-right: 20px;
+}
+
 .info-card,
 .favorite-card {
   padding: 20px;
@@ -297,4 +301,15 @@ body {
     line-height: 0;
   }
   /* End ArchiveDetail.vue */
+
+  /* favorite.vue */
+  .bg-div {
+    padding: 0;
+  }
+
+  .info-card {
+    margin-right: 0;
+    margin-bottom: 20px;
+  }
+  /* End favorite.vue */
 }
