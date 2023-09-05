@@ -1,9 +1,7 @@
 <template>
   <div>
-    <layout-header></layout-header>
-
     <div class="row bg-div">
-      <q-card class="my-card info-card col-3 mr-12" color="white">
+      <q-card class="my-card info-card col-4 mr-12" color="white">
         <q-card-section>
           <ul>
             <li class="card-title pb-3">프로필 정보</li>
@@ -38,7 +36,7 @@
         </q-card-section>
       </q-card>
 
-      <q-card class="my-card favorite-card col-8" color="white">
+      <q-card class="my-card favorite-card col-7" color="white">
         <q-card-section>
           <ul class="row">
             <li class="card-title col-10">
@@ -53,11 +51,16 @@
           <ul v-for="(item) in archiveParams" v-bind:key="item._id" class="favor-list row">
             <li class="col-2">{{item.archive.group?.name}}</li>
             <li class="col-2">{{item.archive.artist?.name}}</li>
-            <li class="col-8 cafe-text" @click="detailBtnFunc(item.archive._id)">
+            <li class="col-7 cafe-text" @click="detailBtnFunc(item.archive._id)">
               {{item.archive.themeName}}
               <span>{{item.archive.organizer}}</span>
             </li>
-            <li class="col-1 text-right"><font-awesome-icon :icon="['fas', 'heart']" style="color: #4e84c1" /></li>
+            <li class="col-1 text-right">
+              <q-button class="text-right" @click="onClickFavoriteIcon(item.archive)">
+                <q-icon :name="`favorite${!item.archive.favorite && '_outline'}`"
+                        class="inline-block" />
+              </q-button>
+            </li>
           </ul>
         </q-card-section>
       </q-card>
@@ -68,7 +71,7 @@
 <script lang="ts">
 import { defineComponent, onBeforeMount, ref, Ref, watch} from 'vue';
 import mixinPageCommon from "@/pages/mixin/mixinPageCommon"
-import {ArchiveSearchParams} from "@/types/Archive"
+import {Archive, ArchiveSearchParams} from '@/types/Archive';
 import cscript from "@/composables/comScripts"
 import ccobject from "@/composables/createComObject"
 import { useFavoriteGroupStore } from '@/stores/favoriteGroup';
@@ -77,6 +80,9 @@ import moment from 'moment/moment';
 import {useFavoriteArchiveStore} from '@/stores/favoriteArchive';
 import {FavoriteArchive} from '@/types/Favorite';
 import _ from 'lodash';
+import {mutate} from '@/composables/graphqlUtils';
+import createFavorite from '@/graphql/createFavorite.mutate.gql';
+import removeFavorite from '@/graphql/removeFavorite.mutate.gql';
 
 export default defineComponent({
   name: "favorite",
@@ -256,6 +262,39 @@ export default defineComponent({
       this.$router.push(`/archive/${id}`);
     }
 
+    // 즐겨찾기 아이콘 클릭 시
+    async function onClickFavoriteIcon(item: Archive) {
+      let success: boolean = false;
+      try {
+        if(item.favorite && item._id) {
+          success = await doRemoveFavorite(item._id);
+        }else if(item._id) {
+          success = await doCreateFavorite(item._id);
+        }
+
+        if(!success) { return; }
+
+        item.favorite = !item.favorite;
+        return item.favorite
+      } catch(_) {}
+    }
+
+    async function doCreateFavorite(_id: string): Promise<boolean> {
+      try {
+        const { data } = await mutate(createFavorite, { archive: _id });
+        return !!data.favorite?._id;
+      } catch (_) {}
+      return false;
+    }
+
+    async function doRemoveFavorite(_id: string): Promise<boolean> {
+      try {
+        const { data } = await mutate(removeFavorite, { archive: _id });
+        return data.success && true;
+      } catch (_) {}
+      return false;
+    }
+
     return {
       groupList,
       archiveParams,
@@ -266,7 +305,8 @@ export default defineComponent({
       resetFunc,
       detailBtnFunc,
       searchBtnFunc,
-      orderSelectChange
+      orderSelectChange,
+      onClickFavoriteIcon
     }
   }
 })
