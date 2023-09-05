@@ -1,6 +1,9 @@
 import { User } from './User';
 
+export type CommunicationBoardDivision = 'notice' | 'group' | 'artist' | 'archive' | 'improvement' | 'error';
+
 export interface CommunicationBoard {
+  [key: string]: any;
   _id: string;
   seq: number;
   createdAt: Date;

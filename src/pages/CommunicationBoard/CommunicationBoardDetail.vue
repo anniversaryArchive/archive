@@ -10,7 +10,7 @@
         <div class="w-40 text-lg font-extrabold text-center text-primary">
           <q-select v-if="editMode" :model-value="communicaitonBoard.division"
             :options="divisionOptions"
-            :option-label="opt => DIVISION_LABEL[opt]"
+            :option-label="(opt: CommunicationBoardDivision) => DIVISION_LABEL[opt]"
             @update:model-value="onChangeDivision"
             class="mr-4"></q-select>
           <span v-else>{{DIVISION_LABEL[communicaitonBoard.division]}}</span>
@@ -50,7 +50,7 @@
           <textarea v-if="editMode" v-model="communicaitonBoard.content"
             placeholder="글 내용을 입력해주세요."
             class="w-full h-full p-4 border border-gray-200 rounded"></textarea>
-          <div v-else v-html="communicaitonBoard.content.replaceAll('\n', '<br/>')"></div>
+          <div v-else-if="communicaitonBoard.content" v-html="communicaitonBoard.content.replaceAll('\n', '<br/>')"></div>
         </div>
 
         <!-- 제안 Form -->
@@ -92,9 +92,9 @@ import { useQuasar } from 'quasar';
 import axios from 'axios';
 import _ from 'lodash';
 import { query, mutate } from '@/composables/graphqlUtils';
-import { CommunicationBoard } from '@/types/CommnunicationBoard';
+import { CommunicationBoard, CommunicationBoardDivision } from '@/types/CommunicationBoard';
 import { useUserStore } from '@/stores/user';
-import { DIVISION_LABEL, DATA_FORM } from './data';
+import { DIVISION_LABEL, DATA_FORM, Field } from './data';
 import CustomInput from './components/CustomInput.vue';
 import { formatDate } from '@/composables/formatDate';
 
@@ -110,14 +110,14 @@ const userStore = useUserStore();
 
 const userId: ComputedRef<string | undefined> = computed(() => userStore.id);
 
-const communicaitonBoard: Ref<CommnunicationBoard | undefined> = ref();
-const communicaitonBoardOrg: Ref<CommnunicationBoard | undefined> = ref();
+const communicaitonBoard: Ref<CommunicationBoard | undefined> = ref();
+const communicaitonBoardOrg: Ref<CommunicationBoard | undefined> = ref();
 
 const createMode: Ref<boolean> = ref(false);
 const editMode: Ref<boolean> = ref(false);
 
-const divisionOptions: ComputedRef<string[]> = computed(() => Object.keys(DIVISION_LABEL));
-const formFields: ComputedRef<Record<string, any>[] | undefined> = computed(() => {
+const divisionOptions: ComputedRef<CommunicationBoardDivision[]> = computed(() => Object.keys(DIVISION_LABEL) as CommunicationBoardDivision[]);
+const formFields: ComputedRef<Field[] | undefined> = computed(() => {
   return communicaitonBoard.value?.division && DATA_FORM[communicaitonBoard.value.division];
 });
 const proposalData: ComputedRef<Record<string, any> | undefined> = computed(() => {
@@ -125,7 +125,7 @@ const proposalData: ComputedRef<Record<string, any> | undefined> = computed(() =
 });
 
 onBeforeMount(() => {
-  const id: string = route.params.id || '';
+  const id: string = String(route.params.id);
   // 로그인하지 않은 유저가 게시글 생성으로 접근한 경우, notify를 띄워주고 소통창구 table view로 되돌려보낸다.
   if (id === 'create' && !userStore.loggedIn) {
     $q.notify(`게시글 작성은 로그인한 유저만 가능합니다.`);
@@ -134,7 +134,7 @@ onBeforeMount(() => {
   getData(id);
 });
 
-function setCommunicationBoardData(data: CommnunicationBoard | undefined) {
+function setCommunicationBoardData(data: CommunicationBoard | undefined) {
   communicaitonBoard.value = _.cloneDeep(data || {} as CommunicationBoard);
   communicaitonBoard.value.data = communicaitonBoard.value.data || {};
   communicaitonBoardOrg.value = _.cloneDeep(communicaitonBoard.value);
@@ -159,9 +159,9 @@ function getData(id: string) {
 }
 
 // 구분 변경 시
-function onChangeDivision(event: string) {
-  communicaitonBoard.value.data = {};
-  communicaitonBoard.value.division = event;
+function onChangeDivision(event: CommunicationBoardDivision) {
+  communicaitonBoard.value!.data = {};
+  communicaitonBoard.value!.division = event;
 }
 
 // 소통창구 테이블 화면으로 되돌아가기
@@ -179,6 +179,7 @@ function onClickEditBtn() {
 
 // 삭제 버튼 클릭 시
 function onClickDeleteBtn() {
+  if (!communicaitonBoard.value) { return; }
   const value: boolean = confirm('정말 삭제하시겠습니까?');
   if (!value) { return; }
   mutate(removeCommunicationBoard, { id: communicaitonBoard.value._id }).then((resp) => {
@@ -215,7 +216,7 @@ function checkRequiredFields(fields: any, data: any): boolean {
 
 // 필수 필드 모두 입력됐는 지 확인
 function checkRequired(): boolean {
-  if (!communicaitonBoard.value.title) {
+  if (!communicaitonBoard.value?.title) {
     $q.notify('제목은 필수입니다.');
     return false;
   }
@@ -227,17 +228,17 @@ function checkRequired(): boolean {
 
 // 파일 업로드
 async function uploadFiles(): Promise<boolean> {
-  if (!proposalData.value || !formFields.value) { return; }
+  if (!proposalData.value || !formFields.value) { return true; }
   try {
-    const promises = formFields.value.reduce((acc, field) => {
+    const promises: Promise<boolean>[] = formFields.value.reduce((acc: Promise<boolean>[], field: Field) => {
       if (field.type !== 'image') { return acc; }
-      const file = proposalData.value[field.key];
+      const file = proposalData.value![field.key];
       if (!file || file._id) { return acc; }
       const formData: FormData = new FormData();
       formData.append('file', file);
       acc.push(axios.post(`http://localhost:3000/file`, formData, {}).then((response) => {
         const fileData = response.data?.data && response.data.data;
-        if (fileData) {
+        if (proposalData.value && fileData) {
           proposalData.value[field.key] = fileData;
           return true;
         }
@@ -253,7 +254,7 @@ async function uploadFiles(): Promise<boolean> {
 }
 
 function getInputFields(fields: any, data: any) {
-  const input = {};
+  const input: Record<string, any> = {};
 
   for (const field of fields) {
     const { key } = field;
@@ -278,8 +279,9 @@ function getInputFields(fields: any, data: any) {
 
 // mutation varialbes로 보낼 input 반환하는 함수
 function getInput() {
+  if (!communicaitonBoard.value) { return; }
   const fields: string[] = ['division', 'title', 'content'];
-  const input = {};
+  const input: Record<string, any> = {};
   for (const field of fields) { input[field] = communicaitonBoard.value[field]; }
   if (formFields.value) {
     const { division } = communicaitonBoard.value;
@@ -293,7 +295,7 @@ function getInput() {
 
 // 저장 버튼 클릭 시
 async function onClickSave() {
-  if (!checkRequired()) { return; }
+  if (!communicaitonBoard.value || !checkRequired()) { return; }
 
   try {
     await uploadFiles();
@@ -301,7 +303,7 @@ async function onClickSave() {
 
   const fields: string[] = ['division', 'title', 'content'];
   const input = getInput();
-  const variables = { id: communicaitonBoard.value._id, input };
+  const variables = { id: communicaitonBoard.value!._id, input };
   mutate(createMode.value ? createCommunicationBoard : patchCommunicationBoard, variables).then((resp) => {
     const data = resp.data[createMode.value ? 'communicationBoard' : 'success'];
     if (data) {
