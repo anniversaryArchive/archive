@@ -359,7 +359,7 @@ async function fnInquire() {
     const checked: boolean = await confirmDiffData();
     if (!checked) { return; }
   } catch (error) { console.error(error); }
-  archiveStroe.getArchives();
+  archiveStroe.getArchives({});
 }
 
 /**

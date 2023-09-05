@@ -127,8 +127,8 @@ export default defineComponent({
         clearable: true,
         style    : 'width: 250px',
       };
-      if(favoriteGroupsList.FavoriteGroupList){
-        selectBoxOptions.value.group.data = await cscript.$getComboOptions(favoriteGroupsList.FavoriteGroupList);
+      if(favoriteGroupsList){
+        selectBoxOptions.value.group.data = await cscript.$getComboOptions(favoriteGroupsList);
       }
 
       //초기값 셋팅
