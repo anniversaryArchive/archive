@@ -1,0 +1,3 @@
+mutation ($id: ID!, $input: patchCommunicationBoardInput!) {
+  success: patchCommunicationBoard (id: $id, input: $input)
+}

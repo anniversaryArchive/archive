@@ -32,7 +32,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {});
 const emit = defineEmits(['click']);
 
-const $q = useQuasar()
+const $q = useQuasar();
 const userStore = useUserStore();
 const archive: ComputedRef<Archive> = computed(() => props.archive);
 

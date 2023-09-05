@@ -1,31 +1,29 @@
 <template>
-  <q-layout view="lHh lpr lFf" container style="height: 61px" class="rounded-borders">
-    <q-header bordered class="bg-white text-primary">
-      <q-toolbar>
-        <q-toolbar-title class="toolbar-title">
-          <span class="layout-title" @click="$router.push('/')" style="cursor: pointer">ARCHIVE</span>
-        </q-toolbar-title>
+  <q-header bordered class="bg-white text-primary h-14">
+    <q-toolbar>
+      <q-toolbar-title class="toolbar-title">
+        <span class="layout-title" @click="$router.push('/')" style="cursor: pointer">ARCHIVE</span>
+      </q-toolbar-title>
 
-        <q-space />
+      <q-space />
 
-        <div v-if="$q.screen.sizes.md <= $q.screen.width">
-          <ul class="menu-ul">
-            <li>
-              <q-btn v-if="loggedIn" @click="doLogout">로그아웃</q-btn>
-              <q-btn v-else @click="doLogin">로그인</q-btn>
-            </li>
-            <li>
-              <q-btn @click="$router.push('/favorite')" flat>즐겨찾기</q-btn>
-            </li>
-            <li>
-              <q-btn flat>소통창구</q-btn>
-            </li>
-          </ul>
-        </div>
-      </q-toolbar>
-    </q-header>
-    <div id="signinBox" style="display: none"></div>
-  </q-layout>
+      <div v-if="$q.screen.sizes.md <= $q.screen.width">
+        <ul class="menu-ul">
+          <li>
+            <q-btn v-if="loggedIn" @click="doLogout">로그아웃</q-btn>
+            <q-btn v-else @click="doLogin">로그인</q-btn>
+          </li>
+          <li>
+            <q-btn @click="$router.push('/favorite')" flat>즐겨찾기</q-btn>
+          </li>
+          <li>
+            <q-btn @click="$router.push('/communication-board')" flat>소통창구</q-btn>
+          </li>
+        </ul>
+      </div>
+    </q-toolbar>
+  </q-header>
+  <div id="signinBox" style="display: none"></div>
 
   <SignInDialog :show="isOpenSignInDialog"
     @close="() => { isOpenSignInDialog = false; }" />

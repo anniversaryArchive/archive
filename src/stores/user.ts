@@ -22,6 +22,7 @@ export const useUserStore = defineStore({
   }),
 
   getters: {
+    id(state): string | undefined { return state.user?._id; },
     loggedIn(state): boolean { return !!state.user; },
     isAdmin(state): boolean { return state.user?.role === 'admin'; },
   },
