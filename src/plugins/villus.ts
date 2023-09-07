@@ -1,6 +1,6 @@
 import { createClient, defaultPlugins, FetchOptions } from 'villus';
 
-const host: string = 'http://localhost:3000/graphql';
+const host: string = `${import.meta.env.VITE_API_URL}/graphql`;
 
 function authPlugin({ opContext }: { opContext: FetchOptions }) {
   const token: string | null = localStorage.getItem(import.meta.env.VITE_TOKEN_KEY);
