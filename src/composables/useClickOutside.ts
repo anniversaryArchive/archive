@@ -3,25 +3,25 @@ import { watch, unref, onUnmounted } from 'vue';
 
 const EVENTS = ['mousedown', 'touchstart', 'pointerdown'];
 
-function unrefElement(elRef) {
+function unrefElement(elRef: any) {
   return unref(elRef)?.$el ?? unref(elRef);
 }
 
-function useEventListener(...args) {
-  let target;
-  let event;
-  let listener;
-  let options;
+function useEventListener(...args: any[]) {
+  let target: HTMLElement;
+  let event: Event;
+  let listener: any;
+  let options: any[];
 
   [target, event, listener, options] = args;
 
   if (!target) return;
 
-  let cleanup = () => {};
+  let cleanup = () => { };
 
   watch(
     () => unref(target),
-    el => {
+    (el: any) => {
       cleanup();
       if (!el) return;
 
@@ -29,7 +29,7 @@ function useEventListener(...args) {
 
       cleanup = () => {
         el.removeEventListener(event, listener, options);
-        cleanup = noop;
+        cleanup = () => { };
       };
     },
     { immediate: true },
@@ -41,8 +41,8 @@ function useEventListener(...args) {
 }
 
 export default function useClickOutside() {
-  function onClickOutside(target, callback) {
-    const listener = event => {
+  function onClickOutside(target: any, callback: Function) {
+    const listener = (event: Event) => {
       const el = unrefElement(target);
       if (!el) return;
 
@@ -56,7 +56,7 @@ export default function useClickOutside() {
     );
 
     const stop = () => {
-      disposables.forEach(stop => stop());
+      disposables.forEach((stop: any) => stop());
       disposables = [];
     };
 

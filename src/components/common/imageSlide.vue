@@ -18,7 +18,7 @@
 
       <q-carousel-control v-if="editMode" position="top-right" :offset="[18, 18]">
         <q-btn push round dense color="white" text-color="red"
-          icon="delete" @click="onClickDeleteButton(index)" />
+          icon="delete" @click="onClickDeleteButton" />
       </q-carousel-control>
     </template>
   </q-carousel>
@@ -29,7 +29,7 @@ import { ref, Ref, computed, ComputedRef, onBeforeMount, watch } from 'vue';
 import { Image } from '@/types/image';
 
 interface Props {
-  modelValue: (Image | File)[];
+  modelValue: Record<string, any>[];
   editMode: boolean;
   height: string;
 }
@@ -37,8 +37,8 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), { editMode: false, height: '300px' });
 const emit = defineEmits(['delete', 'update:modelValue']);
 
-const slide: Ref<string | undefined> = ref(null);
-const images: Ref<(Image | File)[]> = ref([]);
+const slide: Ref<string | undefined> = ref();
+const images: Ref<Record<string, any>[]> = ref([]);
 const fullscreen: Ref<boolean> = ref(false);
 
 onBeforeMount(() => initImages());
@@ -55,9 +55,13 @@ function initImages () {
   }
 }
 
-function onClickDeleteButton (index: number) {
-  images.value.splice(index, 1);
-  emit('update:modelValue', images);
+function onClickDeleteButton (event: Event) {
+  const foundIndex = images.value.findIndex((image) => image.name === slide.value);
+  if (~foundIndex) {
+    images.value.splice(foundIndex, 1);
+    const viewIndex = images.value.length <= foundIndex ? images.value.length - 1 : 0;
+    slide.value = images.value[viewIndex].name;
+  }
 }
 </script>
 

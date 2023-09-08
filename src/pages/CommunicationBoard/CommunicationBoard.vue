@@ -39,7 +39,7 @@ import { onBeforeMount, ref, Ref, computed, ComputedRef } from 'vue';
 import { useRouter } from 'vue-router';
 import moment from 'moment/moment';
 import { query } from '@/composables/graphqlUtils';
-import { CommunicationBoard } from '@/types/CommnunicationBoard';
+import { CommunicationBoard } from '@/types/CommunicationBoard';
 import { useUserStore } from '@/stores/user';
 import { TABLE_COLUMNS } from './data';
 
@@ -55,7 +55,7 @@ const perPage: number = 10;
 const maxPage: ComputedRef<number> = computed(() => Math.ceil(total.value / perPage));
 
 const loggedIn: ComputedRef<boolean> = computed(() => userStore.loggedIn);
-const communicationBoards: Ref<CommnunicationBoard[]> = ref([]);
+const communicationBoards: Ref<CommunicationBoard[]> = ref([]);
 
 onBeforeMount(() => getCommunicationBoards());
 
@@ -71,12 +71,12 @@ function getCommunicationBoards() {
 }
 
 // 페이지 변경 시
-function onChangePage(_) {
+function onChangePage() {
   getCommunicationBoards();
 }
 
 // Table Row 클릭 시
-function onClick(_, row) {
+function onClick(_: Event, row: CommunicationBoard) {
   router.push(`/communication-board/${row._id}`);
 }
 </script>

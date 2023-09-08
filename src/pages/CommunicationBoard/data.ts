@@ -1,21 +1,22 @@
-import { CommunicationBoard } from '@/types/CommunicationBoard';
+import { QTableProps } from 'quasar';
+import { CommunicationBoardDivision } from '@/types/CommunicationBoard';
 import { formatDate } from '@/composables/formatDate';
 
-export const TABLE_COLUMNS: Record<string, any>[] = [
+export const TABLE_COLUMNS: QTableProps['columns'] = [
   {
     name: 'seq',
     required: true,
     label: '번호',
     align: 'center',
-    field: (row: CommunicationBoard) => row.seq,
-    format: (val: number) => `${val}`,
+    field: (row: any) => row.seq,
+    format: (val: any) => `${val}`,
   }, {
     name: 'division',
     required: true,
     label: '분류',
     align: 'center',
-    field: (row: CommunicationBoard) => DIVISION_LABEL[row.division],
-    classes: (row: CommunicationBoard) => {
+    field: (row: any) => DIVISION_LABEL[row.division as CommunicationBoardDivision],
+    classes: (row: any) => {
       let style = 'font-extrabold';
       if (row.fixed) { style += ' text-primary'; }
       return style;
@@ -25,37 +26,38 @@ export const TABLE_COLUMNS: Record<string, any>[] = [
     required: true,
     label: '제목',
     align: 'center',
-    field: (row: CommunicationBoard) => row.title,
-    classes: (row: CommunicationBoard) => {
+    field: (row: any) => row.title,
+    classes: (row: any) => {
       if (row.fixed) { return 'font-extrabold text-primary'; }
+      return '';
     },
   }, {
     name: 'createdAt',
     required: true,
     label: '날짜',
     align: 'center',
-    field: (row: CommunicationBoard) => row.createdAt,
+    field: (row: any) => row.createdAt,
     format: (val: string) => formatDate(val, 'YYYY.MM.DD'),
   }, {
     name: 'author',
     required: true,
     label: '작성자',
     align: 'center',
-    field: (row: CommunicationBoard) => row.author?.name,
+    field: (row: any) => row.author?.name,
   }, {
     name: 'status',
     required: false,
     label: '상태',
     align: 'center',
-    field: (row: CommunicationBoard) => STATUS_LABEL[row.status],
+    field: (row: any) => STATUS_LABEL[row.status],
   },
 ];
 
-export const DIVISION_LABEL: Record<string, string> = {
+export const DIVISION_LABEL: Record<CommunicationBoardDivision, string> = {
   notice: '공지',
   group: '그룹 제안',
   artist: '아티스트 제안',
-  // archive: '카페 제안',
+  archive: '카페 제안',
   improvement: '기능 개선',
   error: '에러'
 };

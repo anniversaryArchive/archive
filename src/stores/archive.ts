@@ -1,10 +1,10 @@
 import { defineStore } from 'pinia';
-import { computed } from 'vue';
+import { CombinedError, BaseQueryApi } from 'villus';
 import { WatchQuery } from '@/types/CommonTypes';
 import { Archive } from '@/types/Archive'
 import { Group } from '@/types/Group';
 import { query, mutate } from '@/composables/graphqlUtils';
-import { CombinedError } from 'villus';
+import { parsePaginationData } from './functions';
 
 import getArchive from '@/graphql/getArchive.query.gql';
 import getArchives from '@/graphql/getArchives.query.gql';
@@ -35,6 +35,9 @@ export const useArchiveStore = defineStore({
     groupId(): string | undefined { return this.group?._id },
   },
   actions: {
+    setArchives(result: BaseQueryApi<any, object>) {
+      this.data = parsePaginationData.call(this, 'archive', result);
+    },
     setGroup(group: Group) {
       this.group = group;
     },
@@ -59,22 +62,14 @@ export const useArchiveStore = defineStore({
         sortField,
         start: search?.start,
         end: search?.end,
-      }, false).then(({ data, error, execute }) => {
-        this.data = {
-          list: computed(() => {
-            return data.value?.archive?.data || [];
-          }),
-          total: computed(() => { return data.value?.archive?.total || 0; }),
-          fetch: execute,
-        };
-      });
+      }, false).then(this.setArchives);
     },
 
     async createArchive(input: Record<string, any>): Promise<{ id?: string, error: CombinedError | null } | undefined> {
       try {
         const { data, error } = await mutate(createArchive, { input });
         const id: string | undefined = data?.archive?._id;
-        if (id) { this.data?.fetch(); }
+        if (id) { this.setArchives(await this.data?.fetch()); }
         return { id, error };
       } catch (error) { console.error(error); }
       return;
@@ -82,9 +77,9 @@ export const useArchiveStore = defineStore({
 
     async updateArchive(id: string, input: Record<string, any>): Promise<boolean> {
       try {
-        const { data, error } = await mutate(updateArchive, { id, input });
+        const { data } = await mutate(updateArchive, { id, input });
         const success: boolean = data?.success || false;
-        if (success) { this.data?.fetch(); }
+        if (success) { this.setArchives(await this.data?.fetch()); }
         return success;
       } catch (error) { console.error(error); }
       return false;
@@ -92,9 +87,9 @@ export const useArchiveStore = defineStore({
 
     async removeArchive(id: string): Promise<boolean> {
       try {
-        const { data, error } = await mutate(removeArchive, { id });
+        const { data } = await mutate(removeArchive, { id });
         const success: boolean = data?.success || false;
-        if (success) { this.data?.fetch(); }
+        if (success) { this.setArchives(await this.data?.fetch()); }
         return success;
       } catch (error) { console.error(error); }
       return false;

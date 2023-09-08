@@ -15,9 +15,8 @@ const userStore = useUserStore();
 
 onMounted(() => {
   const route = useRoute();
-  const code: string | undefined = route.query.code;
-
-  doNaverLogin(code);
+  const code: string = String(route.query.code);
+  if (code) { doNaverLogin(code); }
 });
 
 async function doNaverLogin(code: string) {

@@ -66,6 +66,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/admin",
     beforeEnter: requireAdmin,
+    meta: { layout: "AdminLayout" },
     children: [
       {
         path: "",
