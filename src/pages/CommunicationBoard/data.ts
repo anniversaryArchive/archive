@@ -49,7 +49,7 @@ export const TABLE_COLUMNS: QTableProps['columns'] = [
     required: false,
     label: '상태',
     align: 'center',
-    field: (row: any) => STATUS_LABEL[row.status],
+    field: (row: any) => STATUS_LABEL[row.status] || '-',
   },
 ];
 
@@ -61,6 +61,8 @@ export const DIVISION_LABEL: Record<CommunicationBoardDivision, string> = {
   improvement: '기능 개선',
   error: '에러'
 };
+
+export const DIVISION_OPTIONS: CommunicationBoardDivision[] = Object.keys(DIVISION_LABEL) as CommunicationBoardDivision[];
 
 export const STATUS_LABEL: Record<string, string> = {
   none: '',
