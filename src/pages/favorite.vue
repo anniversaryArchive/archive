@@ -1,26 +1,26 @@
 <template>
   <div class="xl-flex flex-col justify-center h-full">
     <div class="row bg-div">
-      <q-card class="my-card info-card col-xl-3 col-xs-12" color="white">
+      <q-card class="my-card info-card col-sm-12 col-md-3" color="white">
         <q-card-section>
           <div>
             <h1 class="search-text">그룹 선택</h1>
             <select-box
-                id="artist"
-                v-model="archiveSchParams.group"
-                v-bind="selectBoxOptions.group"
-                style="width: 100%"
-                :multiplied="false"
-                use-chips
+              id="artist"
+              v-model="archiveSchParams.group"
+              v-bind="selectBoxOptions.group"
+              style="width: 100%"
+              :multiplied="false"
+              use-chips
             />
             <h1 class="search-text">기간 선택</h1>
             <com-period-date-picker
-                v-model="archiveSchParams"
-                :clearable="true"
-                :disabled="false"
-                :readonly="false"
-                beginDeNm="schBeginDe"
-                endDeNm="schEndDe"
+              v-model="archiveSchParams"
+              :clearable="true"
+              :disabled="false"
+              :readonly="false"
+              beginDeNm="schBeginDe"
+              endDeNm="schEndDe"
             />
 
             <div class="btn-box">
@@ -31,7 +31,7 @@
         </q-card-section>
       </q-card>
 
-      <q-card class="my-card favorite-card col-xl-8 col-xs-12" color="white">
+      <q-card class="my-card favorite-card col-sm-12 col-md-8" color="white">
         <ul class="row">
           <li class="card-title col-xl-10 col-xs-8">
             즐겨찾기
@@ -88,7 +88,6 @@ import _ from 'lodash';
 import {mutate} from '@/composables/graphqlUtils';
 import createFavorite from '@/graphql/createFavorite.mutate.gql';
 import removeFavorite from '@/graphql/removeFavorite.mutate.gql';
-import {useUserStore} from '@/stores/user';
 
 export default defineComponent({
   name: "favorite",
@@ -101,7 +100,6 @@ export default defineComponent({
     const {selectBoxOptions: selectBoxOptions} = ccobject.$createSelectAll(["group"]);
     const {schParams: archiveSchParams} = ccobject.$createSchParams<ArchiveSearchParams>();
 
-    const userStore = useUserStore();
     const favoriteGroupsStore = useFavoriteGroupStore();
     const favoriteArchiveStore = useFavoriteArchiveStore();
 
@@ -118,13 +116,14 @@ export default defineComponent({
     });
 
     // pagination 관련 변수
+    const perPage: number = 10;
+    const total: Ref<number> = ref(0);
+    const maxPage: ComputedRef<number> = computed(() => Math.ceil(total.value / perPage));
+
     const paginationData = ref({
       current: 1,
-      perPage: 10,
+      perPage,
     } as Pagination);
-    const total: Ref<number> = ref(0);
-    const perPage: number = 10;
-    const maxPage: ComputedRef<number> = computed(() => Math.ceil(total.value / perPage));
 
     onBeforeMount(() => {
       initialize();
@@ -157,10 +156,9 @@ export default defineComponent({
       archiveList = orderDataFunc(archiveList, orderData.value.value);
       archiveParams.value = _.cloneDeep(archiveList);
 
-      // 페이지네이션 설정
-
-
-     });
+      // 페이지네이션 설정 total
+      total.value = archiveList.length;
+    });
 
     function resetFunc() {
       const msg = "초기화 하시겠습니까?"
@@ -272,12 +270,12 @@ export default defineComponent({
 
     // 즐겨찾기 아이콘 클릭 시
     async function onClickFavoriteIcon(item: Archive) {
-      let success: boolean = false;
+      let success: any = false;
       try {
         if(item.favorite && item._id) {
-          success = await doRemoveFavorite(item._id);
+          success = favoriteArchiveStore.doRemoveFavorite(item._id);
         }else if(item._id) {
-          success = await doCreateFavorite(item._id);
+          success = favoriteArchiveStore.doCreateFavorite(item._id);
         }
 
         if(!success) { return; }
@@ -285,22 +283,6 @@ export default defineComponent({
         item.favorite = !item.favorite;
         return item.favorite
       } catch(_) {}
-    }
-
-    async function doCreateFavorite(_id: string): Promise<boolean> {
-      try {
-        const { data } = await mutate(createFavorite, { archive: _id });
-        return !!data.favorite?._id;
-      } catch (_) {}
-      return false;
-    }
-
-    async function doRemoveFavorite(_id: string): Promise<boolean> {
-      try {
-        const { data } = await mutate(removeFavorite, { archive: _id });
-        return data.success && true;
-      } catch (_) {}
-      return false;
     }
 
     // 페이지 변경 시
