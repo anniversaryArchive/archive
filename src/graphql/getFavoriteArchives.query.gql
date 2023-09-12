@@ -19,5 +19,6 @@ query FavoritePagination($sortOrder: Int, $page: Int, $perPage: Int, $group: ID,
         }
       }
     }
+    total
   }
 }
