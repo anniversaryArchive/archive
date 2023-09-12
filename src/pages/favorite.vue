@@ -156,8 +156,8 @@ export default defineComponent({
       archiveList = orderDataFunc(archiveList, orderData.value.value);
       archiveParams.value = _.cloneDeep(archiveList);
 
-      // 페이지네이션 설정 total
-      total.value = archiveList.length;
+      // 페이지네이션 설정 : total
+      total.value = favoriteArchiveStore.total;
     });
 
     function resetFunc() {
@@ -273,9 +273,9 @@ export default defineComponent({
       let success: any = false;
       try {
         if(item.favorite && item._id) {
-          success = favoriteArchiveStore.doRemoveFavorite(item._id);
+          success = await favoriteArchiveStore.doRemoveFavorite(item._id);
         }else if(item._id) {
-          success = favoriteArchiveStore.doCreateFavorite(item._id);
+          success = await favoriteArchiveStore.doCreateFavorite(item._id);
         }
 
         if(!success) { return; }
