@@ -17,7 +17,7 @@
         <div>
           <button class="px-4 py-1 border border-gray-400 rounded hover:bg-gray-200"
             @click="changeShowType">
-            {{ showType === 'mine' ? '전체 글 보기' : '내 글 보기' }}
+            {{ filter.showType === 'mine' ? '전체 글 보기' : '내 글 보기' }}
           </button>
         </div>
       </header>
@@ -36,7 +36,7 @@
       <footer>
         <div class="justify-center mt-4 row q-mt-md">
           <q-pagination
-            v-model="currentPage"
+            :model-value="filter.page"
             direction-links
             :max="maxPage"
             @update:model-value="onChangePage" />
@@ -53,8 +53,8 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeMount, ref, Ref, computed, ComputedRef } from 'vue';
-import { useRouter } from 'vue-router';
+import { onBeforeMount, ref, Ref, computed, ComputedRef, watch } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import moment from 'moment/moment';
 import { query } from '@/composables/graphqlUtils';
 import { CommunicationBoard } from '@/types/CommunicationBoard';
@@ -63,11 +63,17 @@ import { TABLE_COLUMNS, DIVISION_OPTIONS, DIVISION_LABEL } from './data';
 
 import getCommunicationBoardsQuery from '@/graphql/getCommunicationBoards.query.gql';
 
+interface Filter {
+  division?: CommunicationBoardDivision,
+  showType: 'mine' | 'all',
+  page: number,
+}
+
 const router = useRouter();
+const route = useRoute();
 const userStore = useUserStore();
 
 // pagination 관련 변수
-const currentPage: Ref<number> = ref(1);
 const total: Ref<number> = ref(0);
 const perPage: number = 10;
 const maxPage: ComputedRef<number> = computed(() => Math.ceil(total.value / perPage));
@@ -79,21 +85,34 @@ const noneDivision = '구분 선택';
 const divisionOptions: ComputedRef<(CommunicationBoardDivision | 'none')[]> = computed(() => {
   return [noneDivision, ...DIVISION_OPTIONS];
 });
-const filter: Ref<{ division?: CommunicationBoardDivision }> = ref({ division: noneDivision });
-const showType: Ref<'mine' | 'all'> = ref('all'); // 보기 타입 (내 글 / 전체 글)
+const filter: Ref<Filter> = ref({ division: noneDivision, showType: 'all', page: 1 });
 
-onBeforeMount(() => getCommunicationBoards());
+// Filter가 변경될 떄마다 route를 replace해주고, CommunicationBoard data를 가져온다.
+watch(filter, () => {
+  router.replace({ name: 'CommunicationBoard', query: filter.value });
+  getCommunicationBoards();
+});
+
+onBeforeMount(() => initialize());
+
+function initialize() {
+  for (const key of ['division', 'showType', 'page']) {
+    if (!route.query[key]) { continue; }
+    filter.value[key] = key === 'page' ? Number(route.query[key]) : route.query[key];
+  }
+  getCommunicationBoards();
+}
 
 function getCommunicationBoards() {
   const flds = {};
   if (filter.value.division !== noneDivision) {
     flds.division = filter.value.division;
   }
-  if (showType.value === 'mine') {
+  if (filter.value.showType === 'mine') {
     flds.author = userStore.id;
   }
   query(getCommunicationBoardsQuery, {
-    page: currentPage.value - 1,
+    page: filter.value.page - 1,
     perPage,
     filter: { flds },
   }, false).then(({ data, error, execute }) => {
@@ -104,8 +123,8 @@ function getCommunicationBoards() {
 }
 
 // 페이지 변경 시
-function onChangePage() {
-  getCommunicationBoards();
+function onChangePage(page: number) {
+  filter.value = { ... filter.value, page };
 }
 
 // Table Row 클릭 시
@@ -115,15 +134,13 @@ function onClick(_: Event, row: CommunicationBoard) {
 
 // 구분 변경 시
 function onChangeDivision(event: CommunicationBoardDivision) {
-  filter.value.division = event;
-  currentPage.value = 1;
-  getCommunicationBoards();
+  filter.value = { ... filter.value, division: event, page: 1 };
 }
 
 // 보기 타입 변경 (내 글 / 전체 글)
 function changeShowType() {
-  showType.value = showType.value === 'mine' ? 'all' : 'mine';
-  getCommunicationBoards();
+  const showType = filter.value.showType === 'mine' ? 'all' : 'mine';
+  filter.value = { ... filter.value, showType, page: 1 };
 }
 </script>
 

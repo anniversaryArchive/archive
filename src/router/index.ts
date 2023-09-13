@@ -37,7 +37,7 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import("@/pages/ArchiveDetail.vue")
   },
   {
-    meta: { title: "favorite", layout: "MainLayout"},
+    meta: { title: "favorite", layout: "MainLayout" },
     path: "/favorite",
     beforeEnter: authUser,
     component: () => import("@/pages/favorite.vue")
@@ -45,6 +45,7 @@ const routes: Array<RouteRecordRaw> = [
 
   {
     meta: { title: "소통 창구", layout: "MainLayout" },
+    name: 'CommunicationBoard',
     path: "/communication-board",
     component: () => import("@/pages/CommunicationBoard/CommunicationBoard.vue")
   },
