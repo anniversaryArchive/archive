@@ -12,6 +12,14 @@
             @update:model-value="onChangeDivision"
             class="mr-4"></q-select>
         </div>
+
+        <!-- 내 글 보기 / 전체 글 보기 -->
+        <div>
+          <button class="px-4 py-1 border border-gray-400 rounded hover:bg-gray-200"
+            @click="changeShowType">
+            {{ showType === 'mine' ? '전체 글 보기' : '내 글 보기' }}
+          </button>
+        </div>
       </header>
 
       <div class="flex-1 overflow-y-auto">
@@ -72,6 +80,7 @@ const divisionOptions: ComputedRef<(CommunicationBoardDivision | 'none')[]> = co
   return [noneDivision, ...DIVISION_OPTIONS];
 });
 const filter: Ref<{ division?: CommunicationBoardDivision }> = ref({ division: noneDivision });
+const showType: Ref<'mine' | 'all'> = ref('all'); // 보기 타입 (내 글 / 전체 글)
 
 onBeforeMount(() => getCommunicationBoards());
 
@@ -79,6 +88,9 @@ function getCommunicationBoards() {
   const flds = {};
   if (filter.value.division !== noneDivision) {
     flds.division = filter.value.division;
+  }
+  if (showType.value === 'mine') {
+    flds.author = userStore.id;
   }
   query(getCommunicationBoardsQuery, {
     page: currentPage.value - 1,
@@ -105,6 +117,12 @@ function onClick(_: Event, row: CommunicationBoard) {
 function onChangeDivision(event: CommunicationBoardDivision) {
   filter.value.division = event;
   currentPage.value = 1;
+  getCommunicationBoards();
+}
+
+// 보기 타입 변경 (내 글 / 전체 글)
+function changeShowType() {
+  showType.value = showType.value === 'mine' ? 'all' : 'mine';
   getCommunicationBoards();
 }
 </script>
