@@ -14,6 +14,14 @@
             @update:model-value="onChangeDivision"
             class="mr-4"></q-select>
           <span v-else>{{DIVISION_LABEL[communicaitonBoard.division]}}</span>
+
+          <div class="mt-1 text-sm font-bold"
+            :class="{
+              'text-primary': communicaitonBoard.status === 'accept',
+              'text-red-600': communicaitonBoard.status === 'reject',
+              'text-green-600': communicaitonBoard.status === 'request'}">
+            {{ STATUS_LABEL[communicaitonBoard.status] }}
+          </div>
         </div>
 
         <div class="flex-1 text-base">
@@ -41,10 +49,6 @@
               <button class="hover:text-gray-800" @click="onClickDeleteBtn">삭제</button>
             </div>
           </div>
-        </div>
-
-        <div>
-          {{ STATUS_LABEL[communicaitonBoard.status] }}
         </div>
       </div>
 
