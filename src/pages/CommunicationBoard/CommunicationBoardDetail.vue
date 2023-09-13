@@ -35,7 +35,7 @@
             </div>
             <div class="flex-1"></div>
             <!-- 수정 | 삭제 -->
-            <div v-if="communicaitonBoard.author?._id === userId">
+            <div v-if="isAuthor">
               <button class="hover:text-gray-800" @click="onClickEditBtn">수정</button>
               <span class="mx-2">|</span>
               <button class="hover:text-gray-800" @click="onClickDeleteBtn">삭제</button>
@@ -93,8 +93,13 @@
           <button class="px-8 py-2 font-bold text-white border rounded bg-primary/80 hover:bg-primary"
             @click="onClickSave">저장</button>
         </template>
-        <button v-else class="px-8 py-2 border border-gray-200 rounded hover:bg-gray-100"
-          @click="goToTableView">목록</button>
+        <template v-else>
+          <button v-if="isAuthor && communicaitonBoard.status === 'reject'"
+            class="px-8 py-2 mr-2 border rounded border-primary text-primary hover:bg-primary !hover:text-white"
+            @click="onClickReRequestBtn">재요청</button>
+          <button class="px-8 py-2 border border-gray-200 rounded hover:bg-gray-100"
+            @click="goToTableView">목록</button>
+        </template>
       </div>
     </div>
   </div>
@@ -119,6 +124,7 @@ import patchCommunicationBoard from '@/graphql/patchCommunicationBoard.mutate.gq
 import removeCommunicationBoard from '@/graphql/removeCommunicationBoard.mutate.gql';
 import acceptCommunicationBoard from '@/graphql/acceptCommunicationBoard.mutate.gql';
 import rejectCommunicationBoard from '@/graphql/rejectCommunicationBoard.mutate.gql';
+import reRequestCommunicationBoard from '@/graphql/reRequestCommunicationBoard.mutate.gql';
 
 const router = useRouter();
 const route = useRoute();
@@ -127,6 +133,7 @@ const userStore = useUserStore();
 
 const userId: ComputedRef<string | undefined> = computed(() => userStore.id);
 const isAdmin: ComputedRef<boolean> = computed(() => userStore.isAdmin);
+const isAuthor: ComputedRef<boolean> = computed(() => communicaitonBoard.value.author?._id === userStore.id);
 
 const communicaitonBoard: Ref<CommunicationBoard | undefined> = ref();
 const communicaitonBoardOrg: Ref<CommunicationBoard | undefined> = ref();
@@ -329,6 +336,15 @@ async function onClickSave() {
       communicaitonBoardOrg.value = _.cloneDeep(communicaitonBoardOrg.value);
       editMode.value = false;
     } else { $q.notify('저장에 실패했습니다. 다시 시도해주세요.'); }
+  });
+}
+
+// 재요청 버튼 클릭 시
+function onClickReRequestBtn() {
+  mutate(reRequestCommunicationBoard, { id: communicaitonBoard.value._id }).then(({ data }) => {
+    const success = !!data?.success;
+    if (!success) { $q.notify('재요청에 실패했습니다.'); }
+    communicaitonBoard.value = Object.assign({}, communicaitonBoard.value, { status: 'request' });
   });
 }
 
