@@ -76,6 +76,7 @@ export interface Field {
   label: string;
   key: string;
   required: boolean;
+  parent?: string;
   objectFields?: Field[];
 }
 
@@ -103,7 +104,26 @@ const ARTIST_FORM: Field[] = [
   { label: '그룹', key: 'group', required: true, type: 'select' },
 ];
 
+const ARCHIVE_FORM: Field[] = [
+  { label: '그룹', key: 'group', required: true, type: 'select' },
+  { label: '아티스트', key: 'artist', required: false, type: 'select', parent: 'group' },
+  { label: '카페 테마 이름', key: 'themeName', required: true, type: 'text' },
+  { label: '카페 이름', key: 'name', required: true, type: 'text' },
+  { label: '주소', key: 'address', required: true, type: 'address' },
+  { label: '상세 주소', key: 'detailAddress', required: false, type: 'text', parent: 'address' },
+  { label: '주최자 (트위터 ID)', key: 'organizer', required: true, type: 'text' },
+  { label: '시작일', key: 'startDate', required: true, type: 'date' },
+  { label: '종료일', key: 'endDate', required: true, type: 'date' },
+  // { label: '오픈 시간', key: 'openTime', required: false, type: 'time' },
+  // { label: '종료 시간', key: 'closeTime', required: false, type: 'time' },
+  { label: '메인 이미지', key: 'mainImage', required: true, type: 'image' },
+  { label: '서브 이미지들', key: 'images', required: false, type: 'images' },
+  { label: '번호', key: 'phoneNumber', required: false, type: 'text' },
+  { label: '링크', key: 'link', required: false, type: 'url' },
+];
+
 export const DATA_FORM: Record<string, Field[]> = {
   group: GROUP_FROM,
   artist: ARTIST_FORM,
+  archive: ARCHIVE_FORM
 };

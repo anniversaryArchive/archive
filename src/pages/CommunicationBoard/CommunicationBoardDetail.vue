@@ -73,8 +73,11 @@
               <span v-if="editMode && field.required" class="ml-2 text-red-700">*</span>
             </div>
 
-            <CustomInput v-model="proposalData[field.key]"
-              :field="field" :disabled="!editMode" />
+            <template v-if="!field.parent || proposalData[field.parent]">
+              <CustomInput v-model="proposalData[field.key]"
+                :field="field" :disabled="!editMode"
+                :parent="field.parent && proposalData[field.parent]" />
+            </template>
           </div>
         </div>
       </div>
@@ -121,6 +124,7 @@ import { useUserStore } from '@/stores/user';
 import { DIVISION_LABEL, DATA_FORM, STATUS_LABEL, Field } from './data';
 import CustomInput from './components/CustomInput.vue';
 import { formatDate } from '@/composables/formatDate';
+import { getLatLng } from '@/composables/addressUtils';
 
 import getCommunicationBoard from '@/graphql/getCommunicationBoard.query.gql';
 import createCommunicationBoard from '@/graphql/createCommunicationBoard.mutate.gql';
@@ -255,24 +259,39 @@ function checkRequired(): boolean {
   return checkRequiredFields(formFields.value, proposalData.value);
 }
 
+function uploadImage(field: Field, file: any, index?: number): Promise<boolean> {
+  const formData: FormData = new FormData();
+  formData.append('file', file);
+  return axios.post(`http://localhost:3000/file`, formData, {}).then((response) => {
+    const fileData = response.data?.data && response.data.data;
+    if (proposalData.value && fileData) {
+      if (field.type === 'images') {
+        proposalData.value[field.key][index] = fileData;
+      } else {
+        proposalData.value[field.key] = fileData;
+      }
+      return true;
+    }
+    return false;
+  });
+}
+
 // 파일 업로드
 async function uploadFiles(): Promise<boolean> {
   if (!proposalData.value || !formFields.value) { return true; }
   try {
     const promises: Promise<boolean>[] = formFields.value.reduce((acc: Promise<boolean>[], field: Field) => {
+      if (field.type === 'images' && proposalData.value![field.key]) {
+        for (let index = 0; index < proposalData.value![field.key].length; index ++) {
+          const file = proposalData.value![field.key][index];
+          if (!file || file._id) { continue; }
+          acc.push(uploadImage(field, file, index));
+        }
+      }
       if (field.type !== 'image') { return acc; }
       const file = proposalData.value![field.key];
       if (!file || file._id) { return acc; }
-      const formData: FormData = new FormData();
-      formData.append('file', file);
-      acc.push(axios.post(`http://localhost:3000/file`, formData, {}).then((response) => {
-        const fileData = response.data?.data && response.data.data;
-        if (proposalData.value && fileData) {
-          proposalData.value[field.key] = fileData;
-          return true;
-        }
-        return false;
-      }));
+      acc.push(uploadImage(field, file));
       return acc;
     }, []);
 
@@ -292,6 +311,9 @@ function getInputFields(fields: any, data: any) {
     switch (field.type) {
       case 'image': case 'select':
         input[key] = data[key]._id;
+        break;
+      case 'images':
+        input[key] = data[key] && data[key].map((d) => d._id);
         break;
       case 'objectList':
         input[key] = [];
@@ -332,6 +354,16 @@ async function onClickSave() {
 
   const fields: string[] = ['division', 'title', 'content'];
   const input = getInput();
+
+  // 아카이브인 경우 address의 lat, lng 계산을 해줘야한다.
+  if (input.division === 'archive') {
+    try {
+      const { lat, lng } = await getLatLng(input.archive.address);
+      input.archive.lat = lat;
+      input.archive.lng = lng;
+    } catch (_) {}
+  }
+
   const variables = { id: communicaitonBoard.value!._id, input };
   mutate(createMode.value ? createCommunicationBoard : patchCommunicationBoard, variables).then((resp) => {
     const data = resp.data[createMode.value ? 'communicationBoard' : 'success'];
