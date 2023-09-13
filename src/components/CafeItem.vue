@@ -24,6 +24,7 @@ import { useUserStore } from '@/stores/user';
 
 import createFavorite from '@/graphql/createFavorite.mutate.gql';
 import removeFavorite from '@/graphql/removeFavorite.mutate.gql';
+import {useFavoriteArchiveStore} from '@/stores/favoriteArchive';
 
 interface Props {
   archive: Archive;
@@ -34,6 +35,7 @@ const emit = defineEmits(['click']);
 
 const $q = useQuasar();
 const userStore = useUserStore();
+const favoriteArchiveStore = useFavoriteArchiveStore();
 const archive: ComputedRef<Archive> = computed(() => props.archive);
 
 // 카페 아이템 클릭 시
@@ -49,34 +51,16 @@ async function onClickFavoriteIcon() {
     return;
   }
 
-  let success: boolean = false;
+  let success: any = false;
   try {
     if (archive.value.favorite) {
-      success = await doRemoveFavorite();
+      success = favoriteArchiveStore.doRemoveFavorite(archive.value._id);
     } else {
-      success = await doCreateFavorite();
+      success = favoriteArchiveStore.doCreateFavorite(archive.value._id);
     }
     if (!success) { return; }
     props.archive.favorite = !props.archive.favorite;
   } catch (_) {}
-}
-
-// 즐겨찾기 추가
-async function doCreateFavorite(): Promise<boolean> {
-  try {
-    const { data } = await mutate(createFavorite, { archive: archive.value._id });
-    return !!data.favorite?._id;
-  } catch (_) {}
-  return false;
-}
-
-// 즐겨찾기 제거
-async function doRemoveFavorite(): Promise<boolean> {
-  try {
-    const { data } = await mutate(removeFavorite, { archive: archive.value._id });
-    return data.success && true;
-  } catch (_) {}
-  return false;
 }
 </script>
 

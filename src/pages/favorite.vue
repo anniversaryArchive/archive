@@ -1,33 +1,26 @@
 <template>
-  <div>
-    <layout-header></layout-header>
-
+  <div class="xl-flex flex-col justify-center h-full">
     <div class="row bg-div">
-      <q-card class="my-card info-card col-3 mr-12" color="white">
+      <q-card class="my-card info-card col-sm-12 col-md-3" color="white">
         <q-card-section>
-          <ul>
-            <li class="card-title pb-3">프로필 정보</li>
-            <li class="info-text pb-5">닉네임</li>
-          </ul>
-
           <div>
             <h1 class="search-text">그룹 선택</h1>
             <select-box
-                id="artist"
-                v-model="archiveSchParams.group"
-                v-bind="selectBoxOptions.group"
-                style="width: 100%"
-                :multiplied="false"
-                use-chips
+              id="artist"
+              v-model="archiveSchParams.group"
+              v-bind="selectBoxOptions.group"
+              style="width: 100%"
+              :multiplied="false"
+              use-chips
             />
             <h1 class="search-text">기간 선택</h1>
             <com-period-date-picker
-                v-model="archiveSchParams"
-                :clearable="true"
-                :disabled="false"
-                :readonly="false"
-                beginDeNm="schBeginDe"
-                endDeNm="schEndDe"
+              v-model="archiveSchParams"
+              :clearable="true"
+              :disabled="false"
+              :readonly="false"
+              beginDeNm="schBeginDe"
+              endDeNm="schEndDe"
             />
 
             <div class="btn-box">
@@ -38,37 +31,52 @@
         </q-card-section>
       </q-card>
 
-      <q-card class="my-card favorite-card col-8" color="white">
-        <q-card-section>
-          <ul class="row">
-            <li class="card-title col-10">
-              즐겨찾기
-            </li>
-            <li class="card-title col-2">
-              <q-select class="order-select" v-model="orderData" :options="orderOptions"
-                        @update:model-value="orderSelectChange()" borderless ></q-select>
-            </li>
-          </ul>
+      <q-card class="my-card favorite-card col-sm-12 col-md-8" color="white">
+        <ul class="row">
+          <li class="card-title col-xl-10 col-xs-8">
+            즐겨찾기
+          </li>
+          <li class="card-title col-xl-2 col-xs-4">
+            <q-select class="order-select" v-model="orderData" :options="orderOptions"
+                      @update:model-value="orderSelectChange()" borderless ></q-select>
+          </li>
+        </ul>
 
+        <q-card-section class="q-card-box">
           <ul v-for="(item) in archiveParams" v-bind:key="item._id" class="favor-list row">
             <li class="col-2">{{item.archive.group?.name}}</li>
             <li class="col-2">{{item.archive.artist?.name}}</li>
-            <li class="col-8 cafe-text" @click="detailBtnFunc(item.archive._id)">
+            <li class="col-7 cafe-text" @click="detailBtnFunc(item.archive._id)">
               {{item.archive.themeName}}
               <span>{{item.archive.organizer}}</span>
             </li>
-            <li class="col-1 text-right"><font-awesome-icon :icon="['fas', 'heart']" style="color: #4e84c1" /></li>
+            <li class="col-1 text-right">
+              <q-button class="text-right" @click="onClickFavoriteIcon(item.archive)">
+                <q-icon :name="`favorite${!item.archive.favorite && '_outline'}`"
+                        class="inline-block" />
+              </q-button>
+            </li>
           </ul>
         </q-card-section>
+
+        <footer>
+          <div class="pagination justify-center mt-4 row q-mt-md q-mb-md">
+            <q-pagination
+              v-model="paginationData.current"
+              direction-links
+              :max="maxPage"
+              @update:model-value="onChangePage" />
+          </div>
+        </footer>
       </q-card>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, onBeforeMount, ref, Ref, watch} from 'vue';
+import {computed, ComputedRef, defineComponent, onBeforeMount, ref, Ref, watch} from 'vue';
 import mixinPageCommon from "@/pages/mixin/mixinPageCommon"
-import {ArchiveSearchParams} from "@/types/Archive"
+import {Archive, ArchiveSearchParams} from '@/types/Archive';
 import cscript from "@/composables/comScripts"
 import ccobject from "@/composables/createComObject"
 import { useFavoriteGroupStore } from '@/stores/favoriteGroup';
@@ -77,15 +85,16 @@ import moment from 'moment/moment';
 import {useFavoriteArchiveStore} from '@/stores/favoriteArchive';
 import {FavoriteArchive} from '@/types/Favorite';
 import _ from 'lodash';
+import {mutate} from '@/composables/graphqlUtils';
+import createFavorite from '@/graphql/createFavorite.mutate.gql';
+import removeFavorite from '@/graphql/removeFavorite.mutate.gql';
 
 export default defineComponent({
   name: "favorite",
   components: {},
   mixins: [mixinPageCommon],
   setup() {
-    //const $q = useQuasar()
     const archiveParams: Ref<FavoriteArchive[]> = ref([])
-
     const groupList = ref([] as string[])
 
     const {selectBoxOptions: selectBoxOptions} = ccobject.$createSelectAll(["group"]);
@@ -101,15 +110,19 @@ export default defineComponent({
       'label': '오래된순',
       'value': 'oldest',
     }];
-
     const orderData = ref({
       'label': '최신순',
       'value': 'newest',
     });
 
+    // pagination 관련 변수
+    const perPage: number = 10;
+    const total: Ref<number> = ref(0);
+    const maxPage: ComputedRef<number> = computed(() => Math.ceil(total.value / perPage));
+
     const paginationData = ref({
       current: 1,
-      perPage: 10,
+      perPage,
     } as Pagination);
 
     onBeforeMount(() => {
@@ -143,10 +156,9 @@ export default defineComponent({
       archiveList = orderDataFunc(archiveList, orderData.value.value);
       archiveParams.value = _.cloneDeep(archiveList);
 
-      // 페이지네이션 설정
-
-
-     });
+      // 페이지네이션 설정 : total
+      total.value = favoriteArchiveStore.total;
+    });
 
     function resetFunc() {
       const msg = "초기화 하시겠습니까?"
@@ -256,6 +268,28 @@ export default defineComponent({
       this.$router.push(`/archive/${id}`);
     }
 
+    // 즐겨찾기 아이콘 클릭 시
+    async function onClickFavoriteIcon(item: Archive) {
+      let success: any = false;
+      try {
+        if(item.favorite && item._id) {
+          success = await favoriteArchiveStore.doRemoveFavorite(item._id);
+        }else if(item._id) {
+          success = await favoriteArchiveStore.doCreateFavorite(item._id);
+        }
+
+        if(!success) { return; }
+
+        item.favorite = !item.favorite;
+        return item.favorite
+      } catch(_) {}
+    }
+
+    // 페이지 변경 시
+    function onChangePage() {
+      searchData();
+    }
+
     return {
       groupList,
       archiveParams,
@@ -263,13 +297,54 @@ export default defineComponent({
       selectBoxOptions,
       orderData,
       orderOptions,
+      paginationData,
+      maxPage,
       resetFunc,
       detailBtnFunc,
       searchBtnFunc,
-      orderSelectChange
+      orderSelectChange,
+      onClickFavoriteIcon,
+      onChangePage
     }
   }
 })
 </script>
 
-<style scoped></style>
+<style scoped>
+.xl-flex {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+footer .pagination {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* 모바일 화면 */
+@media screen and (max-width: 767px) {
+  .xl-flex {
+    display: block;
+    flex-wrap: nowrap;
+  }
+
+  footer .pagination {
+    position: relative;
+    margin-bottom: 0;
+  }
+
+  .q-card-box {
+    padding: 0 0 10px;
+  }
+
+  .favor-list {
+    padding: 10px;
+  }
+
+  .favor-list li {
+    font-size: 12px;
+  }
+}
+</style>

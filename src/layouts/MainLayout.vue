@@ -3,7 +3,7 @@
     <LayoutHeader />
     <q-page-container class="pt-14">
       <q-page>
-        <div id="troublemaker" class="bg-[#DDF1FF] h-screen mt-[-3.5rem] pt-14">
+        <div id="troublemaker" class="bg-[#fff] h-screen mt-[-3.5rem] pt-14">
           <slot />
         </div>
       </q-page>
