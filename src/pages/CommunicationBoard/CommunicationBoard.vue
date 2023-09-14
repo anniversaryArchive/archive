@@ -14,7 +14,7 @@
         </div>
 
         <!-- 내 글 보기 / 전체 글 보기 -->
-        <div>
+        <div v-if="loggedIn" class="flex flex-col justify-center">
           <button class="px-4 py-1 border border-gray-400 rounded hover:bg-gray-200"
             @click="changeShowType">
             {{ filter.showType === 'mine' ? '전체 글 보기' : '내 글 보기' }}

@@ -84,13 +84,19 @@
 
       <!-- 현재 계정이 관리자 계정이면서, 해당 게시글의 상태가 제안인 경우 -->
       <div v-if="isAdmin && communicaitonBoard.status === 'request'"
-        class="flex px-4">
-        <input type="text" class="flex-1 py-1 mr-2 border rounded"
+        class="flex my-4">
+        <input type="text" class="flex-1 px-2 py-1 mr-2 border rounded"
           :placeholder="메시지" v-model="communicaitonBoard.message" />
         <button @click="onClickAcceptBtn"
           class="px-4 py-1 mr-2 font-bold text-white rounded bg-primary/80 hover:bg-primary">승인</button>
         <button @click="onClickRejectBtn"
           class="px-4 py-1 font-bold text-white bg-red-600 rounded hover:bg-red-800">거절</button>
+      </div>
+
+      <div v-if="communicaitonBoard.status !== 'request' && communicaitonBoard.message"
+        class="flex my-4">
+        <div class="self-center w-40 font-bold text-gray-800 border-r border-gray-400">관리자 {{STATUS_LABEL[communicaitonBoard.status]}} 메세지</div>
+        <div class="flex-1 px-4 py-2 ml-4 border border-gray-200 rounded">{{communicaitonBoard.message}}</div>
       </div>
 
       <div class="text-right">
@@ -102,7 +108,7 @@
         </template>
         <template v-else>
           <button v-if="isAuthor && communicaitonBoard.status === 'reject'"
-            class="px-8 py-2 mr-2 border rounded border-primary text-primary hover:bg-primary !hover:text-white"
+            class="px-8 py-2 mr-2 border rounded border-primary text-primary/80 hover:bg-primary hover:text-white"
             @click="onClickReRequestBtn">재요청</button>
           <button class="px-8 py-2 border border-gray-200 rounded hover:bg-gray-100"
             @click="goToTableView">목록</button>
@@ -181,7 +187,7 @@ function getData(id: string) {
     return;
   }
 
-  query(getCommunicationBoard, { id }).then((resp) => {
+  query(getCommunicationBoard, { id }, false).then((resp) => {
     const data = resp.data?.value?.CommunicationBoard;
     if (!data) {
       $q.notify('존재하지 않는 게시글입니다.');
