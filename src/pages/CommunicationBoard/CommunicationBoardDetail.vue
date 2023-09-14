@@ -86,7 +86,7 @@
       <div v-if="isAdmin && communicaitonBoard.status === 'request'"
         class="flex my-4">
         <input type="text" class="flex-1 px-2 py-1 mr-2 border rounded"
-          :placeholder="메시지" v-model="communicaitonBoard.message" />
+          placeholder="메시지" v-model="communicaitonBoard.message" />
         <button @click="onClickAcceptBtn"
           class="px-4 py-1 mr-2 font-bold text-white rounded bg-primary/80 hover:bg-primary">승인</button>
         <button @click="onClickRejectBtn"
@@ -147,7 +147,7 @@ const userStore = useUserStore();
 
 const userId: ComputedRef<string | undefined> = computed(() => userStore.id);
 const isAdmin: ComputedRef<boolean> = computed(() => userStore.isAdmin);
-const isAuthor: ComputedRef<boolean> = computed(() => communicaitonBoard.value.author?._id === userStore.id);
+const isAuthor: ComputedRef<boolean> = computed(() => communicaitonBoard.value?.author?._id === userStore.id);
 
 const communicaitonBoard: Ref<CommunicationBoard | undefined> = ref();
 const communicaitonBoardOrg: Ref<CommunicationBoard | undefined> = ref();
@@ -271,7 +271,7 @@ function uploadImage(field: Field, file: any, index?: number): Promise<boolean> 
   return axios.post(`http://localhost:3000/file`, formData, {}).then((response) => {
     const fileData = response.data?.data && response.data.data;
     if (proposalData.value && fileData) {
-      if (field.type === 'images') {
+      if (field.type === 'images' && index) {
         proposalData.value[field.key][index] = fileData;
       } else {
         proposalData.value[field.key] = fileData;
@@ -319,7 +319,7 @@ function getInputFields(fields: any, data: any) {
         input[key] = data[key]._id;
         break;
       case 'images':
-        input[key] = data[key] && data[key].map((d) => d._id);
+        input[key] = data[key] && data[key].map((d: any) => d._id);
         break;
       case 'objectList':
         input[key] = [];
@@ -335,8 +335,8 @@ function getInputFields(fields: any, data: any) {
 }
 
 // mutation varialbes로 보낼 input 반환하는 함수
-function getInput() {
-  if (!communicaitonBoard.value) { return; }
+function getInput(): Record<string, any> {
+  if (!communicaitonBoard.value) { return {}; }
   const fields: string[] = ['division', 'title', 'content'];
   const input: Record<string, any> = {};
   for (const field of fields) { input[field] = communicaitonBoard.value[field]; }
@@ -359,12 +359,12 @@ async function onClickSave() {
   } catch (error) { console.error('error : ', error); }
 
   const fields: string[] = ['division', 'title', 'content'];
-  const input = getInput();
+  const input: Record<string, any> = getInput();
 
   // 아카이브인 경우 address의 lat, lng 계산을 해줘야한다.
-  if (input.division === 'archive') {
+  if (input.division === 'archive' && input.archive) {
     try {
-      const { lat, lng } = await getLatLng(input.archive.address);
+      const { lat, lng } = await getLatLng(input.archive!.address);
       input.archive.lat = lat;
       input.archive.lng = lng;
     } catch (_) {}
@@ -383,6 +383,7 @@ async function onClickSave() {
 
 // 재요청 버튼 클릭 시
 function onClickReRequestBtn() {
+  if (!communicaitonBoard.value) { return; }
   mutate(reRequestCommunicationBoard, { id: communicaitonBoard.value._id }).then(({ data }) => {
     const success = !!data?.success;
     if (!success) { $q.notify('재요청에 실패했습니다.'); }
@@ -392,6 +393,7 @@ function onClickReRequestBtn() {
 
 // 관리자 계정 - 승인
 function onClickAcceptBtn() {
+  if (!communicaitonBoard.value) { return; }
   const { _id, message } = communicaitonBoard.value;
   mutate(acceptCommunicationBoard, { id: _id, message }).then(({ data }) => {
     const success = !!data?.success;
@@ -402,6 +404,7 @@ function onClickAcceptBtn() {
 
 // 관리자 계절 - 거절
 function onClickRejectBtn() {
+  if (!communicaitonBoard.value) { return; }
   const { _id, message } = communicaitonBoard.value;
   if (!message) { return $q.notify('거절 시에는 메세지가 필수입니다!'); }
   mutate(rejectCommunicationBoard, { id: _id, message }).then(({ data }) => {

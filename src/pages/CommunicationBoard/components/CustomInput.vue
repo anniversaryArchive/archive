@@ -101,8 +101,8 @@ onBeforeMount(() => {
   if (key === 'group') {
     groupStore.getGroups();
   } else if (key == 'artist') {
-    const flds = {};
-    if (props.parent) { flds[parent] = props.parent; }
+    const flds: Record<string, any> = {};
+    if (parent && props.parent) { flds[parent] = props.parent; }
     aritstStore.getArtists({ flds });
   }
 });

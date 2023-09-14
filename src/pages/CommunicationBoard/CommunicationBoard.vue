@@ -57,15 +57,17 @@ import { onBeforeMount, ref, Ref, computed, ComputedRef, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import moment from 'moment/moment';
 import { query } from '@/composables/graphqlUtils';
-import { CommunicationBoard } from '@/types/CommunicationBoard';
+import { CommunicationBoard, CommunicationBoardDivision } from '@/types/CommunicationBoard';
 import { useUserStore } from '@/stores/user';
 import { TABLE_COLUMNS, DIVISION_OPTIONS, DIVISION_LABEL } from './data';
 
 import getCommunicationBoardsQuery from '@/graphql/getCommunicationBoards.query.gql';
 
+type ShowType = 'mine' | 'all';
 interface Filter {
-  division?: CommunicationBoardDivision,
-  showType: 'mine' | 'all',
+  [key: string]: any;
+  division?: string,
+  showType: ShowType,
   page: number,
 }
 
@@ -82,21 +84,21 @@ const loggedIn: ComputedRef<boolean> = computed(() => userStore.loggedIn);
 const communicationBoards: Ref<CommunicationBoard[]> = ref([]);
 
 const noneDivision = '구분 선택';
-const divisionOptions: ComputedRef<(CommunicationBoardDivision | 'none')[]> = computed(() => {
+const divisionOptions: ComputedRef<(CommunicationBoardDivision | '구분 선택')[]> = computed(() => {
   return [noneDivision, ...DIVISION_OPTIONS];
 });
-const filter: Ref<Filter> = ref({ division: noneDivision, showType: 'all', page: 1 });
+const filter: Ref<Filter> = ref({ division: noneDivision, showType: 'all' as ShowType, page: 1 });
 
 // Filter가 변경될 떄마다 route를 replace해주고, CommunicationBoard data를 가져온다.
 watch(filter, () => {
-  router.replace({ name: 'CommunicationBoard', query: filter.value });
+  router.replace({ name: 'CommunicationBoard', query: { ...filter.value } });
   getCommunicationBoards();
 });
 
 onBeforeMount(() => initialize());
 
 function initialize() {
-  for (const key of ['division', 'showType', 'page']) {
+  for (const key of ['division', 'showTypeㄱ', 'page']) {
     if (!route.query[key]) { continue; }
     filter.value[key] = key === 'page' ? Number(route.query[key]) : route.query[key];
   }
@@ -104,7 +106,7 @@ function initialize() {
 }
 
 function getCommunicationBoards() {
-  const flds = {};
+  const flds: Record<string, any> = {};
   if (filter.value.division !== noneDivision) {
     flds.division = filter.value.division;
   }

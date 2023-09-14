@@ -19,7 +19,6 @@
           :class="{ 'text-primary': currentPath === menu.to }">
           {{ menu.label }}
         </router-link>
-        {{current}}
       </q-scroll-area>
     </q-drawer>
 
