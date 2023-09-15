@@ -236,7 +236,7 @@ async function uploadFiles(): Promise<boolean> {
       if (!file || file._id) { return acc; }
       const formData: FormData = new FormData();
       formData.append('file', file);
-      acc.push(axios.post(`http://localhost:3000/file`, formData, {}).then((response) => {
+      acc.push(axios.post(`${import.meta.env.VITE_API_URL}/file`, formData, {}).then((response) => {
         const fileData = response.data?.data && response.data.data;
         if (proposalData.value && fileData) {
           proposalData.value[field.key] = fileData;

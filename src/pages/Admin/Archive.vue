@@ -612,7 +612,7 @@ function uploadFile(): Promise<boolean> {
   formData.append('file', mainImage as Blob);
 
   return new Promise((rejolve, reject) => {
-    axios.post(`http://localhost:3000/file`, formData, {}).then((response) => {
+    axios.post(`${import.meta.env.VITE_API_URL}/file`, formData, {}).then((response) => {
       const image = response.data?.data && response.data.data;
       if (!image) { return rejolve(false); }
       inputArchive.value.mainImage = image;
@@ -628,7 +628,7 @@ async function uploadImages(): Promise<boolean> {
     if (image.hasOwnProperty('_id') || !image.file) { continue; }
     const formData: FormData = new FormData();
     formData.append('file', image.file);
-    promises.push(axios.post(`http://localhost:3000/file`, formData, {}).then((response) => {
+    promises.push(axios.post(`${import.meta.env.VITE_API_URL}/file`, formData, {}).then((response) => {
       const data = response.data?.data && response.data.data;
       if (!data) { return false; }
       inputArchive.value.images[index] = data;

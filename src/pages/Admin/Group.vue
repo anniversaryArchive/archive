@@ -486,7 +486,7 @@ export default defineComponent({
       const formData = new FormData();
       formData.append("file", groupParams.value.logo as Blob);
       let resultModel;
-      await axios.post('http://localhost:3000/file', formData, {
+      await axios.post(`${import.meta.env.VITE_API_URL}/file`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
