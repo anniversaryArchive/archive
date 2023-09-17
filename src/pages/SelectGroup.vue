@@ -38,7 +38,8 @@
 
 <script setup lang="ts">
 import { onBeforeMount, ref, Ref, computed, ComputedRef } from 'vue';
-import { useRouter } from 'vue-router'
+import { useRouter } from 'vue-router';
+import throttle from '@/composables/throttle'
 import { useGroupStore } from '@/stores/group';
 import { useArchiveStore } from '@/stores/archive';
 import { Group } from '@/types/Group';
@@ -77,15 +78,30 @@ function onClickGroup(group: Group) {
   router.push('/cafeMap');
 }
 
-function onScroll(event: Event) {
-  const parent = document.querySelector('.div-scroll');
-  const parentTop = parent.getBoundingClientRect().top;
-  const { verticalPosition } = event;
+/***
+ * ==============================================
+ * Animaiton을 위한 Functions
+ * ==============================================
+ */
+const onScrollThrottle = throttle(doGroupAnimation, 50);
 
-  const items = document.querySelectorAll('.group-item');
+// Animation 을 위한 코드
+function onScroll(event: any) {
+  onScrollThrottle(event);
+}
+
+function doGroupAnimation(event: any) {
+  const parent: HTMLElement | null = document.querySelector('.div-scroll');
+  if (!parent) { return; }
+  const parentTop: number = parent.getBoundingClientRect().top;
+  const verticalPosition = event.verticalPosition + parent.clientHeight; // q-scroll 내 position이기 때문에 parent.clientHeight를 더해준다.
+  const itemShowPercentage: number = event.verticalPosition === 0 ? 1 : 0.3; // 아이템을 보여주는 기준 백분율. 현재 스크롤이 최 상단인 경우에는 하단에 걸쳐있는 아이템도 보여주기 위해 1로 준다.
+
+  const items: Element[] = Array.from(document.querySelectorAll('.group-item'));
   for (const item of items) {
     const elementTop = item.getBoundingClientRect().top - parentTop;
-    if (elementTop <= verticalPosition + parent.clientHeight + (item.clientHeight * 0.3)) {
+    const viewPosition = verticalPosition + (item.clientHeight * itemShowPercentage);
+    if (elementTop <= viewPosition) {
       item.classList.add('active');
     } else {
       item.classList.remove('active');
