@@ -216,6 +216,7 @@ import ccobject from '@/composables/createComObject';
 import cinitial from '@/composables/comInitialize';
 import cscript from '@/composables/comScripts';
 import caggrid, { DateFormatter } from '@/composables/customAgGridUtils';
+import { getLatLng } from '@/composables/addressUtils';
 
 // Components
 import { LayoutPageTitle, DatePicker, SelectBox, AgGridVue } from '../mixin/mixinPageCommon';
@@ -476,17 +477,6 @@ async function onClickSaveBtn() {
   alert('저장 완료했습니다!');
 }
 
-function getLatLng(): Promise<Record<string, number>> {
-  return new Promise((resolve, reject) => {
-    naver.maps.Service.geocode({
-      query: inputArchive.value.address
-    }, function (status, response) {
-      const data = response.v2.addresses[0];
-      const { x, y } = data;
-      resolve({ lng: Number(x), lat: Number(y) });
-    });
-  });
-}
 
 // 생성 / 수정 시 mutation에 넘길 input을 만들어서 반환하는 함수
 async function getInput(): Promise<Record<string, any> | undefined> {
@@ -516,7 +506,7 @@ async function getInput(): Promise<Record<string, any> | undefined> {
 
   if (inputArchive.value.address !== inputArchiveOrg.value.address) {
     try {
-      const { lat, lng } = await getLatLng();
+      const { lat, lng } = await getLatLng(inputArchive.value.address);
       input.lat = inputArchive.value.lat = lat;
       input.lng = inputArchive.value.lng = lng;
     } catch (_) {}
