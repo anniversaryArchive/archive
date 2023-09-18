@@ -268,7 +268,7 @@ function checkRequired(): boolean {
 function uploadImage(field: Field, file: any, index?: number): Promise<boolean> {
   const formData: FormData = new FormData();
   formData.append('file', file);
-  return axios.post(`http://localhost:3000/file`, formData, {}).then((response) => {
+  return axios.post(`${import.meta.env.VITE_API_URL}/file`, formData, {}).then((response) => {
     const fileData = response.data?.data && response.data.data;
     if (proposalData.value && fileData) {
       if (field.type === 'images' && index) {

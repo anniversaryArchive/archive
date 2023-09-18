@@ -387,7 +387,7 @@ function uploadFile(): Promise<boolean> {
   formData.append('file', inputArtist.value.image as Blob);
 
   return new Promise((rejolve, reject) => {
-    axios.post(`http://localhost:3000/file`, formData, {}).then((response) => {
+    axios.post(`${import.meta.env.VITE_API_URL}/file`, formData, {}).then((response) => {
       const image = response.data?.data && response.data.data;
       if (!image) { return rejolve(false); }
       inputArtist.value.image = image;
