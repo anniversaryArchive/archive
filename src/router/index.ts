@@ -90,6 +90,11 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import("@/pages/Admin/Archive.vue")
       }
     ]
+  },
+  {
+    path: "/test",
+    meta: { title: "TEST 화면" },
+    component: () => import("@/pages/Test.vue")
   }
 ]
 
