@@ -1,7 +1,7 @@
 <template>
   <div class="absolute relative top-0 left-0 w-full h-full dialog"
     :class="{ 'hide': !show }">
-    <div class="w-full h-full bg-black backdrop">
+    <div class="w-full h-full bg-black backdrop" @click="hide">
     </div>
     <div class="absolute bottom-0 flex flex-col w-full bg-white !rounded-t-2xl dialog-content"
       :class="dialogContentHeight">
@@ -10,7 +10,7 @@
         <div class="px-8 text-lg font-extrabold text-center">
           <slot name="title"></slot>
         </div>
-        <button class="absolute text-xl top-4 right-4" @click="onClickCloseBtn">
+        <button class="absolute text-xl top-4 right-4" @click="hide">
           <q-icon name="keyboard_arrow_down" class="inline-block" />
         </button>
       </div>
@@ -42,7 +42,7 @@ const dialogContentHeight: ComputedRef<string> = computed(() => {
   return `h-${props.height || '5/6'}`;
 });
 
-function onClickCloseBtn() {
+function hide() {
   emit('hide');
 }
 </script>
