@@ -18,9 +18,9 @@
       </div>
 
       <div class="group-div flex-1 p-12 bg-white rounded-lg max-[640px]:mt-8">
-        <q-scroll-area :delay="1200" style="height: 100%;">
+        <q-scroll-area :delay="1200" style="height: 100%;" class="div-scroll" @scroll="onScroll">
           <div class="grid grid-cols-1 grid-cols-2 gap-x-2 gap-y-6 xl:grid-cols-5 lg:grid-cols-3 md:grid-cols-2">
-            <div v-for="group in groups" class="text-center" @click="onClickGroup(group)">
+            <div v-for="group in groups" class="text-center group-item" @click="onClickGroup(group)">
               <template v-if="group.logo && group.logo.hasOwnProperty('path')">
                 <img :src="(group.logo as Image).path"
                   class="w-24 h-24 m-auto border border-gray-300 border-solid rounded-full cursor-pointer min-w-[6rem] min-h-[6rem]" />
@@ -38,7 +38,8 @@
 
 <script setup lang="ts">
 import { onBeforeMount, ref, Ref, computed, ComputedRef } from 'vue';
-import { useRouter } from 'vue-router'
+import { useRouter } from 'vue-router';
+import throttle from '@/composables/throttle'
 import { useGroupStore } from '@/stores/group';
 import { useArchiveStore } from '@/stores/archive';
 import { Group } from '@/types/Group';
@@ -77,7 +78,49 @@ function onClickGroup(group: Group) {
   router.push('/cafeMap');
 }
 
+/***
+ * ==============================================
+ * Animaiton을 위한 Functions
+ * ==============================================
+ */
+const onScrollThrottle = throttle(doGroupAnimation, 50);
+
+// Animation 을 위한 코드
+function onScroll(event: any) {
+  onScrollThrottle(event);
+}
+
+function doGroupAnimation(event: any) {
+  const parent: HTMLElement | null = document.querySelector('.div-scroll');
+  if (!parent) { return; }
+  const parentTop: number = parent.getBoundingClientRect().top;
+  const verticalPosition = event.verticalPosition + parent.clientHeight; // q-scroll 내 position이기 때문에 parent.clientHeight를 더해준다.
+  const itemShowPercentage: number = event.verticalPosition === 0 ? 1 : 0.3; // 아이템을 보여주는 기준 백분율. 현재 스크롤이 최 상단인 경우에는 하단에 걸쳐있는 아이템도 보여주기 위해 1로 준다.
+
+  const items: Element[] = Array.from(document.querySelectorAll('.group-item'));
+  for (const item of items) {
+    const elementTop = item.getBoundingClientRect().top - parentTop;
+    const viewPosition = verticalPosition + (item.clientHeight * itemShowPercentage);
+    if (elementTop <= viewPosition) {
+      item.classList.add('active');
+    } else {
+      item.classList.remove('active');
+    }
+  }
+}
+
 </script>
 
 <style scoped>
+.group-item {
+  position: relative;
+  transform: translateY(150px);
+  opacity: 0;
+  transition: 1s all ease;
+}
+
+.group-item.active {
+  transform: translateY(0);
+  opacity: 1;
+}
 </style>
