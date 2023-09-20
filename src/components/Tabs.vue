@@ -2,8 +2,8 @@
   <div :class="{ 'grid shadow-[0px_-5px_20px] shadow-slate-300 grid-cols-5': isMobile }">
     <template v-for="(menu, index) in menus">
       <router-link :to="menu.to"
-        class="flex flex-col justify-center py-2 text-center"
-        :class="menu.to === currentPath ? 'bg-primary text-white' : 'bg-white text-primary hover:text-primary'">
+        class="flex flex-col justify-center py-2 text-center transition-colors duration-300 bg-primary"
+        :class="menu.to === currentPath ? 'text-white' : 'bg-white text-primary hover:text-primary'">
         <div>
           <q-icon :name="menu.icon" size="sm" />
         </div>
