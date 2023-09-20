@@ -1,7 +1,5 @@
 <template>
   <div>
-    <layout-header></layout-header>
-
     <q-card class="my-card">
       <div class="search-box">
         <h1 class="search-text">멤버 선택</h1>
