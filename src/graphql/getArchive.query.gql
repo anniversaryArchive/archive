@@ -35,6 +35,7 @@ query ($id: ID!) {
       name
       path
     }
+    favorite
     organizer
     phoneNumber
     link
