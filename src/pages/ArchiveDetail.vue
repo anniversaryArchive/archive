@@ -64,8 +64,8 @@
 
     <div class="inline-block pt-20 pb-2 text-3xl font-bold border-b-2 border-black">포스터 및 특전 정보</div>
 
-    <div class="my-8">
-      <ImageSlide :modelValue="images" :height="height" :editMode="false" />
+    <div class="pb-20 mt-4">
+      <ImageSlide :modelValue="images" :editMode="false" />
     </div>
   </div>
 </template>
@@ -95,10 +95,6 @@ const classes: Record<string, string> = {
   hashtag: 'inline-block px-3 py-1 mr-2 border border-white rounded-full'
 };
 
-$q.screen.setSizes({sm: 360, md: 800, lg: 1500, xl: 2000});
-const height: ComputedRef<string | undefined> = computed(() => {
-  return $q.screen.width < $q.screen.sizes.md ? "0" : "50rem";
-});
 
 /**
  * ====================
