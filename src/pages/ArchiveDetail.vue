@@ -5,7 +5,9 @@
     class="relative text-white bg-center bg-cover h-96 sm:h-80"
   >
     <div class="absolute top-0 left-0 w-full h-full bg-black/70"></div>
-    <div class="absolute top-1/2 translate-y-[-50%] left-6 md:left-28">
+    <div
+      class="absolute top-1/2 translate-y-[-50%] translate-x-[-50%] left-[50%] w-[90%] md:w-auto md:left-28 md:translate-x-0 text-center md:!text-left"
+    >
       <!-- 아티스트 명 + 생일 카페 -->
       <div class="text-2xl font-black">
         <span class="text-primary">{{ archive.artist?.name }}</span>
@@ -29,12 +31,12 @@
         <!-- 아티스트 -->
         <div :class="classes.hashtag">#{{ archive.artist?.name }}</div>
         <!-- 실제 카페 명 -->
-        <div :class="classes.hashtag">#{{ archive.name }}</div>
+        <div :class="classes.hashtag" class="!mr-0">#{{ archive.name }}</div>
       </div>
     </div>
     <!-- 즐겨찾기 버튼 -->
     <span
-      class="absolute bottom-10 right-8 md:right-14 inline-block w-10 h-10 mr-2 text-3xl text-left align-middle rounded-full cursor-pointer"
+      class="absolute bottom-10 left-[50%] md:left-auto translate-x-[-50%] md:translate-x-0 md:right-14 inline-block w-10 h-10 mr-2 text-xl md:text-3xl text-left align-middle rounded-full cursor-pointer"
       @click="onClickFavoriteIcon"
     >
       <q-icon :name="`favorite${!archive.favorite && '_outline'}`" class="!inline m-auto text-primary !text-5xl" />
