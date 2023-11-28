@@ -1,70 +1,85 @@
 <template>
-  <q-carousel v-if="images.length" v-model="slide" v-model:fullscreen="fullscreen"
-    swipeable animated control-color="blue"
-    control-type="outline" navigation padding arrows
-    :height="height" class="text-white bg-white rounded-borders">
-    <q-carousel-slide v-for="(image, index) in images"
-      class="column no-wrap flex-center" :name="image.name"
-      :class="{ '!bg-contain bg-no-repeat': !editMode }"
-      :img-src="image.path">
-    </q-carousel-slide>
-
-    <template v-slot:control>
-      <q-carousel-control position="bottom-right" :offset="[18, 18]">
-        <q-btn push round dense color="white" text-color="primary"
-          :icon="fullscreen ? 'fullscreen_exit' : 'fullscreen'"
-          @click="fullscreen = !fullscreen" />
-      </q-carousel-control>
-
-      <q-carousel-control v-if="editMode" position="top-right" :offset="[18, 18]">
-        <q-btn push round dense color="white" text-color="red"
-          icon="delete" @click="onClickDeleteButton" />
-      </q-carousel-control>
-    </template>
-  </q-carousel>
+  <Swiper
+    effect="coverflow"
+    slidesPerView="auto"
+    :grabCursor="true"
+    :centeredSlides="true"
+    :coverflowEffect="coverflowEffect"
+    :pagination="true"
+    :modules="[EffectCoverflow, Pagination]">
+    <SwiperSlide v-for="(image, index) in images" class="relative">
+      <img :src="image.path" />
+      <q-btn v-if="editMode" push round dense color="white" text-color="red"
+        icon="delete" class="absolute top-2 right-2"
+        @click="onClickDeleteButton(index)" />
+    </SwiperSlide>
+  </Swiper>
 </template>
 
 <script setup lang="ts">
 import { ref, Ref, computed, ComputedRef, onBeforeMount, watch } from 'vue';
 import { Image } from '@/types/image';
+import { Swiper, SwiperSlide } from 'swiper/vue';
+import { EffectCoverflow, Pagination } from 'swiper/modules';
+
+import 'swiper/css';
+import 'swiper/css/effect-coverflow';
+import 'swiper/css/pagination';
 
 interface Props {
   modelValue: Record<string, any>[];
   editMode: boolean;
-  height: string;
 }
 
-const props = withDefaults(defineProps<Props>(), { editMode: false, height: '300px' });
+const props = withDefaults(defineProps<Props>(), { editMode: false });
 const emit = defineEmits(['delete', 'update:modelValue']);
 
-const slide: Ref<string | undefined> = ref();
 const images: Ref<Record<string, any>[]> = ref([]);
-const fullscreen: Ref<boolean> = ref(false);
+const coverflowEffect: Record<string, any> = {
+  rotate: 50,
+  stretch: 0,
+  depth: 100,
+  modifier: 1,
+  slideShadows: true,
+};
 
 onBeforeMount(() => initImages());
 
 watch(() => props.modelValue, () => initImages());
 
 const editMode: ComputedRef<boolean> = computed(() => props.editMode);
-const height: ComputedRef<string> = computed(() => props.height);
 
 function initImages () {
   images.value = [...props.modelValue];
-  if (!slide.value && images.value.length) {
-    slide.value = images.value[0].name;
-  }
 }
 
-function onClickDeleteButton (event: Event) {
-  const foundIndex = images.value.findIndex((image) => image.name === slide.value);
-  if (~foundIndex) {
-    images.value.splice(foundIndex, 1);
-    const viewIndex = images.value.length <= foundIndex ? images.value.length - 1 : 0;
-    slide.value = images.value[viewIndex].name;
-  }
+function onClickDeleteButton(index: number) {
+  images.value.splice(index, 1);
+  const viewIndex = images.value.length <= index ? images.value.length - 1 : 0;
 }
 </script>
 
 <style scoped>
+.swiper {
+  width: 100%;
+  padding-top: 50px;
+  padding-bottom: 50px;
+}
 
+.swiper-slide {
+  background-position: center;
+  background-size: cover;
+  width: 33vw;
+}
+
+.swiper-slide img {
+  display: block;
+  width: 100%;
+}
+
+@media screen and (max-width: 767px) {
+  .swiper-slide {
+    width: 80vw;
+  }
+}
 </style>

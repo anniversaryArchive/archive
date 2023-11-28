@@ -19,6 +19,7 @@
     "pinia": "^2.0.28",
     "pinia-plugin-persistedstate": "^3.1.0",
     "quasar": "^2.11.4",
+    "swiper": "^10.3.0",
     "villus": "^2.1.0",
     "vite-plugin-html": "^3.2.0",
     "vue": "^3.2.45",

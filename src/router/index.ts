@@ -32,7 +32,7 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import("@/pages/cafeMap.vue")
   },
   {
-    meta: { title: "Archive" },
+    meta: { title: "Archive", layout: "MainLayout" },
     path: "/archive/:id",
     component: () => import("@/pages/ArchiveDetail.vue")
   },
