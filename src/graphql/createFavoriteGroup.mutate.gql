@@ -1,0 +1,10 @@
+mutation($input: FavoriteGroupInput!) {
+  favoriteGroup: createFavoriteGroup(input: $input) {
+    _id
+    title
+    color
+    archives {
+      _id
+    }
+  }
+}
