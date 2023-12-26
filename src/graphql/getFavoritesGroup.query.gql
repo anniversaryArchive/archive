@@ -1,6 +1,10 @@
 query {
-  FavoriteGroupList {
+  list: FavoriteGroupList {
     _id
-    name
+    title
+    color
+    archives {
+      _id
+    }
   }
 }
