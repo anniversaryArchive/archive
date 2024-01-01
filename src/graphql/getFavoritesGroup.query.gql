@@ -5,6 +5,13 @@ query {
     color
     archives {
       _id
+      name
+      themeName
+      favorite
+      address
+      detailAddress
+      lat
+      lng
     }
   }
 }

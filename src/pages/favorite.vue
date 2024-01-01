@@ -55,37 +55,12 @@
       </BottomDialog>
     </q-card>
 
-    <NaverMap
-      v-if="!$q.screen.xs"
-      style="width: 75%; height: 100vh; float: right"
-      :mapOptions="mapOptions"
-      @onLoad="onLoadMap($event)"
-    >
-      <span v-if="markerData" v-for="marker in markerData" v-bind:key="marker._id">
-        <NaverMarker @click="onLoadMarker(marker)" :latitude="marker.lat" :longitude="marker.lng"> </NaverMarker>
-      </span>
-
-      <NaverInfoWindow :marker="marker" :open="isOpen">
-        <div class="infowindow-style">
-          <q-item class="archive-item">
-            <q-item-section>
-              <q-item-label class="archive-title">{{ detailArchive.themeName }}</q-item-label>
-              <q-item-label class="archive-account">{{ detailArchive.organizer }}</q-item-label>
-              <q-item-label class="archive-address">{{ detailArchive.name }}</q-item-label>
-              <q-item-label class="archive-address">{{ detailArchive.address }}</q-item-label>
-            </q-item-section>
-          </q-item>
-        </div>
-        <div class="infowindow-btn-box">
-          <q-btn type="button" class="detail-btn" @click="detailBtnFunc(detailArchive._id)">상세보기</q-btn>
-        </div>
-      </NaverInfoWindow>
-    </NaverMap>
+    <Map :markerData="archiveList" :detailArchive="detailArchive" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, Ref, onBeforeMount } from 'vue';
+import { ref, Ref, computed, ComputedRef, onBeforeMount } from 'vue';
 import { useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
 
@@ -96,6 +71,7 @@ import { query, mutate } from '@/composables/graphqlUtils';
 import getFavoritesGroup from '@/graphql/getFavoritesGroup.query.gql';
 import createFavoriteGroupMutate from '@/graphql/createFavoriteGroup.mutate.gql';
 import { Archive } from '@/types/Archive';
+import Map from '@/components/Map.vue';
 
 const router = useRouter();
 const $q = useQuasar();
@@ -113,9 +89,19 @@ const mapOptions = {
   zoomControl: false,
   zoomControlOptions: { position: 'TOP_RIGHT' },
 };
-const markerData = ref({} as Archive);
-const detailArchive = ref({} as Archive);
+const markerData: Ref<Archive[]> = ref([]);
+const detailArchive = ref();
 const isOpen = ref(false);
+
+const archiveList: ComputedRef<Archive> = computed(() => {
+  let archives: Archive[] = [];
+  for (const item of list.value) {
+    if (item.archives) {
+      archives = archives.concat(item.archives.map(archive => archive as Archive));
+    }
+  }
+  return archives;
+});
 
 onBeforeMount(() => {
   getList();
