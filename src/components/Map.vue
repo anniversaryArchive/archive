@@ -1,5 +1,4 @@
 <template>
-  {{ isOpen }}
   <NaverMap
     v-if="!$q.screen.xs"
     style="width: 75%; height: 100vh; float: right"
@@ -29,7 +28,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
+import { ref, computed, WritableComputedRef, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
 import _ from 'lodash';
@@ -41,12 +40,14 @@ import cscript from '@/composables/comScripts';
 
 interface Props {
   markerData: Archive[];
+  detailArchive?: Archive;
 }
 
 const router = useRouter();
 const $q = useQuasar();
 
 const props = defineProps<Props>();
+const emit = defineEmits(['update:detailArchive']);
 
 const markerData = computed(() => props.markerData);
 
@@ -61,8 +62,14 @@ const map = ref();
 const marker = ref({} as Archive);
 const infoWindow = ref();
 const isOpen = ref(true);
-const detailArchive = ref();
 const isEarly = ref(true);
+
+const detailArchive: WritableComputedRef<Archive | undefined> = computed({
+  get: () => props.detailArchive,
+  set: (value: Archive | undefined) => {
+    emit('update:detailArchive', value);
+  },
+});
 
 watch(markerData, () => {
   const firstMarker = props.markerData && props.markerData[0];
@@ -72,34 +79,40 @@ watch(markerData, () => {
   }
 });
 
-function onLoadMap(mapObject: unknown) {
-  map.value = mapObject;
-}
-
-function onClickMarker(archive: Archive) {
-  // 정보창 닫혀있으면 열기
-  if (!cscript.$isEmpty(marker.value) && !isOpen.value) {
-    isOpen.value = _.cloneDeep(!isOpen.value);
+watch(detailArchive, () => {
+  if (!detailArchive.value) {
+    isOpen.value = false;
+    return;
   }
 
-  const latlng = new naver.maps.LatLng(archive.lat, archive.lng);
+  isOpen.value = true;
+
+  const { lat, lng } = detailArchive.value;
+
+  const latlng = new naver.maps.LatLng(lat, lng);
   marker.value = new naver.maps.Marker({
     position: latlng,
     draggable: true,
   });
 
+  if (!isEarly.value) map.value.setCenter(latlng);
+});
+
+function onLoadMap(mapObject: unknown) {
+  map.value = mapObject;
+}
+
+function onClickMarker(archive: Archive) {
   // 카페 목록 상세 가져오기
   detailArchive.value = _.cloneDeep(archive);
-
-  if (!isEarly.value) map.value.setCenter(latlng);
 }
 
 function onLoadInfoWindow(infoWindowObject) {
   infoWindow.value = infoWindowObject;
   if (isEarly.value) {
-    console.log('heidi test close !! ');
     infoWindow.value.close();
     isEarly.value = false;
+    isOpen.value = false;
   }
 }
 

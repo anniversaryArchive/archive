@@ -55,7 +55,7 @@
       </BottomDialog>
     </q-card>
 
-    <Map :markerData="archiveList" :detailArchive="detailArchive" />
+    <Map :markerData="archiveList" v-model:detailArchive="detailArchive" />
   </div>
 </template>
 
@@ -63,8 +63,6 @@
 import { ref, Ref, computed, ComputedRef, onBeforeMount } from 'vue';
 import { useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
-
-import { NaverInfoWindow, NaverMap, NaverMarker } from 'vue3-naver-maps';
 
 import BottomDialog from '@/dialogs/BottomDialog.vue';
 import { query, mutate } from '@/composables/graphqlUtils';
@@ -80,18 +78,7 @@ const list = ref([]);
 const createFavoriteGroup: Ref<{ title: string; color?: string }> = ref({ title: '' });
 const isShowCreateFavoriteDialog = ref(false);
 
-// 지도 관련 변수
-const map = ref();
-const mapOptions = {
-  latitude: 37.51747, // 지도 중앙 위도
-  longitude: 127.000022, // 지도 중앙 경도
-  zoom: 13,
-  zoomControl: false,
-  zoomControlOptions: { position: 'TOP_RIGHT' },
-};
-const markerData: Ref<Archive[]> = ref([]);
 const detailArchive = ref();
-const isOpen = ref(false);
 
 const archiveList: ComputedRef<Archive> = computed(() => {
   let archives: Archive[] = [];
@@ -111,15 +98,6 @@ function getList() {
   query(getFavoritesGroup, {}, false).then(({ data, error }) => {
     list.value = data.value?.list || [];
   });
-}
-
-function onLoadMap(mapObject: unknown) {
-  map.value = mapObject;
-}
-
-function onClickDetailBtn(id: string | undefined) {
-  if (!id) return;
-  router.push(`/archive/${id}`);
 }
 
 function hideCreateFavoriteDialog() {
