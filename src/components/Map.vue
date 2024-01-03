@@ -37,19 +37,13 @@ import { NaverInfoWindow, NaverMap, NaverMarker } from 'vue3-naver-maps';
 
 import { Archive } from '@/types/Archive';
 import cscript from '@/composables/comScripts';
-
-interface Props {
-  markerData: Archive[];
-  detailArchive?: Archive;
-}
+import { useMapStore } from '@/stores/map';
 
 const router = useRouter();
 const $q = useQuasar();
+const mapStore = useMapStore();
 
-const props = defineProps<Props>();
-const emit = defineEmits(['update:detailArchive']);
-
-const markerData = computed(() => props.markerData);
+const markerData = computed(() => mapStore.markerData);
 
 const MAP_OPTIONS = {
   latitude: 37.51747, // 지도 중앙 위도
@@ -65,14 +59,14 @@ const isOpen = ref(true);
 const isEarly = ref(true);
 
 const detailArchive: WritableComputedRef<Archive | undefined> = computed({
-  get: () => props.detailArchive,
+  get: () => mapStore.selectedArchive,
   set: (value: Archive | undefined) => {
-    emit('update:detailArchive', value);
+    mapStore.setSelectedArchive(value);
   },
 });
 
 watch(markerData, () => {
-  const firstMarker = props.markerData && props.markerData[0];
+  const firstMarker = markerData.value[0];
   if (firstMarker) {
     isEarly.value = true;
     onClickMarker(firstMarker);
