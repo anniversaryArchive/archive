@@ -11,6 +11,7 @@
       <li
         v-for="item in list"
         class="flex flex-wrap px-4 py-4 border-b border-gray-300 cursor-pointer hover:bg-gray-100"
+        @click="onClickFavoriteGroup(item._id)"
       >
         <div
           class="flex flex-col justify-center w-5 h-5 mr-2 text-center rounded-full"
@@ -113,6 +114,11 @@ function create() {
     }
     createFavoriteGroup.value = { title: '' };
   });
+}
+
+// 즐겨찾기 그룹 클릭 시
+function onClickFavoriteGroup(id: string) {
+  router.push(`/favorite/${id}`);
 }
 </script>
 
