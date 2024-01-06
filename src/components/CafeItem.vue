@@ -1,16 +1,16 @@
 <template>
-  <q-item class="archive-item" clickable
-    @click="onClickItem">
+  <q-item class="archive-item" clickable @click="onClickItem">
     <q-item-section>
       <div class="grid grid-flow-row-dense grid-cols-2">
-        <q-item-label class="overflow-hidden leading-7 text-ellipsis whitespace-nowrap">{{archive.themeName}}</q-item-label>
+        <q-item-label class="overflow-hidden leading-7 text-ellipsis whitespace-nowrap">{{
+          archive.themeName
+        }}</q-item-label>
         <q-button class="text-right" @click="onClickFavoriteIcon">
-          <q-icon :name="`favorite${!archive.favorite && '_outline'}`"
-            class="inline-block" />
+          <q-icon :name="`favorite${!archive.favorite && '_outline'}`" class="inline-block" />
         </q-button>
       </div>
-      <q-item-label class="text-xs leading-5 text-[#767676]">{{archive.organizer}}</q-item-label>
-      <q-item-label class="text-sm leading-6 text-[#767676]">{{archive.address}}</q-item-label>
+      <q-item-label class="text-xs leading-5 text-[#767676]">{{ archive.organizer }}</q-item-label>
+      <q-item-label class="text-sm leading-6 text-[#767676]">{{ archive.address }}</q-item-label>
     </q-item-section>
   </q-item>
 </template>
@@ -24,14 +24,14 @@ import { useUserStore } from '@/stores/user';
 
 import createFavorite from '@/graphql/createFavorite.mutate.gql';
 import removeFavorite from '@/graphql/removeFavorite.mutate.gql';
-import {useFavoriteArchiveStore} from '@/stores/favoriteArchive';
+import { useFavoriteArchiveStore } from '@/stores/favoriteArchive';
 
 interface Props {
   archive: Archive;
 }
 
 const props = withDefaults(defineProps<Props>(), {});
-const emit = defineEmits(['click']);
+const emit = defineEmits(['click', 'onClickFavorite']);
 
 const $q = useQuasar();
 const userStore = useUserStore();
@@ -50,20 +50,8 @@ async function onClickFavoriteIcon() {
     $q.notify('즐겨찾기 기능은 로그인 시 이용 가능합니다.');
     return;
   }
-
-  let success: any = false;
-  try {
-    if (archive.value.favorite) {
-      success = favoriteArchiveStore.doRemoveFavorite(archive.value._id);
-    } else {
-      success = favoriteArchiveStore.doCreateFavorite(archive.value._id);
-    }
-    if (!success) { return; }
-    props.archive.favorite = !props.archive.favorite;
-  } catch (_) {}
+  emit('onClickFavorite');
 }
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>
