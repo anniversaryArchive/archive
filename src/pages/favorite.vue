@@ -66,11 +66,12 @@ import { query, mutate } from '@/composables/graphqlUtils';
 import getFavoriteGroupList from '@/graphql/getFavoriteGroupList.query.gql';
 import createFavoriteGroupMutate from '@/graphql/createFavoriteGroup.mutate.gql';
 import { Archive } from '@/types/Archive';
+import { FavoriteGroup } from '@/types/FavoriteGroup';
 
 const router = useRouter();
 const mapStore = useMapStore();
 
-const list: Ref<Record<string, any>[]> = ref([]);
+const list: Ref<FavoriteGroup[]> = ref([]);
 const createFavoriteGroup: Ref<{ title: string; color?: string }> = ref({ title: '' });
 const isShowCreateFavoriteDialog = ref(false);
 
@@ -89,16 +90,19 @@ onBeforeMount(() => {
   getList();
 });
 
+// favorite group list 가져오기
 function getList() {
   query(getFavoriteGroupList, {}, false).then(({ data }) => {
     list.value = data.value?.list || [];
   });
 }
 
+// favorite group 생성 bottom dialog hide 함수
 function hideCreateFavoriteDialog() {
   isShowCreateFavoriteDialog.value = false;
 }
 
+// create favorite group 함수
 function create() {
   isShowCreateFavoriteDialog.value = false;
   mutate(createFavoriteGroupMutate, {

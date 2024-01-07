@@ -37,11 +37,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onBeforeMount } from 'vue';
+import { ref, Ref, computed, onBeforeMount } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
 
 import { query, mutate } from '@/composables/graphqlUtils';
+import { FavoriteGroup } from '@/types/FavoriteGroup';
 import { Archive } from '@/types/Archive';
 import { useMapStore } from '@/stores/map';
 import CafeItem from '@/components/CafeItem.vue';
@@ -56,7 +57,7 @@ const router = useRouter();
 
 const mapStore = useMapStore();
 
-const favoriteGroup = ref(); // 즐겨찾기 그룹 정보
+const favoriteGroup: Ref<FavoriteGroup | undefined> = ref(); // 즐겨찾기 그룹 정보
 
 onBeforeMount(() => getData());
 
@@ -80,7 +81,7 @@ function onClickArchive(archive: Archive) {
 
 // 즐겨찾기 버튼 클릭 시
 async function onClickArchiveFavoriteBtn(archive: Archive) {
-  const mutation = archive.favorite ? addArchiveInFavoriteGroup : removeArchiveInFavoriteGroup;
+  const mutation = archive.favorite ? removeArchiveInFavoriteGroup : addArchiveInFavoriteGroup;
 
   try {
     const { data } = await mutate(mutation, { id: id.value, archive: archive._id });
