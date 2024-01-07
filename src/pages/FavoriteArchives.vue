@@ -4,7 +4,7 @@
       <button
         class="w-full py-2 font-bold text-gray-600 border border-gray-600 rounded-lg hover:border-primary hover:text-primary"
       >
-        전체 리스트 보기
+        전체 리스트 보기
       </button>
     </div>
 
@@ -32,7 +32,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, Ref, onBeforeMount } from 'vue';
+import { ref, onBeforeMount } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
 
@@ -41,7 +41,7 @@ import { Archive } from '@/types/Archive';
 import { useMapStore } from '@/stores/map';
 import CafeItem from '@/components/CafeItem.vue';
 
-import getFavoritesGroup from '@/graphql/getFavoritesGroupItem.query.gql';
+import getFavoriteGroup from '@/graphql/getFavoriteGroup.query.gql';
 
 const $q = useQuasar();
 const route = useRoute();
@@ -53,11 +53,11 @@ const favoriteGroup = ref(); // 즐겨찾기 그룹 정보
 
 onBeforeMount(() => {
   const id = route.params.id;
-  getData(id);
+  getData(String(id));
 });
 
 function getData(id: string) {
-  query(getFavoritesGroup, { id }, false).then(({ data, error }) => {
+  query(getFavoriteGroup, { id }, false).then(({ data }) => {
     favoriteGroup.value = data.value.favoriteGroup;
     mapStore.setMarkerData(favoriteGroup.value?.archives || []);
   });

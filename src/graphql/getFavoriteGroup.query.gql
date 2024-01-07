@@ -1,4 +1,4 @@
-query($id: ID!) {
+query ($id: ID!) {
   favoriteGroup: FavoriteGroup(id: $id) {
     _id
     title

@@ -59,20 +59,18 @@
 <script setup lang="ts">
 import { ref, Ref, onBeforeMount, watch } from 'vue';
 import { useRouter } from 'vue-router';
-import { useQuasar } from 'quasar';
 
 import { useMapStore } from '@/stores/map';
 import BottomDialog from '@/dialogs/BottomDialog.vue';
 import { query, mutate } from '@/composables/graphqlUtils';
-import getFavoritesGroup from '@/graphql/getFavoritesGroup.query.gql';
+import getFavoriteGroupList from '@/graphql/getFavoriteGroupList.query.gql';
 import createFavoriteGroupMutate from '@/graphql/createFavoriteGroup.mutate.gql';
 import { Archive } from '@/types/Archive';
 
 const router = useRouter();
-const $q = useQuasar();
 const mapStore = useMapStore();
 
-const list = ref([]);
+const list: Ref<Record<string, any>[]> = ref([]);
 const createFavoriteGroup: Ref<{ title: string; color?: string }> = ref({ title: '' });
 const isShowCreateFavoriteDialog = ref(false);
 
@@ -80,7 +78,7 @@ watch(list, () => {
   let archives: Archive[] = [];
   for (const item of list.value) {
     if (item.archives) {
-      archives = archives.concat(item.archives.map(archive => archive as Archive));
+      archives = archives.concat(item.archives.map((archive: Archive) => archive));
     }
   }
 
@@ -92,7 +90,7 @@ onBeforeMount(() => {
 });
 
 function getList() {
-  query(getFavoritesGroup, {}, false).then(({ data, error }) => {
+  query(getFavoriteGroupList, {}, false).then(({ data }) => {
     list.value = data.value?.list || [];
   });
 }
