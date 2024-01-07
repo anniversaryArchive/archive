@@ -30,7 +30,7 @@
         <div class="px-4">
           <div>
             <label class="font-bold">즐겨찾기명</label>
-            <q-input v-model="createFavoriteGroup.title" placeholder="즐결찾기명" />
+            <q-input v-model="createFavoriteGroup.title" placeholder="즐겨찾기명" />
           </div>
 
           <div class="mt-4">
