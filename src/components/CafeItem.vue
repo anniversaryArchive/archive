@@ -19,12 +19,7 @@
 import { computed, ComputedRef } from 'vue';
 import { useQuasar } from 'quasar';
 import { Archive } from '@/types/Archive';
-import { mutate } from '@/composables/graphqlUtils';
 import { useUserStore } from '@/stores/user';
-
-import createFavorite from '@/graphql/createFavorite.mutate.gql';
-import removeFavorite from '@/graphql/removeFavorite.mutate.gql';
-import { useFavoriteArchiveStore } from '@/stores/favoriteArchive';
 
 interface Props {
   archive: Archive;
@@ -35,7 +30,6 @@ const emit = defineEmits(['click', 'onClickFavorite']);
 
 const $q = useQuasar();
 const userStore = useUserStore();
-const favoriteArchiveStore = useFavoriteArchiveStore();
 const archive: ComputedRef<Archive> = computed(() => props.archive);
 
 // 카페 아이템 클릭 시
@@ -44,7 +38,8 @@ function onClickItem() {
 }
 
 // 즐겨찾기 아이콘 클릭 시, 즐겨찾기 여부를 확인하여 doCreateFavorite / doRemoveFavorite 함수를 호출해준다.
-async function onClickFavoriteIcon() {
+async function onClickFavoriteIcon(event: Event) {
+  event.stopPropagation();
   // 로그인되어 있지 않은 경우, 경고 메세지를 띄워준다.
   if (!userStore.loggedIn) {
     $q.notify('즐겨찾기 기능은 로그인 시 이용 가능합니다.');

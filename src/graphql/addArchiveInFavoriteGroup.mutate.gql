@@ -1,0 +1,3 @@
+mutation ($id: ID!, $archive: ID!) {
+  success: addArchiveInFavoriteGroup(id: $id, archive: $archive)
+}

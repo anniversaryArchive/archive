@@ -25,23 +25,30 @@
 
       <!-- 즐겨찾기 그룹 내 카페 리스트 -->
       <q-list>
-        <CafeItem v-for="archive in favoriteGroup.archives" :archive="archive" @click="onClickArchive(archive)" />
+        <CafeItem
+          v-for="archive in favoriteGroup.archives"
+          :archive="archive"
+          @click="onClickArchive(archive)"
+          @onClickFavorite="onClickArchiveFavoriteBtn(archive)"
+        />
       </q-list>
     </template>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onBeforeMount } from 'vue';
+import { ref, computed, onBeforeMount } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
 
-import { query } from '@/composables/graphqlUtils';
+import { query, mutate } from '@/composables/graphqlUtils';
 import { Archive } from '@/types/Archive';
 import { useMapStore } from '@/stores/map';
 import CafeItem from '@/components/CafeItem.vue';
 
 import getFavoriteGroup from '@/graphql/getFavoriteGroup.query.gql';
+import addArchiveInFavoriteGroup from '@/graphql/addArchiveInFavoriteGroup.mutate.gql';
+import removeArchiveInFavoriteGroup from '@/graphql/removeArchiveInFavoriteGroup.mutate.gql';
 
 const $q = useQuasar();
 const route = useRoute();
@@ -51,13 +58,12 @@ const mapStore = useMapStore();
 
 const favoriteGroup = ref(); // 즐겨찾기 그룹 정보
 
-onBeforeMount(() => {
-  const id = route.params.id;
-  getData(String(id));
-});
+onBeforeMount(() => getData());
 
-function getData(id: string) {
-  query(getFavoriteGroup, { id }, false).then(({ data }) => {
+const id = computed(() => String(route.params.id));
+
+function getData() {
+  query(getFavoriteGroup, { id: id.value }, false).then(({ data }) => {
     favoriteGroup.value = data.value.favoriteGroup;
     mapStore.setMarkerData(favoriteGroup.value?.archives || []);
   });
@@ -69,6 +75,18 @@ function onClickArchive(archive: Archive) {
     router.push(`/archive/${archive._id}`);
   } else {
     mapStore.setSelectedArchive(archive);
+  }
+}
+
+// 즐겨찾기 버튼 클릭 시
+async function onClickArchiveFavoriteBtn(archive: Archive) {
+  const mutation = archive.favorite ? addArchiveInFavoriteGroup : removeArchiveInFavoriteGroup;
+
+  try {
+    const { data } = await mutate(mutation, { id: id.value, archive: archive._id });
+    if (data.success) archive.favorite = !archive.favorite;
+  } catch (error) {
+    console.error(error);
   }
 }
 
