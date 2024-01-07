@@ -35,7 +35,7 @@
 
           <div class="mt-4">
             <label class="font-bold">색상 선택</label>
-            <q-color v-model="createFavoriteGroup.color" />
+            <q-color v-model="createFavoriteGroup.color" class="mx-auto mt-2 w-[15rem]" no-header no-footer />
           </div>
         </div>
       </template>

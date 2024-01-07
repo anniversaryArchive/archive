@@ -361,7 +361,7 @@ export default defineComponent({
 });
 </script>
 
-</script>
+<style scoped></style>
 
 <style scoped>
 </style>

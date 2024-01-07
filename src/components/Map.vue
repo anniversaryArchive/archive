@@ -10,25 +10,27 @@
     </span>
 
     <NaverInfoWindow :marker="marker" :open="isOpen" @onLoad="onLoadInfoWindow($event)">
-      <div class="infowindow-style">
-        <q-item class="archive-item">
-          <q-item-section v-if="detailArchive">
-            <q-item-label class="archive-title">{{ detailArchive.themeName }}</q-item-label>
-            <q-item-label class="archive-account">{{ detailArchive.organizer }}</q-item-label>
-            <q-item-label class="archive-address">{{ detailArchive.name }}</q-item-label>
-            <q-item-label class="archive-address">{{ detailArchive.address }}</q-item-label>
-          </q-item-section>
-        </q-item>
-      </div>
-      <div class="infowindow-btn-box mb-2 pb-6">
-        <q-btn type="button" class="detail-btn" @click="onClickDetailBtn(detailArchive._id)">상세보기</q-btn>
-      </div>
+      <template v-if="selectedArchive">
+        <div class="infowindow-style">
+          <q-item class="archive-item">
+            <q-item-section>
+              <q-item-label class="archive-title">{{ selectedArchive.themeName }}</q-item-label>
+              <q-item-label class="archive-account">{{ selectedArchive.organizer }}</q-item-label>
+              <q-item-label class="archive-address">{{ selectedArchive.name }}</q-item-label>
+              <q-item-label class="archive-address">{{ selectedArchive.address }}</q-item-label>
+            </q-item-section>
+          </q-item>
+        </div>
+        <div class="infowindow-btn-box mb-2 pb-6">
+          <q-btn type="button" class="detail-btn" @click="onClickDetailBtn(selectedArchive._id)">상세보기</q-btn>
+        </div>
+      </template>
     </NaverInfoWindow>
   </NaverMap>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, WritableComputedRef, watch } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
 import _ from 'lodash';
@@ -36,7 +38,6 @@ import _ from 'lodash';
 import { NaverInfoWindow, NaverMap, NaverMarker } from 'vue3-naver-maps';
 
 import { Archive } from '@/types/Archive';
-import cscript from '@/composables/comScripts';
 import { useMapStore } from '@/stores/map';
 
 const router = useRouter();
@@ -53,17 +54,12 @@ const MAP_OPTIONS = {
   zoomControlOptions: { position: 'TOP_RIGHT' },
 };
 const map = ref();
-const marker = ref({} as Archive);
+const marker = ref({});
 const infoWindow = ref();
 const isOpen = ref(true);
 const isEarly = ref(true);
 
-const detailArchive: WritableComputedRef<Archive | undefined> = computed({
-  get: () => mapStore.selectedArchive,
-  set: (value: Archive | undefined) => {
-    mapStore.setSelectedArchive(value);
-  },
-});
+const selectedArchive = ref();
 
 watch(markerData, () => {
   const firstMarker = markerData.value[0];
@@ -73,15 +69,35 @@ watch(markerData, () => {
   }
 });
 
-watch(detailArchive, () => {
-  if (!detailArchive.value) {
+function onLoadMap(mapObject: unknown) {
+  map.value = mapObject;
+}
+
+function onClickMarker(archive: Archive) {
+  // 카페 목록 상세 가져오기
+  setSelectedArchive(archive);
+}
+
+function onLoadInfoWindow(infoWindowObject: any) {
+  infoWindow.value = infoWindowObject;
+  if (isEarly.value) {
+    infoWindow.value.close();
+    isEarly.value = false;
+    isOpen.value = false;
+  }
+}
+
+function setSelectedArchive(archive: Archive) {
+  mapStore.setSelectedArchive(archive);
+  selectedArchive.value = archive;
+  if (!mapStore.selectedArchive) {
     isOpen.value = false;
     return;
   }
 
   isOpen.value = true;
 
-  const { lat, lng } = detailArchive.value;
+  const { lat, lng } = mapStore.selectedArchive;
 
   const latlng = new naver.maps.LatLng(lat, lng);
   marker.value = new naver.maps.Marker({
@@ -90,24 +106,6 @@ watch(detailArchive, () => {
   });
 
   if (!isEarly.value) map.value.setCenter(latlng);
-});
-
-function onLoadMap(mapObject: unknown) {
-  map.value = mapObject;
-}
-
-function onClickMarker(archive: Archive) {
-  // 카페 목록 상세 가져오기
-  detailArchive.value = _.cloneDeep(archive);
-}
-
-function onLoadInfoWindow(infoWindowObject) {
-  infoWindow.value = infoWindowObject;
-  if (isEarly.value) {
-    infoWindow.value.close();
-    isEarly.value = false;
-    isOpen.value = false;
-  }
 }
 
 function onClickDetailBtn(id: string | undefined) {
