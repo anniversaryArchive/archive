@@ -57,21 +57,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref, Ref, onBeforeMount, watch } from 'vue';
+import { ref, Ref, computed, onBeforeMount, watch } from 'vue';
 import { useRouter } from 'vue-router';
 
 import { useMapStore } from '@/stores/map';
+import { useFavoriteGroupStore } from '@/stores/favoriteGroup';
 import BottomDialog from '@/dialogs/BottomDialog.vue';
-import { query, mutate } from '@/composables/graphqlUtils';
-import getFavoriteGroupList from '@/graphql/getFavoriteGroupList.query.gql';
-import createFavoriteGroupMutate from '@/graphql/createFavoriteGroup.mutate.gql';
 import { Archive } from '@/types/Archive';
-import { FavoriteGroup } from '@/types/FavoriteGroup';
 
 const router = useRouter();
 const mapStore = useMapStore();
+const favoriteGroupStore = useFavoriteGroupStore();
 
-const list: Ref<FavoriteGroup[]> = ref([]);
+const list = computed(() => favoriteGroupStore.list);
 const createFavoriteGroup: Ref<{ title: string; color?: string }> = ref({ title: '' });
 const isShowCreateFavoriteDialog = ref(false);
 
@@ -92,9 +90,7 @@ onBeforeMount(() => {
 
 // favorite group list 가져오기
 function getList() {
-  query(getFavoriteGroupList, {}, false).then(({ data }) => {
-    list.value = data.value?.list || [];
-  });
+  favoriteGroupStore.getFavoriteGroupList();
 }
 
 // favorite group 생성 bottom dialog hide 함수
@@ -103,19 +99,15 @@ function hideCreateFavoriteDialog() {
 }
 
 // create favorite group 함수
-function create() {
+async function create() {
   isShowCreateFavoriteDialog.value = false;
-  mutate(createFavoriteGroupMutate, {
-    input: {
-      ...createFavoriteGroup.value,
-    },
-  }).then(({ data }) => {
-    const { favoriteGroup } = data;
-    if (favoriteGroup) {
-      list.value.push(favoriteGroup);
-    }
+  try {
+    await favoriteGroupStore.createFavoriteGroup(createFavoriteGroup.value);
+  } catch (error) {
+    console.error(error);
+  } finally {
     createFavoriteGroup.value = { title: '' };
-  });
+  }
 }
 
 // 즐겨찾기 그룹 클릭 시

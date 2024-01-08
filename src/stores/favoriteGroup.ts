@@ -1,25 +1,38 @@
 import { defineStore } from 'pinia';
-import { query } from '@/composables/graphqlUtils';
-import { FavoriteGroup } from '@/types/Favorite';
+import { query, mutate } from '@/composables/graphqlUtils';
+import { FavoriteGroup } from '@/types/FavoriteGroup';
 import getFavoriteGroupList from '@/graphql/getFavoriteGroupList.query.gql';
+import createFavoriteGroup from '@/graphql/createFavoriteGroup.mutate.gql';
 
-interface FavoriteState {
-  favoriteGroups: FavoriteGroup[];
+interface FavoriteGroupState {
+  favoriteGroupList: FavoriteGroup[];
 }
 
 export const useFavoriteGroupStore = defineStore({
   id: 'favoriteGroup',
-  state: (): FavoriteState => ({ favoriteGroups: [] }),
+  state: (): FavoriteGroupState => ({ favoriteGroupList: [] }),
   getters: {
-    total(): number {
-      return this.data?.total || 0;
+    list(): FavoriteGroup[] {
+      return this.favoriteGroupList;
     },
   },
   actions: {
-    getFavoriteGroupState() {
-      query(getFavoriteGroupList, {}, false).then(({ data }) => {
-        this.favoriteGroups = data.value?.FavoriteGroupList || [];
+    getFavoriteGroupList(filterData?: object) {
+      query(getFavoriteGroupList, { filter: filterData }, false).then(({ data }) => {
+        this.favoriteGroupList = data.value.favoriteGroup || [];
       });
+    },
+    async createFavoriteGroup(input: Record<string, any>): Promise<string | undefined> {
+      try {
+        const { data } = await mutate(createFavoriteGroup, { input });
+        const id: string | undefined = data?.favoriteGroup?._id;
+        if (id) {
+          this.favoriteGroupList.push(data.favoriteGroup);
+        }
+        return id;
+      } catch (_) {
+        return;
+      }
     },
   },
 });
