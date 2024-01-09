@@ -85,6 +85,7 @@ import {Pagination} from '@/types/CommonTypes';
 import moment from 'moment';
 import { useQuasar } from "quasar"
 import CafeItem from '@/components/CafeItem.vue';
+import { useFavoriteArchiveStore } from '@/stores/favoriteArchive';
 
 export default defineComponent({
   name      : 'cafeMap',
@@ -174,6 +175,7 @@ export default defineComponent({
 
     const artistStore = useArtistStore();
     const archiveStore = useArchiveStore();
+    const favoriteArchiveStore = useFavoriteArchiveStore();
 
     onBeforeMount(() => {
       initialize();
@@ -317,6 +319,21 @@ export default defineComponent({
       searchData();
     }
 
+    async function onClickFavorite(archive: Archive) {
+      let success: boolean = false;
+      try {
+        if (archive.favorite) {
+          success = await favoriteArchiveStore.doRemoveFavorite(archive._id);
+        } else {
+          success = await favoriteArchiveStore.doCreateFavorite(archive._id);
+        }
+        if (!success) {
+          return;
+        }
+        archive.favorite = !archive.favorite;
+      } catch (_) {}
+    }
+
     return {
       marker,
       mapOptions,
@@ -337,12 +354,14 @@ export default defineComponent({
       orderSelectChange,
       paginationData,
       paginationChange,
-      detailBtnFunc
-    }
-  }
+      detailBtnFunc,
+      onClickFavorite,
+    };
+  },
 });
-
 </script>
+
+<style scoped></style>
 
 <style scoped>
 </style>

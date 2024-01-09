@@ -1,0 +1,3 @@
+mutation ($id: ID!, $archive: ID!) {
+  success: removeArchiveInFavoriteGroup(id: $id, archive: $archive)
+}

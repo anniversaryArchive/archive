@@ -10,19 +10,21 @@ import { computed, ComputedRef } from 'vue';
 import { useRoute } from 'vue-router';
 import MainLayout from './MainLayout.vue';
 import AdminLayout from './AdminLayout.vue';
+import MapLayout from './MapLayout.vue';
 
 const route = useRoute();
 
 const layout: ComputedRef<any> = computed(() => {
   switch (route.meta.layout) {
-    case 'MainLayout': return MainLayout;
-    case 'AdminLayout': return AdminLayout;
+    case 'MainLayout':
+      return MainLayout;
+    case 'AdminLayout':
+      return AdminLayout;
+    case 'MapLayout':
+      return MapLayout;
   }
   return null;
 });
-
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

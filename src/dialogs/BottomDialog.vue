@@ -1,10 +1,10 @@
 <template>
-  <div class="absolute relative top-0 left-0 w-full h-full dialog"
-    :class="{ 'hide': !show }">
-    <div class="w-full h-full bg-black backdrop" @click="hide">
-    </div>
-    <div class="absolute bottom-0 flex flex-col w-full bg-white !rounded-t-2xl dialog-content"
-      :class="dialogContentHeight">
+  <div class="absolute relative top-0 left-0 w-full h-full dialog" :class="{ hide: !show }">
+    <div class="w-full h-full bg-black backdrop" @click="hide"></div>
+    <div
+      class="absolute bottom-0 flex flex-col w-full bg-white !rounded-t-2xl dialog-content h-5/6"
+      :style="`height: ${height}`"
+    >
       <!-- Title 영역 -->
       <div class="relative p-4">
         <div class="px-8 text-lg font-extrabold text-center">
@@ -38,9 +38,6 @@ const props = withDefaults(defineProps<Props>(), {});
 const emit = defineEmits(['hide']);
 
 const show: ComputedRef<boolean> = computed(() => props.show);
-const dialogContentHeight: ComputedRef<string> = computed(() => {
-  return `h-${props.height || '5/6'}`;
-});
 
 function hide() {
   emit('hide');
@@ -51,7 +48,9 @@ function hide() {
 /**
   * Animation 관련
  */
-.dialog, .backdrop, .dialog-content {
+.dialog,
+.backdrop,
+.dialog-content {
   transition: all 0.3s ease 0s;
 }
 .dialog {
@@ -61,7 +60,7 @@ function hide() {
   }
   .dialog-content {
     transform: translateY(0%);
-    box-shadow: 0 -3px 6px rgba(0,0,0,.07);
+    box-shadow: 0 -3px 6px rgba(0, 0, 0, 0.07);
   }
 
   &.hide {

@@ -1,0 +1,17 @@
+query {
+  list: FavoriteGroupList {
+    _id
+    title
+    color
+    archives {
+      _id
+      name
+      themeName
+      favorite
+      address
+      detailAddress
+      lat
+      lng
+    }
+  }
+}

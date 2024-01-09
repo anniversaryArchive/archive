@@ -37,10 +37,19 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import("@/pages/ArchiveDetail.vue")
   },
   {
-    meta: { title: "favorite", layout: "MainLayout" },
-    path: "/favorite",
+    meta: { title: 'favorite', layout: 'MapLayout' },
+    path: '/favorite',
     beforeEnter: authUser,
-    component: () => import("@/pages/favorite.vue")
+    children: [
+      {
+        path: '',
+        component: () => import('@/pages/favorite.vue'),
+      },
+      {
+        path: ':id',
+        component: () => import('@/pages/FavoriteArchives.vue'),
+      },
+    ],
   },
 
   {

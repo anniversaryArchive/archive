@@ -1,0 +1,17 @@
+query ($id: ID!) {
+  favoriteGroup: FavoriteGroup(id: $id) {
+    _id
+    title
+    color
+    archives {
+      _id
+      name
+      themeName
+      favorite
+      address
+      detailAddress
+      lat
+      lng
+    }
+  }
+}
