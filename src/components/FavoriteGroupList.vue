@@ -10,13 +10,19 @@
       class="flex flex-wrap px-4 py-4 border-b border-gray-300 cursor-pointer hover:bg-gray-100"
       @click="emit('click', item._id)"
     >
-      <div
-        class="flex flex-col justify-center w-5 h-5 mr-2 text-center rounded-full"
-        :style="`background-color: ${item.color}`"
-      >
-        <q-icon name="favorite" class="m-auto text-white" />
+      <div class="flex flex-1 my-auto">
+        <div
+          class="flex flex-col justify-center w-5 h-5 mr-2 text-center rounded-full"
+          :style="`background-color: ${item.color}`"
+        >
+          <q-icon name="favorite" class="m-auto text-white" />
+        </div>
+        <div class="font-semibold">{{ item.title }}</div>
       </div>
-      <div class="font-semibold">{{ item.title }}</div>
+
+      <span v-if="selectable">
+        <q-checkbox :modelValue="item.selected || false" @update:modelValue="item.selected = $event" />
+      </span>
     </li>
   </ul>
 
@@ -58,11 +64,24 @@ import { computed, ref, Ref } from 'vue';
 import BottomDialog from '@/dialogs/BottomDialog.vue';
 import { useFavoriteGroupStore } from '@/stores/favoriteGroup';
 
+interface Props {
+  selectable?: boolean;
+  selected?: { _id: string }[];
+}
+
+const props = withDefaults(defineProps<Props>(), { selectable: false });
 const emit = defineEmits(['click']);
 
 const favoriteGroupStore = useFavoriteGroupStore();
 
-const list = computed(() => favoriteGroupStore.list);
+const list = computed(() => {
+  if (!props.selectable) return favoriteGroupStore.list;
+  const list = [...favoriteGroupStore.list];
+  return list.map(item => {
+    item.selected = props.selected?.some(({ _id }) => item._id === _id);
+    return item;
+  });
+});
 const createFavoriteGroup: Ref<{ title: string; color?: string }> = ref({ title: '' });
 
 const isShowCreateFavoriteDialog = ref(false);
