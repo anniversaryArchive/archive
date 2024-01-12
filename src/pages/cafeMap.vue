@@ -24,9 +24,13 @@
       </div>
 
       <q-list v-if="archiveParams">
-        <CafeItem v-for="archive in archiveParams" :archive="archive"
-          @click="$q.screen.xs ? detailBtnFunc(archive._id) : onLoadMarker(archive)" />
-      </q-list>
+      <CafeItem
+        v-for="archive in archiveParams"
+        :archive="archive"
+        @click="onClickArchive(archive)"
+        @onClickFavorite="onClickFavorite(archive)"
+      />
+    </q-list>
 
       <div v-if="paginationData.maxCnt" class="flex q-pa-lg flex-center">
         <q-pagination
@@ -306,9 +310,12 @@ export default defineComponent({
       getArchives();
     }
 
-    function detailBtnFunc(id: string | undefined) {
-      if (!id) { return; }
-      this.$router.push(`/archive/${id}`);
+    // CafeItem 클릭
+    function onClickArchive(archive: Archive) {
+      // 모바일인 경우, 바로 상세 페이지로 넘어간다.
+      if ($q.screen.xs) return this.$router.push(`/archive/${archive._id}`);
+      // 그 외, 맵에서 Info Component를 띄워준다.
+      mapStore.selectedArchive = archive;
     }
 
     function paginationChange() {
@@ -354,8 +361,8 @@ export default defineComponent({
       orderSelectChange,
       paginationData,
       paginationChange,
-      detailBtnFunc,
       onClickFavorite,
+      onClickArchive,
     };
   },
 });

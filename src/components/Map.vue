@@ -21,7 +21,7 @@
             </q-item-section>
           </q-item>
         </div>
-        <div class="infowindow-btn-box mb-2 pb-6">
+        <div class="pb-6 mb-2 infowindow-btn-box">
           <q-btn type="button" class="detail-btn" @click="onClickDetailBtn(selectedArchive._id)">상세보기</q-btn>
         </div>
       </template>
@@ -69,6 +69,29 @@ watch(markerData, () => {
   }
 });
 
+watch(
+  () => mapStore.selectedArchive,
+  value => {
+    selectedArchive.value = value;
+    if (!mapStore.selectedArchive) {
+      isOpen.value = false;
+      return;
+    }
+
+    isOpen.value = true;
+
+    const { lat, lng } = mapStore.selectedArchive;
+
+    const latlng = new naver.maps.LatLng(lat, lng);
+    marker.value = new naver.maps.Marker({
+      position: latlng,
+      draggable: true,
+    });
+
+    if (!isEarly.value) map.value.setCenter(latlng);
+  },
+);
+
 function onLoadMap(mapObject: unknown) {
   map.value = mapObject;
 }
@@ -88,24 +111,7 @@ function onLoadInfoWindow(infoWindowObject: any) {
 }
 
 function setSelectedArchive(archive: Archive) {
-  mapStore.setSelectedArchive(archive);
-  selectedArchive.value = archive;
-  if (!mapStore.selectedArchive) {
-    isOpen.value = false;
-    return;
-  }
-
-  isOpen.value = true;
-
-  const { lat, lng } = mapStore.selectedArchive;
-
-  const latlng = new naver.maps.LatLng(lat, lng);
-  marker.value = new naver.maps.Marker({
-    position: latlng,
-    draggable: true,
-  });
-
-  if (!isEarly.value) map.value.setCenter(latlng);
+  mapStore.selectedArchive = archive;
 }
 
 function onClickDetailBtn(id: string | undefined) {
