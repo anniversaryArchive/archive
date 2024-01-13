@@ -57,14 +57,14 @@
 
     <BottomDialog :show="isShowFavoriteGroupBottomDialog" @hide="isShowFavoriteGroupBottomDialog = false">
       <template #content>
-        <FavoriteGroupList :selectable="true" />
+        <FavoriteGroupList :selectable="true" :selected="clickedArchive?.favoriteGroup" />
       </template>
     </BottomDialog>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, onBeforeMount, ref, watch } from 'vue';
+import { defineComponent, onBeforeMount, ref, Ref, watch } from 'vue';
 import { NaverInfoWindow, NaverMap, NaverMarker } from 'vue3-naver-maps';
 import mixinPageCommon from '@/pages/mixin/mixinPageCommon';
 import ccobject from '@/composables/createComObject';
@@ -73,6 +73,7 @@ import cscript from '@/composables/comScripts';
 import { Archive, ArchiveSearchParams } from '@/types/Archive';
 import { useArchiveStore } from '@/stores/archive';
 import { useMapStore } from '@/stores/map';
+import { useFavoriteGroupStore } from '@/stores/favoriteGroup';
 import _ from 'lodash';
 import { Pagination } from '@/types/CommonTypes';
 import moment from 'moment';
@@ -98,7 +99,6 @@ export default defineComponent({
     // 아티스트 멀티 셀렉트박스 배열 변수
     const artistList = ref([] as string[]);
 
-    const map = ref();
     const markerData = ref({} as Archive);
     const mapOptions = {
       latitude: 37.51747, // 지도 중앙 위도
@@ -123,6 +123,7 @@ export default defineComponent({
     const artistStore = useArtistStore();
     const archiveStore = useArchiveStore();
     const mapStore = useMapStore();
+    const favoriteGroupStore = useFavoriteGroupStore();
 
     onBeforeMount(() => {
       initialize();
@@ -135,6 +136,7 @@ export default defineComponent({
       };
       artistStore.getArtists(artistFilterData);
       getArchives();
+      favoriteGroupStore.getFavoriteGroupList();
     };
 
     watch(
@@ -267,10 +269,12 @@ export default defineComponent({
     }
 
     const isShowFavoriteGroupBottomDialog = ref(false);
+    const clickedArchive: Ref<Archive | null> = ref(null);
 
     // 즐겨찾기 버튼 클릭 시
     async function onClickFavorite(archive: Archive) {
       isShowFavoriteGroupBottomDialog.value = true;
+      clickedArchive.value = archive;
     }
 
     return {
@@ -293,6 +297,7 @@ export default defineComponent({
       onClickFavorite,
       isShowFavoriteGroupBottomDialog,
       onClickArchive,
+      clickedArchive,
     };
   },
 });
