@@ -1,29 +1,35 @@
 <template>
-  <ul>
+  <ul class="flex flex-col max-h-full overflow-y-hidden flex-nowrap">
     <li class="flex px-4 py-4 font-semibold border-b border-gray-300" @click="isShowCreateFavoriteDialog = true">
       <q-icon name="add_circle_outline" size="sm" class="my-auto text-gray-300" />
       <div class="flex-1 my-auto ml-2 text-gray-600">새 즐겨찾기 만들기</div>
     </li>
 
-    <li
-      v-for="item in list"
-      class="flex flex-wrap px-4 py-4 border-b border-gray-300 cursor-pointer hover:bg-gray-100"
-      @click="emit('click', item._id)"
-    >
-      <div class="flex flex-1 my-auto">
-        <div
-          class="flex flex-col justify-center w-5 h-5 mr-2 text-center rounded-full"
-          :style="`background-color: ${item.color}`"
-        >
-          <q-icon name="favorite" class="m-auto text-white" />
+    <ul class="overflow-y-auto">
+      <li
+        v-for="item in list"
+        class="flex flex-wrap px-4 py-4 border-b border-gray-300 cursor-pointer hover:bg-gray-100"
+        @click="emit('click', item._id)"
+      >
+        <div class="flex flex-1 my-auto">
+          <div
+            class="flex flex-col justify-center w-5 h-5 mr-2 text-center rounded-full"
+            :style="`background-color: ${item.color}`"
+          >
+            <q-icon name="favorite" class="m-auto text-white" />
+          </div>
+          <div class="font-semibold">{{ item.title }}</div>
         </div>
-        <div class="font-semibold">{{ item.title }}</div>
-      </div>
 
-      <span v-if="selectable">
-        <q-checkbox :modelValue="item.selected || false" @update:modelValue="item.selected = $event" />
-      </span>
-    </li>
+        <span v-if="selectable">
+          <q-checkbox :modelValue="item.selected || false" @update:modelValue="item.selected = $event" />
+        </span>
+      </li>
+    </ul>
+
+    <div v-if="selectable" class="px-2 py-2 text-center">
+      <button class="w-full py-2 font-bold text-white rounded bg-primary" @click="onClickSaveBtn">저장</button>
+    </div>
   </ul>
 
   <!-- 즐겨찾기 추가 Bottom Dialog -->
@@ -70,7 +76,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), { selectable: false });
-const emit = defineEmits(['click']);
+const emit = defineEmits(['click', 'select']);
 
 const favoriteGroupStore = useFavoriteGroupStore();
 
@@ -101,6 +107,12 @@ async function create() {
   } finally {
     createFavoriteGroup.value = { title: '' };
   }
+}
+
+// save favorite selected
+function onClickSaveBtn() {
+  const selectedList = list.value.filter(({ selected }) => selected);
+  emit('select', selectedList);
 }
 </script>
 
