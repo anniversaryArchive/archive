@@ -1,5 +1,5 @@
 query {
-  list: FavoriteGroupList {
+  favoriteGroup: FavoriteGroupList {
     _id
     title
     color

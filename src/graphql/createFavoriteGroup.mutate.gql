@@ -1,4 +1,4 @@
-mutation($input: FavoriteGroupInput!) {
+mutation ($input: FavoriteGroupInput!) {
   favoriteGroup: createFavoriteGroup(input: $input) {
     _id
     title

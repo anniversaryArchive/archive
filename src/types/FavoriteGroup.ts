@@ -5,4 +5,5 @@ export interface FavoriteGroup {
   title: string;
   color?: string;
   archives: Archive[];
+  selected?: boolean;
 }

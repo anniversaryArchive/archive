@@ -18,9 +18,5 @@ export const useMapStore = defineStore({
     setMarkerData(archives: Archive[]) {
       this.markerData = archives;
     },
-    setSelectedArchive(archive: Archive | null | undefined) {
-      this.selectedArchive = archive;
-      console.log('set : ', this.selectedArchive);
-    },
   },
 });

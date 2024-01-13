@@ -39,7 +39,8 @@
       class="absolute bottom-10 left-[50%] md:left-auto translate-x-[-50%] md:translate-x-0 md:right-14 inline-block w-10 h-10 mr-2 text-xl md:text-3xl text-left align-middle rounded-full cursor-pointer"
       @click="onClickFavoriteIcon"
     >
-      <q-icon :name="`favorite${!archive.favorite && '_outline'}`" class="!inline m-auto text-primary !text-5xl" />
+      <q-icon v-if="archive.favorite" name="favorite" class="!inline m-auto text-primary !text-5xl" />
+      <q-icon v-else name="favorite_outline" class="!inline m-auto text-primary !text-5xl" />
     </span>
   </div>
 
