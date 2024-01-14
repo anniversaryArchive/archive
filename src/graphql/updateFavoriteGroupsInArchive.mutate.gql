@@ -1,0 +1,5 @@
+mutation ($archive: ID!, $favoriteGroups: [ID]!) {
+  favoriteGroups: updateFavoriteGroupsInArchive(archive: $archive, favoriteGroups: $favoriteGroups) {
+    _id
+  }
+}

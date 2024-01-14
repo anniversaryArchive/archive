@@ -65,10 +65,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, Ref } from 'vue';
+import { ref, Ref, watch } from 'vue';
+import _ from 'lodash';
 
 import BottomDialog from '@/dialogs/BottomDialog.vue';
 import { useFavoriteGroupStore } from '@/stores/favoriteGroup';
+import { FavoriteGroup } from '@/types/FavoriteGroup';
 
 interface Props {
   selectable?: boolean;
@@ -80,17 +82,22 @@ const emit = defineEmits(['click', 'select']);
 
 const favoriteGroupStore = useFavoriteGroupStore();
 
-const list = computed(() => {
-  if (!props.selectable) return favoriteGroupStore.list;
-  const list = [...favoriteGroupStore.list];
-  return list.map(item => {
-    item.selected = props.selected?.some(({ _id }) => item._id === _id);
-    return item;
-  });
-});
+const list: Ref<FavoriteGroup[]> = ref([]);
 const createFavoriteGroup: Ref<{ title: string; color?: string }> = ref({ title: '' });
 
 const isShowCreateFavoriteDialog = ref(false);
+
+watch(
+  () => props.selected,
+  _ => initList(),
+);
+
+function initList() {
+  list.value = _.cloneDeep(favoriteGroupStore.list).map(item => {
+    item.selected = props.selected?.some(({ _id }) => item._id === _id);
+    return item;
+  });
+}
 
 // favorite group 생성 bottom dialog hide 함수
 function hideCreateFavoriteDialog() {
@@ -111,8 +118,11 @@ async function create() {
 
 // save favorite selected
 function onClickSaveBtn() {
-  const selectedList = list.value.filter(({ selected }) => selected);
-  emit('select', selectedList);
+  const ids = list.value.reduce((acc: string[], item) => {
+    if (item.selected) acc.push(item._id);
+    return acc;
+  }, []);
+  emit('select', ids);
 }
 </script>
 
