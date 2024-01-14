@@ -92,6 +92,11 @@ watch(
   _ => initList(),
 );
 
+watch(
+  () => favoriteGroupStore.list,
+  _ => initList(),
+);
+
 function initList() {
   list.value = _.cloneDeep(favoriteGroupStore.list).map(item => {
     item.selected = props.selected?.some(({ _id }) => item._id === _id);

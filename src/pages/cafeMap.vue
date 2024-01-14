@@ -293,7 +293,6 @@ export default defineComponent({
         const favoriteGroups = await favoriteGroupStore.updateFavoriteGroupsInArchive(clickedArchive.value!._id, ids);
         clickedArchive.value!.favoriteGroup = favoriteGroups;
         clickedArchive.value!.favorite = favoriteGroups?.length > 0;
-        const foundIndex = archiveParams.value.findIndex((item: Archive) => item._id === clickedArchive.value!._id);
       } catch (error) {
         console.error('[ERROR] select favorite group list : ', error);
       } finally {
