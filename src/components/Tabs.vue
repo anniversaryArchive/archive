@@ -3,11 +3,10 @@
     <template v-for="(menu, index) in menus">
       <router-link
         :to="menu.to"
-        class="flex flex-col justify-center py-2 text-center transition-colors duration-300 bg-primary"
-        :class="currentPath.includes(menu.to) ? 'text-white' : 'bg-white text-primary hover:text-primary'"
-      >
-        <div>
-          <q-icon :name="menu.icon" size="sm" />
+        class="tab-link flex flex-col justify-center text-center transition-colors duration-300 bg-white hover:text-primary"
+        :class="currentPath.includes(menu.to) ? 'text-primary' : 'text-muted'">
+        <div class="tab-icon">
+          <component :is="componentLoader(menu.icon)" :is-active="currentPath.includes(menu.to)" />
         </div>
         <div class="mt-1 text-xs">
           {{ menu.label }}
@@ -34,6 +33,10 @@ import { ComputedRef, computed } from "vue";
 import { useRoute } from "vue-router";
 import { useQuasar } from "quasar";
 import { useUserStore } from "@/stores/user";
+import Favorite from '@/components/icon/Favorite.vue';
+import Map from '@/components/icon/Map.vue';
+import Forum from '@/components/icon/Forum.vue';
+import Admin from '@/components/icon/Admin.vue';
 
 interface Menu {
   icon: string;
@@ -50,7 +53,7 @@ const userStore = useUserStore();
 const isMobile: ComputedRef<boolean> = computed(() => $q.screen.sm || $q.screen.xs);
 const loggedIn: ComputedRef<boolean> = computed(() => userStore.loggedIn);
 const currentPath: ComputedRef<string> = computed(() => {
-  console.log("path : ", route.path);
+  // console.log("path : ", route.path);
   return route.path;
 });
 
@@ -70,6 +73,39 @@ const menus: ComputedRef<Menu[]> = computed(() => {
 function onClickBtn(type: "login" | "logout") {
   emit(type);
 }
+
+function componentLoader (type: string) {
+  if(type == 'favorite'){
+    return Favorite;
+  }
+
+  switch (type) {
+    case 'favorite' :
+      return Favorite;
+    case 'map' :
+      return Map;
+    case 'forum':
+      return Forum;
+    case 'admin_panel_settings' :
+      return Admin;
+    default :
+      break;
+  }
+}
+
 </script>
 
-<style scoped></style>
+<style lang="scss" scoped>
+.tab-link {
+  .tab-icon {
+    margin: auto;
+  }
+}
+.tab-link:first-child {
+  padding-top: 30px;
+}
+.tab-link+.tab-link {
+  padding-top: 30px;
+}
+
+</style>

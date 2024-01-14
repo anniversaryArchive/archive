@@ -4,13 +4,13 @@
     <q-drawer
       v-if="!isMobile"
       :modelValue="true"
-      :width="70"
+      :width="80"
       :breakpoint="700"
       side="left"
       class="flex flex-col shadow-lg"
     >
-      <div class="p-2">
-        <img src="@/assets/images/logo.png" alt="로고" />
+      <div class="logo-div">
+        <img src="@/assets/images/svgs/logo.svg" alt="로고" />
       </div>
 
       <div class="flex-1">
@@ -74,4 +74,9 @@ function onClickLogoutBtn() {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.logo-div {
+  padding-top: 20px;
+  margin: auto;
+}
+</style>

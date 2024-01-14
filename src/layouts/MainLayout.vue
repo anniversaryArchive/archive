@@ -1,9 +1,9 @@
 <template>
   <q-layout view="lHh LpR lFf" container class="rounded-borders">
     <!-- Side Bar -->
-    <q-drawer v-if="!isMobile" :modelValue="true" :width="70"
+    <q-drawer v-if="!isMobile" :modelValue="true" :width="80"
       :breakpoint="700" side="left" class="flex flex-col shadow-lg">
-      <div class="p-2">
+      <div class="logo-div">
         <img src="@/assets/images/logo.png" alt="로고" />
       </div>
 
@@ -65,5 +65,8 @@ function onClickLogoutBtn() {
 </script>
 
 <style scoped>
-
+.logo-div {
+  padding-top: 20px;
+  margin: auto;
+}
 </style>
