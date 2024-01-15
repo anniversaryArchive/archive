@@ -261,7 +261,7 @@ export default defineComponent({
       // 모바일인 경우, 바로 상세 페이지로 넘어간다.
       if ($q.screen.xs) return this.$router.push(`/archive/${archive._id}`);
       // 그 외, 맵에서 Info Component를 띄워준다.
-      mapStore.selectedArchive = archive;
+      mapStore.selectedArchive = { ...archive };
     }
 
     function paginationChange() {
