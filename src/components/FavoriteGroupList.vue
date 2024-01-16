@@ -18,7 +18,10 @@
           >
             <q-icon name="favorite" class="m-auto text-white" />
           </div>
-          <div class="font-semibold">{{ item.title }}</div>
+          <div class="font-semibold">
+            {{ item.title }}
+            <span v-if="!selectable">({{ item.archives?.length || 0 }})</span>
+          </div>
         </div>
 
         <span v-if="selectable">
