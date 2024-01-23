@@ -20,10 +20,6 @@ export default {
     isActive  : {
       type    : Boolean,
       default : false,
-    },
-    isHover   : {
-      type    : Boolean,
-      default : false,
     }
   }
 }

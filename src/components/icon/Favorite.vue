@@ -15,16 +15,12 @@ export default {
       type    : Boolean,
       default : false,
     },
-    isHover   : {
-      type    : Boolean,
-      default : false,
-    }
   }
 }
 </script>
 
 <style scoped>
-svg:hover #favorite .tabVector {
+svg:hover .tabVector {
   fill: #4285F4;
 }
 </style>
