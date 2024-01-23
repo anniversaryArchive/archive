@@ -19,11 +19,11 @@
 
       <div class="py-4 text-center text-gray-500 border-t border-gray-300 cursor-pointer hover:text-gray-700">
         <div v-if="loggedIn" @click="onClickLogoutBtn">
-          <q-icon name="logout" size="sm" />
+          <Login :is-active="false" class="mx-auto" />
           <div class="mt-1 text-xs text-center text-gray-600">로그아웃</div>
         </div>
         <div v-else @click="onClickLoginBtn">
-          <q-icon name="person" size="sm" />
+          <Login :is-active="true" class="mx-auto" />
           <div class="mt-1 text-xs text-center text-gray-600">로그인</div>
         </div>
       </div>
@@ -56,6 +56,7 @@ import { useUserStore } from '@/stores/user';
 import SignInDialog from '@/dialogs/SignInDialog.vue';
 import Tabs from '@/components/Tabs.vue';
 import Map from '@/components/Map.vue';
+import Login from '@/components/icon/Login.vue';
 
 const $q = useQuasar();
 const userStore = useUserStore();

@@ -14,15 +14,16 @@
       </router-link>
 
       <div v-if="isMobile && index === 1" class="flex flex-col text-center bg-white">
-        <img src="@/assets/images/logo.png" alt="로고" class="w-2/3 m-auto" />
+        <img src="@/assets/images/svgs/logo.svg" class="w-2/3 m-auto" alt="로고" />
       </div>
     </template>
     <div
       v-if="isMobile"
-      class="flex flex-col justify-center text-center text-gray-600 bg-white"
+      class="mobile flex flex-col justify-center text-center text-gray-600 bg-white"
       @click="onClickBtn(loggedIn ? 'logout' : 'login')"
     >
-      <q-icon name="logout" size="sm" class="mx-auto" />
+      <!-- <q-icon name="logout" :size="'30px'" class="mx-auto mt-auto mb-1" /> -->
+      <Login :is-active="!loggedIn" />
       <div class="justify-center mt-1 text-xs text-center">{{ loggedIn ? "로그아웃" : "로그인" }}</div>
     </div>
   </div>
@@ -37,6 +38,7 @@ import Favorite from '@/components/icon/Favorite.vue';
 import Map from '@/components/icon/Map.vue';
 import Forum from '@/components/icon/Forum.vue';
 import Admin from '@/components/icon/Admin.vue';
+import Login from '@/components/icon/Login.vue';
 
 interface Menu {
   icon: string;
@@ -106,6 +108,23 @@ function componentLoader (type: string) {
 }
 .tab-link+.tab-link {
   padding-top: 30px;
+}
+
+@media (max-width: 959px) {
+  .tab-link:first-child,
+  .tab-link+.tab-link {
+    padding-top: 0;
+  }
+  .tab-link {
+    .tab-icon {
+      margin: 15px auto 4px;
+    }
+  }
+  .mobile {
+    svg {
+      margin: 15px auto 4px;
+    }
+  }
 }
 
 </style>
