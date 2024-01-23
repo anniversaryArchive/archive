@@ -1,29 +1,38 @@
 <template>
-  <ul>
+  <ul class="flex flex-col max-h-full overflow-y-hidden flex-nowrap">
     <li class="flex px-4 py-4 font-semibold border-b border-gray-300" @click="isShowCreateFavoriteDialog = true">
       <q-icon name="add_circle_outline" size="sm" class="my-auto text-gray-300" />
       <div class="flex-1 my-auto ml-2 text-gray-600">새 즐겨찾기 만들기</div>
     </li>
 
-    <li
-      v-for="item in list"
-      class="flex flex-wrap px-4 py-4 border-b border-gray-300 cursor-pointer hover:bg-gray-100"
-      @click="emit('click', item._id)"
-    >
-      <div class="flex flex-1 my-auto">
-        <div
-          class="flex flex-col justify-center w-5 h-5 mr-2 text-center rounded-full"
-          :style="`background-color: ${item.color}`"
-        >
-          <q-icon name="favorite" class="m-auto text-white" />
+    <ul class="overflow-y-auto">
+      <li
+        v-for="item in list"
+        class="flex flex-wrap px-4 py-4 border-b border-gray-300 cursor-pointer hover:bg-gray-100"
+        @click="emit('click', item._id)"
+      >
+        <div class="flex flex-1 my-auto">
+          <div
+            class="flex flex-col justify-center w-5 h-5 mr-2 text-center rounded-full"
+            :style="`background-color: ${item.color}`"
+          >
+            <q-icon name="favorite" class="m-auto text-white" />
+          </div>
+          <div class="font-semibold">
+            {{ item.title }}
+            <span v-if="!selectable">({{ item.archives?.length || 0 }})</span>
+          </div>
         </div>
-        <div class="font-semibold">{{ item.title }}</div>
-      </div>
 
-      <span v-if="selectable">
-        <q-checkbox :modelValue="item.selected || false" @update:modelValue="item.selected = $event" />
-      </span>
-    </li>
+        <span v-if="selectable">
+          <q-checkbox :modelValue="item.selected || false" @update:modelValue="item.selected = $event" />
+        </span>
+      </li>
+    </ul>
+
+    <div v-if="selectable" class="px-2 py-2 text-center">
+      <button class="w-full py-2 font-bold text-white rounded bg-primary" @click="onClickSaveBtn">저장</button>
+    </div>
   </ul>
 
   <!-- 즐겨찾기 추가 Bottom Dialog -->
@@ -59,10 +68,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, Ref } from 'vue';
+import { ref, Ref, watch } from 'vue';
+import _ from 'lodash';
 
 import BottomDialog from '@/dialogs/BottomDialog.vue';
 import { useFavoriteGroupStore } from '@/stores/favoriteGroup';
+import { FavoriteGroup } from '@/types/FavoriteGroup';
 
 interface Props {
   selectable?: boolean;
@@ -70,21 +81,31 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), { selectable: false });
-const emit = defineEmits(['click']);
+const emit = defineEmits(['click', 'select']);
 
 const favoriteGroupStore = useFavoriteGroupStore();
 
-const list = computed(() => {
-  if (!props.selectable) return favoriteGroupStore.list;
-  const list = [...favoriteGroupStore.list];
-  return list.map(item => {
-    item.selected = props.selected?.some(({ _id }) => item._id === _id);
-    return item;
-  });
-});
+const list: Ref<FavoriteGroup[]> = ref([]);
 const createFavoriteGroup: Ref<{ title: string; color?: string }> = ref({ title: '' });
 
 const isShowCreateFavoriteDialog = ref(false);
+
+watch(
+  () => props.selected,
+  _ => initList(),
+);
+
+watch(
+  () => favoriteGroupStore.list,
+  _ => initList(),
+);
+
+function initList() {
+  list.value = _.cloneDeep(favoriteGroupStore.list).map(item => {
+    item.selected = props.selected?.some(({ _id }) => item._id === _id);
+    return item;
+  });
+}
 
 // favorite group 생성 bottom dialog hide 함수
 function hideCreateFavoriteDialog() {
@@ -101,6 +122,15 @@ async function create() {
   } finally {
     createFavoriteGroup.value = { title: '' };
   }
+}
+
+// save favorite selected
+function onClickSaveBtn() {
+  const ids = list.value.reduce((acc: string[], item) => {
+    if (item.selected) acc.push(item._id);
+    return acc;
+  }, []);
+  emit('select', ids);
 }
 </script>
 

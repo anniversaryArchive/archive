@@ -111,7 +111,7 @@ function onLoadInfoWindow(infoWindowObject: any) {
 }
 
 function setSelectedArchive(archive: Archive) {
-  mapStore.selectedArchive = archive;
+  mapStore.selectedArchive = { ...archive };
 }
 
 function onClickDetailBtn(id: string | undefined) {

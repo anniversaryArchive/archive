@@ -1,8 +1,8 @@
 <template>
   <q-item class="archive-item" clickable @click="onClickItem">
     <q-item-section>
-      <div class="grid grid-flow-row-dense grid-cols-2">
-        <q-item-label class="overflow-hidden leading-7 text-ellipsis whitespace-nowrap">{{
+      <div class="flex">
+        <q-item-label class="flex-1 overflow-hidden leading-7 text-ellipsis whitespace-nowrap">{{
           archive.themeName
         }}</q-item-label>
         <q-button class="text-right" @click="onClickFavoriteIcon">

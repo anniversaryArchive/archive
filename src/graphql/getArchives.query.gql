@@ -1,5 +1,21 @@
-query ($page: Int, $perPage: Int, $filter: FilterOption, $start: Date, $end: Date, $sortOrder: Int, $sortField: String) {
-  archive: ArchivePagination (page: $page, perPage: $perPage, filter: $filter, start: $start, end: $end, sortOrder: $sortOrder, sortField: $sortField) {
+query (
+  $page: Int
+  $perPage: Int
+  $filter: FilterOption
+  $start: Date
+  $end: Date
+  $sortOrder: Int
+  $sortField: String
+) {
+  archive: ArchivePagination(
+    page: $page
+    perPage: $perPage
+    filter: $filter
+    start: $start
+    end: $end
+    sortOrder: $sortOrder
+    sortField: $sortField
+  ) {
     data {
       _id
       name
@@ -37,7 +53,9 @@ query ($page: Int, $perPage: Int, $filter: FilterOption, $start: Date, $end: Dat
         name
         path
       }
-      favorite
+      favoriteGroup {
+        _id
+      }
       organizer
       phoneNumber
       link

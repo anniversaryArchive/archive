@@ -75,7 +75,7 @@ function onClickArchive(archive: Archive) {
   if ($q.screen.xs) {
     router.push(`/archive/${archive._id}`);
   } else {
-    mapStore.selectedArchive = archive;
+    mapStore.selectedArchive = { ...archive };
   }
 }
 

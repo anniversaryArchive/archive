@@ -57,14 +57,18 @@
 
     <BottomDialog :show="isShowFavoriteGroupBottomDialog" @hide="isShowFavoriteGroupBottomDialog = false">
       <template #content>
-        <FavoriteGroupList :selectable="true" />
+        <FavoriteGroupList
+          :selectable="true"
+          :selected="clickedArchive?.favoriteGroup"
+          @select="selectFavoriteGroupList"
+        />
       </template>
     </BottomDialog>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, onBeforeMount, ref, watch } from 'vue';
+import { defineComponent, onBeforeMount, ref, Ref, computed, watch } from 'vue';
 import { NaverInfoWindow, NaverMap, NaverMarker } from 'vue3-naver-maps';
 import mixinPageCommon from '@/pages/mixin/mixinPageCommon';
 import ccobject from '@/composables/createComObject';
@@ -73,6 +77,7 @@ import cscript from '@/composables/comScripts';
 import { Archive, ArchiveSearchParams } from '@/types/Archive';
 import { useArchiveStore } from '@/stores/archive';
 import { useMapStore } from '@/stores/map';
+import { useFavoriteGroupStore } from '@/stores/favoriteGroup';
 import _ from 'lodash';
 import { Pagination } from '@/types/CommonTypes';
 import moment from 'moment';
@@ -92,13 +97,12 @@ export default defineComponent({
     const { selectBoxOptions: selectBoxOptions } = ccobject.$createSelectAll(['artist']);
     const { schParams: archiveSchParams } = ccobject.$createSchParams<ArchiveSearchParams>();
 
-    const archiveParams = ref({} as Archive);
+    const archiveParams: Ref<Archive[]> = ref([]);
     const detailArchive = ref({} as Archive);
 
     // 아티스트 멀티 셀렉트박스 배열 변수
     const artistList = ref([] as string[]);
 
-    const map = ref();
     const markerData = ref({} as Archive);
     const mapOptions = {
       latitude: 37.51747, // 지도 중앙 위도
@@ -123,6 +127,7 @@ export default defineComponent({
     const artistStore = useArtistStore();
     const archiveStore = useArchiveStore();
     const mapStore = useMapStore();
+    const favoriteGroupStore = useFavoriteGroupStore();
 
     onBeforeMount(() => {
       initialize();
@@ -135,6 +140,7 @@ export default defineComponent({
       };
       artistStore.getArtists(artistFilterData);
       getArchives();
+      favoriteGroupStore.getFavoriteGroupList();
     };
 
     watch(
@@ -231,7 +237,7 @@ export default defineComponent({
 
     function reset() {
       // 카페 목록
-      archiveParams.value = {} as Archive;
+      archiveParams.value = [];
       // 마커
       markerData.value = {} as Archive;
       // 정보창 열려있으면 닫기
@@ -255,7 +261,7 @@ export default defineComponent({
       // 모바일인 경우, 바로 상세 페이지로 넘어간다.
       if ($q.screen.xs) return this.$router.push(`/archive/${archive._id}`);
       // 그 외, 맵에서 Info Component를 띄워준다.
-      mapStore.selectedArchive = archive;
+      mapStore.selectedArchive = { ...archive };
     }
 
     function paginationChange() {
@@ -266,11 +272,32 @@ export default defineComponent({
       searchData();
     }
 
-    const isShowFavoriteGroupBottomDialog = ref(false);
+    const clickedArchive: Ref<Archive | null> = ref(null);
+    const isShowFavoriteGroupBottomDialog = computed({
+      get: () => !!clickedArchive.value,
+      set: value => {
+        if (value) return;
+        clickedArchive.value = null;
+      },
+    });
 
     // 즐겨찾기 버튼 클릭 시
-    async function onClickFavorite(archive: Archive) {
+    function onClickFavorite(archive: Archive) {
       isShowFavoriteGroupBottomDialog.value = true;
+      clickedArchive.value = archive;
+    }
+
+    // 즐겨찾기 그룹 선택 완료 시
+    async function selectFavoriteGroupList(ids: string[]) {
+      try {
+        const favoriteGroups = await favoriteGroupStore.updateFavoriteGroupsInArchive(clickedArchive.value!._id, ids);
+        clickedArchive.value!.favoriteGroup = favoriteGroups;
+        clickedArchive.value!.favorite = favoriteGroups?.length > 0;
+      } catch (error) {
+        console.error('[ERROR] select favorite group list : ', error);
+      } finally {
+        isShowFavoriteGroupBottomDialog.value = false;
+      }
     }
 
     return {
@@ -293,6 +320,8 @@ export default defineComponent({
       onClickFavorite,
       isShowFavoriteGroupBottomDialog,
       onClickArchive,
+      clickedArchive,
+      selectFavoriteGroupList,
     };
   },
 });
