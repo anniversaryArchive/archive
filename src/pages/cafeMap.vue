@@ -1,40 +1,32 @@
 <template>
   <div class="h-screen">
     <div class="search-box">
-      <h1 class="search-text">멤버 선택</h1>
-      <select-box
-        id="artist"
-        v-model="artistList"
-        v-bind="selectBoxOptions.artist"
-        style="width: 100%"
-        :multiplied="true"
-        use-chips
-      />
-      <h1 class="search-text">기간 선택</h1>
-      <com-period-date-picker
-        v-model="archiveSchParams"
-        :clearable="true"
-        :disabled="false"
-        :readonly="false"
-        beginDeNm="schBeginDe"
-        endDeNm="schEndDe"
-      />
-
-      <div class="btn-box">
-        <q-btn type="button" class="" @click="resetFunc"> 초기화 </q-btn>
-        <q-btn type="button" class="search-btn" @click="searchBtnFunc"> 검색 </q-btn>
-      </div>
+      <!-- 선택한 그룹 Input -->
+      <q-input he outlined v-model="groupData.name" disable>
+        <template v-slot:prepend>
+          <q-avatar>
+            <img :src="groupData.logo.path">
+          </q-avatar>
+        </template>
+      </q-input>
+      <!--필터 버튼-->
+      <q-btn class="q-button" color="white" @click="isShowSearchBottomDialog = true">
+        <img src="@/assets/images/icon/filter-icon.png" style="width: 20px">
+      </q-btn>
     </div>
 
-    <div class="list-order">
+    <div class="list-order flex grid-flow-row-dense">
       <q-select
-        class="order-select"
+        class="order-select auto-cols-auto"
         v-model="orderData"
         :options="orderOptions"
         @update:model-value="orderSelectChange()"
         borderless
-        style="width: 50%"
+        style="width: 26%"
       ></q-select>
+      <div class="artist-list auto-cols-auto self-center pl-2">
+        <label v-for="name in artistNameList">#{{name}}</label>
+      </div>
     </div>
 
     <q-list v-if="archiveParams">
@@ -64,6 +56,39 @@
         />
       </template>
     </BottomDialog>
+    <BottomDialog :show="isShowSearchBottomDialog" @hide="isShowSearchBottomDialog = false">
+      <template v-slot:title>검색</template>
+      <template v-slot:content>
+        <div class="px-4">
+          <h1 class="search-text mb-2">아티스트 선택</h1>
+          <select-box
+            id="artist"
+            v-model="artistList"
+            v-bind="selectBoxOptions.artist"
+            style="width: 100%"
+            :multiplied="true"
+            use-chips
+          />
+          <h1 class="search-text mb-2">기간 선택</h1>
+          <com-period-date-picker
+            v-model="archiveSchParams"
+            :clearable="true"
+            :disabled="false"
+            :readonly="false"
+            beginDeNm="schBeginDe"
+            endDeNm="schEndDe"
+          />
+        </div>
+      </template>
+      <template v-slot:footer>
+        <div class="font-bold text-center border-t border-gray-300">
+          <div class="btn-box">
+            <q-btn type="button" @click="resetFunc(false)"> 초기화 </q-btn>
+            <q-btn type="button" class="search-btn" @click="searchBtnFunc"> 검색 </q-btn>
+          </div>
+        </div>
+      </template>
+    </BottomDialog>
   </div>
 </template>
 
@@ -85,6 +110,7 @@ import { useQuasar } from 'quasar';
 import CafeItem from '@/components/CafeItem.vue';
 import BottomDialog from '@/dialogs/BottomDialog.vue';
 import FavoriteGroupList from '@/components/FavoriteGroupList.vue';
+import { Group } from '@/types/Group';
 
 export default defineComponent({
   name: 'cafeMap',
@@ -129,6 +155,10 @@ export default defineComponent({
     const mapStore = useMapStore();
     const favoriteGroupStore = useFavoriteGroupStore();
 
+    const groupData = ref({} as Group[]);
+    const artistNameList = ref([] as string[]);
+    const isShowSearchBottomDialog: Ref<boolean> = ref(false);
+
     onBeforeMount(() => {
       initialize();
     });
@@ -141,6 +171,7 @@ export default defineComponent({
       artistStore.getArtists(artistFilterData);
       getArchives();
       favoriteGroupStore.getFavoriteGroupList();
+      groupData.value = archiveStore.group;
     };
 
     watch(
@@ -210,26 +241,38 @@ export default defineComponent({
       }
       searchData();
       reset();
+      isShowSearchBottomDialog.value = false;
+      resetFunc(true);
     }
 
     function searchData() {
       // 검색 데이터 생성
       let artistListSave: unknown[] = [];
+      let selectList : unknown[] = selectBoxOptions.value.artist.data;
+      artistNameList.value = [];
       Object.entries(artistList.value).forEach(([, val]) => {
         artistListSave.push(val);
+        Object.entries(selectList).forEach(([, item]) => {
+          if(item.value === val) {
+            artistNameList.value.push(item.label);
+          }
+        });
       });
       getArchives();
     }
 
-    function resetFunc() {
+    function resetFunc(type: Boolean) {
       const msg = '초기화 하시겠습니까?';
-      if (!confirm(msg)) {
+      if (!type && !confirm(msg)) {
         return;
       }
 
       // 검색 조건
+      artistList.value = [];
       archiveSchParams.value = {
         artist: null,
+        schBeginDe: null,
+        schEndDe: null
       } as ArchiveSearchParams;
 
       reset();
@@ -322,11 +365,70 @@ export default defineComponent({
       onClickArchive,
       clickedArchive,
       selectFavoriteGroupList,
+      isShowSearchBottomDialog,
+      groupData,
+      artistNameList
     };
   },
 });
 </script>
 
-<style scoped></style>
+<style lang="scss" scoped>
+.search-box {
+  display: flex;
+  .q-field {
+    width: 100%;
+    float: left;
+  }
+  .q-button {
+    width: 56px;
+    height: 56px;
+    margin-left: 7px;
+    border-radius: 4px;
+    border: 1px solid #4285F4;
+  }
+}
+.search-text {
+  color: #3C3C3C;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: normal;
+}
 
-<style scoped></style>
+.btn-box {
+  button {
+    width: 50%;
+    height: 70px;
+    border: 0;
+    background: #D9D9D9;
+    color: #767676;
+    border-radius: 0;
+    margin: 0;
+  }
+
+  .search-btn {
+    background: #4D8CF4;
+    color: #fff;
+  }
+}
+
+.artist-list {
+  white-space: nowrap;
+  //width: 240px;
+  padding: 15px;
+  overflow: scroll;
+  label {
+    color: #767676;
+    font-size: 14px;
+    font-weight: 400;
+    border-radius: 50px;
+    background: #D9D9D9;
+    padding: 5px 8px;
+    margin: 0 3px;
+  }
+}
+
+.artist-list::-webkit-scrollbar{
+  display: none;
+}
+</style>

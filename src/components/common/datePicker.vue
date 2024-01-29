@@ -116,15 +116,13 @@ export default defineComponent({
 .inp_date .q-field__marginal {
   height: auto;
 }
-.inp_date + .inp_date {
-  margin-left: 34px;
-}
+
 .inp_date + .inp_date:after {
   content: "~";
   font-weight: bold;
   position: absolute;
-  left: -20px;
-  top: 5px;
+  left: -30px;
+  top: 10px;
 }
 
 </style>
