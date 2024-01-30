@@ -5,7 +5,7 @@
       <q-input he outlined v-model="groupData.name" disable>
         <template v-slot:prepend>
           <q-avatar>
-            <img :src="groupData.logo.path">
+            <img :src="groupData.logo.path" alt="logo">
           </q-avatar>
         </template>
       </q-input>
@@ -15,16 +15,15 @@
       </q-btn>
     </div>
 
-    <div class="list-order flex grid-flow-row-dense">
+    <div class="list-order">
       <q-select
         class="order-select auto-cols-auto"
         v-model="orderData"
         :options="orderOptions"
         @update:model-value="orderSelectChange()"
         borderless
-        style="width: 26%"
       ></q-select>
-      <div class="artist-list auto-cols-auto self-center pl-2">
+      <div v-if="artistNameList.length" class="artist-list">
         <label v-for="name in artistNameList">#{{name}}</label>
       </div>
     </div>
@@ -159,6 +158,12 @@ export default defineComponent({
     const artistNameList = ref([] as string[]);
     const isShowSearchBottomDialog: Ref<boolean> = ref(false);
 
+    watch(() => isShowSearchBottomDialog.value, (nv) => {
+      if(nv) {
+        resetFunc(true);
+      }
+    })
+
     onBeforeMount(() => {
       initialize();
     });
@@ -242,7 +247,6 @@ export default defineComponent({
       searchData();
       reset();
       isShowSearchBottomDialog.value = false;
-      resetFunc(true);
     }
 
     function searchData() {
@@ -275,7 +279,9 @@ export default defineComponent({
         schEndDe: null
       } as ArchiveSearchParams;
 
-      reset();
+      if(!type) {
+        reset();
+      }
     }
 
     function reset() {
@@ -412,23 +418,37 @@ export default defineComponent({
   }
 }
 
-.artist-list {
-  white-space: nowrap;
-  //width: 240px;
-  padding: 15px;
-  overflow: scroll;
-  label {
-    color: #767676;
-    font-size: 14px;
-    font-weight: 400;
-    border-radius: 50px;
-    background: #D9D9D9;
-    padding: 5px 8px;
-    margin: 0 3px;
+.list-order {
+  display: flex;
+  .order-select {
+    width: 26%;
   }
-}
-
-.artist-list::-webkit-scrollbar{
-  display: none;
+  .artist-list {
+    white-space: nowrap;
+    padding: 15px;
+    overflow-y: auto;
+    label {
+      color: #767676;
+      font-size: 14px;
+      font-weight: 400;
+      border-radius: 50px;
+      background: #D9D9D9;
+      padding: 5px 8px;
+      margin: 0 3px;
+    }
+    &::-webkit-scrollbar {
+      width: 10px;
+    }
+    &::-webkit-scrollbar-track {
+      box-shadow: inset 0 0 10px 10px #F6F6F6;
+      border-radius: 10px;
+      border: solid 6px transparent;
+    }
+    &::-webkit-scrollbar-thumb {
+      box-shadow: inset 0 0 10px 10px #DDD;
+      border-radius: 10px;
+      border: solid 6px transparent;
+    }
+  }
 }
 </style>
