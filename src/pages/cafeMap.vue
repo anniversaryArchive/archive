@@ -421,7 +421,7 @@ export default defineComponent({
 .list-order {
   display: flex;
   .order-select {
-    width: 26%;
+    width: 30%;
   }
   .artist-list {
     white-space: nowrap;
