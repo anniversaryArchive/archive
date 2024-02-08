@@ -1,5 +1,5 @@
 query ($id: ID!) {
-  archive (id: $id) {
+  archive(id: $id) {
     _id
     name
     themeName
@@ -36,6 +36,9 @@ query ($id: ID!) {
       path
     }
     favorite
+    favoriteGroup {
+      _id
+    }
     organizer
     phoneNumber
     link

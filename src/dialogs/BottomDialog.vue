@@ -1,5 +1,5 @@
 <template>
-  <div class="absolute relative top-0 left-0 w-full h-full dialog" :class="{ hide: !show }">
+  <div class="absolute top-0 left-0 w-full h-full dialog" :class="{ hide: !show }">
     <div class="w-full h-full bg-black backdrop" @click="hide"></div>
     <div
       class="absolute bottom-0 flex flex-col w-full bg-white !rounded-t-2xl dialog-content h-5/6"
@@ -16,7 +16,7 @@
       </div>
 
       <!-- Content -->
-      <div class="flex-1">
+      <div class="flex-1 overflow-y-auto">
         <slot name="content"></slot>
       </div>
 

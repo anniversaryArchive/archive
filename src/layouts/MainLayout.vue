@@ -24,7 +24,7 @@
     </q-drawer>
     <q-page-container>
       <q-page>
-        <div id="troublemaker" class="bg-[#fff] h-screen mt-[-3.5rem] pt-14">
+        <div id="troublemaker" class="bg-[#fff] h-screen mt-[-3.5rem] pt-14 overflow-y-hidden">
           <slot />
         </div>
       </q-page>
