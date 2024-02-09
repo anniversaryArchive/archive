@@ -19,8 +19,12 @@ export default {
 }
 </script>
 
-<style scoped>
-svg:hover .tabVector {
-  fill: #4285F4;
+<style lang="scss" scoped>
+.tab-link:hover {
+  .tab-icon {
+    svg .tabVector {
+      fill: #4285F4;
+    }
+  }
 }
 </style>

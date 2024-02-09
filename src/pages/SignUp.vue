@@ -47,7 +47,7 @@ async function doSignUp() {
   try {
     const success: boolean = await userStore.doSignUp();
     if (!success) { return false; }
-    router.push('/cafeMap');
+    router.push('/cafe-map');
   } catch (error) {
     console.error(error);
   }

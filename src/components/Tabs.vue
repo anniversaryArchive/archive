@@ -3,10 +3,11 @@
     <template v-for="(menu, index) in menus">
       <router-link
         :to="menu.to"
-        class="tab-link flex flex-col justify-center text-center transition-colors duration-300 bg-white hover:text-primary"
+        class="tab-link flex flex-col justify-center text-center transition-colors duration-300 bg-white"
+        @mouseover="menu.hover = true"
         :class="currentPath.includes(menu.to) ? 'text-primary' : 'text-muted'">
         <div class="tab-icon">
-          <component :is="componentLoader(menu.icon)" :is-active="currentPath.includes(menu.to)" />
+          <component :is="componentLoader(menu.icon)" :is-active="currentPath.includes(menu.to)" :is-hover="menu.hover" />
         </div>
         <div class="mt-1 text-xs">
           {{ menu.label }}
@@ -30,7 +31,7 @@
 </template>
 
 <script setup lang="ts">
-import { ComputedRef, computed } from "vue";
+import { ComputedRef, computed, ref } from "vue";
 import { useRoute } from "vue-router";
 import { useQuasar } from "quasar";
 import { useUserStore } from "@/stores/user";
@@ -44,6 +45,7 @@ interface Menu {
   icon: string;
   label: string;
   to: string;
+  hover: boolean
 }
 
 const emit = defineEmits(["login", "logout"]);
@@ -55,15 +57,14 @@ const userStore = useUserStore();
 const isMobile: ComputedRef<boolean> = computed(() => $q.screen.sm || $q.screen.xs);
 const loggedIn: ComputedRef<boolean> = computed(() => userStore.loggedIn);
 const currentPath: ComputedRef<string> = computed(() => {
-  // console.log("path : ", route.path);
   return route.path;
 });
 
 const menus: ComputedRef<Menu[]> = computed(() => {
   let menus = [
-    { icon: "map", label: "맵", to: "/cafeMap" } as Menu,
-    { icon: "favorite", label: "즐겨찾기", to: "/favorite" } as Menu,
-    { icon: "forum", label: "소통창구", to: "/communication-board" } as Menu,
+    { icon: "map", label: "맵", to: "/cafe-map", hover: false } as Menu,
+    { icon: "favorite", label: "즐겨찾기", to: "/favorite", hover: false } as Menu,
+    { icon: "forum", label: "소통창구", to: "/communication-board", hover: false } as Menu,
   ];
   // 어드민인 경우에만 어드민 메뉴 추가
   if (!isMobile.value && userStore.isAdmin) {
@@ -77,10 +78,6 @@ function onClickBtn(type: "login" | "logout") {
 }
 
 function componentLoader (type: string) {
-  if(type == 'favorite'){
-    return Favorite;
-  }
-
   switch (type) {
     case 'favorite' :
       return Favorite;
@@ -90,8 +87,6 @@ function componentLoader (type: string) {
       return Forum;
     case 'admin_panel_settings' :
       return Admin;
-    default :
-      break;
   }
 }
 
@@ -103,11 +98,16 @@ function componentLoader (type: string) {
     margin: auto;
   }
 }
-.tab-link:first-child {
-  padding-top: 30px;
-}
+
+.tab-link:first-child,
 .tab-link+.tab-link {
   padding-top: 30px;
+}
+
+.tab-link:hover {
+  .mt-1 {
+    color: #4285F4;
+  }
 }
 
 @media (max-width: 959px) {
