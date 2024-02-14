@@ -28,7 +28,7 @@ const routes: Array<RouteRecordRaw> = [
   },
   {
     meta: { title: 'cafeMap', layout: 'MapLayout' },
-    path: '/cafeMap',
+    path: '/cafe-map',
     component: () => import('@/pages/cafeMap.vue'),
   },
   {

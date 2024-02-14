@@ -75,7 +75,7 @@ function doSearch() {
 
 function onClickGroup(group: Group) {
   archiveStore.setGroup(group);
-  router.push('/cafeMap');
+  router.push('/cafe-map');
 }
 
 /***

@@ -26,7 +26,7 @@ async function doNaverLogin(code: string) {
     if (user == null) { // 회원가입된 계정이 아닌 경우
       router.push('/signUp');
     } else { // 로그인 성공
-      router.push('/cafeMap');
+      router.push('/cafe-map');
     }
   } catch (error) {
     console.error(error);
