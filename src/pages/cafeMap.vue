@@ -2,7 +2,7 @@
   <div class="h-screen">
     <div class="search-box">
       <!-- 선택한 그룹 Input -->
-      <q-input he outlined v-model="groupData.name" disable>
+      <q-input outlined v-model="groupData.name" readonly>
         <template v-slot:prepend>
           <q-avatar>
             <img :src="groupData.logo.path" alt="logo">

@@ -12,6 +12,11 @@ body {
   font-family: "SUIT", Inter, Avenir, Helvetica, Arial, sans-serif !important;
 }
 
+/* quasar reset */
+.q-field--outlined.q-field--readonly .q-field__control:before {
+  border-style: solid !important;
+}
+
 /* Layout */
 .toolbar-title {
   text-align: left;
