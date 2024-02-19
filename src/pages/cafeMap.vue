@@ -11,7 +11,7 @@
       </q-input>
       <!--필터 버튼-->
       <q-btn class="q-button" color="white" @click="isShowSearchBottomDialog = true">
-        <img src="@/assets/images/icon/filter-icon.png" style="width: 20px">
+        <img src="@/assets/images/icon/filter-icon.svg" style="width: 20px">
       </q-btn>
     </div>
 
