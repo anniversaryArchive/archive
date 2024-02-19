@@ -159,9 +159,9 @@ export default defineComponent({
     const isShowSearchBottomDialog: Ref<boolean> = ref(false);
 
     watch(() => isShowSearchBottomDialog.value, (nv) => {
-      if(nv) {
+      /*if(nv) {
         resetFunc(true);
-      }
+      }*/
     })
 
     onBeforeMount(() => {
