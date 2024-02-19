@@ -82,7 +82,7 @@
       <template v-slot:footer>
         <div class="font-bold text-center border-t border-gray-300">
           <div class="btn-box">
-            <q-btn type="button" @click="resetFunc(false)"> 초기화 </q-btn>
+            <q-btn type="button" @click="resetFunc"> 초기화 </q-btn>
             <q-btn type="button" class="search-btn" @click="searchBtnFunc"> 검색 </q-btn>
           </div>
         </div>
@@ -157,12 +157,6 @@ export default defineComponent({
     const groupData = ref({} as Group[]);
     const artistNameList = ref([] as string[]);
     const isShowSearchBottomDialog: Ref<boolean> = ref(false);
-
-    watch(() => isShowSearchBottomDialog.value, (nv) => {
-      /*if(nv) {
-        resetFunc(true);
-      }*/
-    })
 
     onBeforeMount(() => {
       initialize();
@@ -265,12 +259,11 @@ export default defineComponent({
       getArchives();
     }
 
-    function resetFunc(showConfirm : false) {
+    function resetFunc() {
       const msg = '초기화 하시겠습니까?';
-      if (!showConfirm && !confirm(msg)) {
+      if (!confirm(msg)) {
         return;
       }
-
       // 검색 조건
       artistList.value = [];
       archiveSchParams.value = {
@@ -278,10 +271,6 @@ export default defineComponent({
         schBeginDe: null,
         schEndDe: null
       } as ArchiveSearchParams;
-
-      if(!showConfirm) {
-        reset();
-      }
     }
 
     function reset() {
