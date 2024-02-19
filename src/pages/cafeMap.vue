@@ -265,9 +265,9 @@ export default defineComponent({
       getArchives();
     }
 
-    function resetFunc(type: Boolean) {
+    function resetFunc(showConfirm : false) {
       const msg = '초기화 하시겠습니까?';
-      if (!type && !confirm(msg)) {
+      if (!showConfirm && !confirm(msg)) {
         return;
       }
 
@@ -279,7 +279,7 @@ export default defineComponent({
         schEndDe: null
       } as ArchiveSearchParams;
 
-      if(!type) {
+      if(!showConfirm) {
         reset();
       }
     }
