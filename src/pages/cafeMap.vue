@@ -11,7 +11,7 @@
       </q-input>
       <!--필터 버튼-->
       <q-btn class="q-button" color="white" @click="isShowSearchBottomDialog = true">
-        <img src="@/assets/images/icon/filter-icon.svg" style="width: 20px">
+        <img src="@/assets/images/icon/filter-icon.svg" style="width: 20px" alt="filter">
       </q-btn>
     </div>
 
@@ -154,7 +154,9 @@ export default defineComponent({
     const mapStore = useMapStore();
     const favoriteGroupStore = useFavoriteGroupStore();
 
-    const groupData = ref({} as Group[]);
+    // const groupData = ref({} as Group[]);
+    const groupData: Ref<Group[]> = ref([]);
+    // const groupData = ref({} as Group);
     const artistNameList = ref([] as string[]);
     const isShowSearchBottomDialog: Ref<boolean> = ref(false);
 
@@ -163,7 +165,6 @@ export default defineComponent({
     });
 
     const initialize = () => {
-      // 임시 그룹 데이터
       const artistFilterData = {
         flds: { group: archiveStore.groupId },
       };
@@ -171,6 +172,7 @@ export default defineComponent({
       getArchives();
       favoriteGroupStore.getFavoriteGroupList();
       groupData.value = archiveStore.group;
+      console.log('archiveStore.group : ', archiveStore.group);
     };
 
     watch(
@@ -224,8 +226,8 @@ export default defineComponent({
         perPage: paginationData.value.perPage,
         filter: { flds: { artist: Array.from(artistList.value) } },
         search: {
-          start: schBeginDe && moment(schBeginDe).format('YYYY-MM-DD'),
-          end: schEndDe && moment(schEndDe).format('YYYY-MM-DD'),
+          start: schBeginDe ? moment(schBeginDe).format('YYYY-MM-DD') : '',
+          end: schEndDe ? moment(schEndDe).format('YYYY-MM-DD') : '',
         },
         sortOrder: orderData.value.value === 'newest' ? -1 : 1,
         sortField: 'startDate',
@@ -246,13 +248,15 @@ export default defineComponent({
     function searchData() {
       // 검색 데이터 생성
       let artistListSave: unknown[] = [];
-      let selectList : unknown[] = selectBoxOptions.value.artist.data;
+      let selectList : unknown[] | undefined = selectBoxOptions.value.artist.data;
       artistNameList.value = [];
       Object.entries(artistList.value).forEach(([, val]) => {
         artistListSave.push(val);
-        Object.entries(selectList).forEach(([, item]) => {
-          if(item.value === val) {
-            artistNameList.value.push(item.label);
+
+        selectList?.forEach((item) => {
+          const result = JSON.parse(JSON.stringify(item));
+          if(result.value === val) {
+            artistNameList.value.push(result.label);
           }
         });
       });
