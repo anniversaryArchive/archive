@@ -154,9 +154,7 @@ export default defineComponent({
     const mapStore = useMapStore();
     const favoriteGroupStore = useFavoriteGroupStore();
 
-    // const groupData = ref({} as Group[]);
-    const groupData: Ref<Group[]> = ref([]);
-    // const groupData = ref({} as Group);
+    const groupData: Ref<Group | undefined> = ref();
     const artistNameList = ref([] as string[]);
     const isShowSearchBottomDialog: Ref<boolean> = ref(false);
 
@@ -172,7 +170,7 @@ export default defineComponent({
       getArchives();
       favoriteGroupStore.getFavoriteGroupList();
       groupData.value = archiveStore.group;
-      console.log('archiveStore.group : ', archiveStore.group);
+      console.log(groupData.value?.logo);
     };
 
     watch(
@@ -247,11 +245,11 @@ export default defineComponent({
 
     function searchData() {
       // 검색 데이터 생성
-      let artistListSave: unknown[] = [];
+      // let artistListSave: unknown[] = [];
       let selectList : unknown[] | undefined = selectBoxOptions.value.artist.data;
       artistNameList.value = [];
       Object.entries(artistList.value).forEach(([, val]) => {
-        artistListSave.push(val);
+        // artistListSave.push(val);
 
         selectList?.forEach((item) => {
           const result = JSON.parse(JSON.stringify(item));
