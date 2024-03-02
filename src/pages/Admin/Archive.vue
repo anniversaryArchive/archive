@@ -6,13 +6,13 @@
       <q-spinner color="primary" size="3em" class="m-auto" />
     </div>
 
-    <div class='form_table'>
+    <div class="form_table">
       <table>
         <colgroup>
-          <col style='width:120px'/>
-          <col style='width:auto'/>
-          <col style='width:120px'/>
-          <col style='width:auto'/>
+          <col style="width: 120px" />
+          <col style="width: auto" />
+          <col style="width: 120px" />
+          <col style="width: auto" />
         </colgroup>
 
         <tbody>
@@ -20,14 +20,34 @@
           <tr>
             <th>카페 이름</th>
             <td colspan="3">
-              <q-input :ref='el => { refs["name"] = el }' v-model="inputArchive.name" :dense="true" maxlength="100" outlined/>
+              <q-input
+                :ref="
+                  el => {
+                    refs['name'] = el;
+                  }
+                "
+                v-model="inputArchive.name"
+                :dense="true"
+                maxlength="100"
+                outlined
+              />
             </td>
           </tr>
 
           <tr>
             <th>카페 테마 명</th>
             <td colspan="3">
-              <q-input :ref='el => { refs["themeName"] = el }' v-model="inputArchive.themeName" :dense="true" maxlength="100" outlined/>
+              <q-input
+                :ref="
+                  el => {
+                    refs['themeName'] = el;
+                  }
+                "
+                v-model="inputArchive.themeName"
+                :dense="true"
+                maxlength="100"
+                outlined
+              />
             </td>
           </tr>
 
@@ -37,39 +57,76 @@
               {{ inputArchive.address }}
             </td>
             <td class="text-right">
-              <button class="px-4 py-2 font-semibold text-white rounded bg-primary"
-                @click="onClickFindAddressButton">주소 찾기</button>
+              <button class="px-4 py-2 font-semibold text-white rounded bg-primary" @click="onClickFindAddressButton">
+                주소 찾기
+              </button>
             </td>
           </tr>
 
           <tr>
             <th>카페 상세 주소</th>
             <td colspan="3">
-              <q-input :ref='el => { refs["detailAddress"] = el }' v-model="inputArchive.detailAddress" :dense="true" maxlength="100" outlined/>
+              <q-input
+                :ref="
+                  el => {
+                    refs['detailAddress'] = el;
+                  }
+                "
+                v-model="inputArchive.detailAddress"
+                :dense="true"
+                maxlength="100"
+                outlined
+              />
             </td>
           </tr>
 
           <tr>
             <th>주최자(트위터 아이디)</th>
             <td colspan="3">
-              <q-input :ref='el => { refs["organizer"] = el }' v-model="inputArchive.organizer"
-                :dense="true" maxlength="100" outlined placeholder="@주최자트위터아이디" />
+              <q-input
+                :ref="
+                  el => {
+                    refs['organizer'] = el;
+                  }
+                "
+                v-model="inputArchive.organizer"
+                :dense="true"
+                maxlength="100"
+                outlined
+                placeholder="@주최자트위터아이디"
+              />
             </td>
           </tr>
 
           <tr>
             <th>카페 시작일</th>
             <td colspan="3">
-              <DatePicker :ref='el => { refs["startDate"] = el }'
-                v-model='inputArchive.startDate' :clearable='true' returnDataFormat="YYYY.MM.DD" />
+              <DatePicker
+                :ref="
+                  el => {
+                    refs['startDate'] = el;
+                  }
+                "
+                v-model="inputArchive.startDate"
+                :clearable="true"
+                returnDataFormat="YYYY.MM.DD"
+              />
             </td>
           </tr>
 
           <tr>
             <th>카페 종료일</th>
             <td colspan="3">
-              <DatePicker :ref='el => { refs["endDate"] = el }'
-                v-model='inputArchive.endDate' :clearable='true' returnDataFormat="YYYY.MM.DD" />
+              <DatePicker
+                :ref="
+                  el => {
+                    refs['endDate'] = el;
+                  }
+                "
+                v-model="inputArchive.endDate"
+                :clearable="true"
+                returnDataFormat="YYYY.MM.DD"
+              />
             </td>
           </tr>
 
@@ -90,8 +147,17 @@
           <tr>
             <th>메인 이미지</th>
             <td colspan="3">
-              <q-file :ref='el => { refs["mainImage"] = el }' outlined
-                v-model="(inputArchive.mainImage as File)" accept=".jpg, .png, image/*" @rejected="onRejected">
+              <q-file
+                :ref="
+                  el => {
+                    refs['mainImage'] = el;
+                  }
+                "
+                outlined
+                v-model="(inputArchive.mainImage as File)"
+                accept=".jpg, .png, image/*"
+                @rejected="onRejected"
+              >
                 <template v-slot:prepend>
                   <q-icon name="attach_file" />
                 </template>
@@ -103,13 +169,14 @@
           <tr>
             <th>영업 시작 시간</th>
             <td class="border-b border-gray-300">
-              <input type="checkbox"
+              <input
+                type="checkbox"
                 id="openTimeCheckBox"
                 :value="!inputArchive.openTime"
                 :checked="!inputArchive.openTime"
-                @click="(event) => onChangeTimeCheckbox('openTime', event)" />
-              <label for="openTimeCheckBox"
-                class="ml-1">사용 안 함</label>
+                @click="event => onChangeTimeCheckbox('openTime', event)"
+              />
+              <label for="openTimeCheckBox" class="ml-1">사용 안 함</label>
             </td>
             <td colspan="2" class="border-b border-gray-300">
               <TimePicker v-model="inputArchive.openTime" />
@@ -119,13 +186,14 @@
           <tr>
             <th>영업 종료 시간</th>
             <td>
-              <input type="checkbox"
+              <input
+                type="checkbox"
                 id="closeTimeCheckBox"
                 :value="!inputArchive.closeTime"
                 :checked="!inputArchive.closeTime"
-                @click="(event) => onChangeTimeCheckbox('closeTime', event)" />
-              <label for="closeTimeCheckBox"
-                class="ml-1">사용 안 함</label>
+                @click="event => onChangeTimeCheckbox('closeTime', event)"
+              />
+              <label for="closeTimeCheckBox" class="ml-1">사용 안 함</label>
             </td>
             <td colspan="2">
               <TimePicker v-model="inputArchive.closeTime" />
@@ -137,13 +205,10 @@
             <td colspan="3" class="border rounded boder-gray-300">
               <ImageSlide v-model="inputArchive.images" :editMode="true" />
 
-              <input type="file" class="hidden"
-                accept=".jpg, .png, image/*"
-                id="inputImages" @change="onChangeImage" />
+              <input type="file" class="hidden" accept=".jpg, .png, image/*" id="inputImages" @change="onChangeImage" />
 
               <div class="text-right">
-                <button class="px-4 py-1 text-white rounded bg-primary"
-                  @click="onClickAddImage">이미지 추가</button>
+                <button class="px-4 py-1 text-white rounded bg-primary" @click="onClickAddImage">이미지 추가</button>
               </div>
             </td>
           </tr>
@@ -151,14 +216,34 @@
           <tr>
             <th>전화번호</th>
             <td colspan="3">
-              <q-input :ref='el => { refs["phoneNumber"] = el }' v-model="inputArchive.phoneNumber" :dense="true" maxlength="100" outlined/>
+              <q-input
+                :ref="
+                  el => {
+                    refs['phoneNumber'] = el;
+                  }
+                "
+                v-model="inputArchive.phoneNumber"
+                :dense="true"
+                maxlength="100"
+                outlined
+              />
             </td>
           </tr>
 
           <tr>
             <th>대표 링크</th>
             <td colspan="3">
-              <q-input :ref='el => { refs["link"] = el }' v-model="inputArchive.link" :dense="true" maxlength="100" outlined/>
+              <q-input
+                :ref="
+                  el => {
+                    refs['link'] = el;
+                  }
+                "
+                v-model="inputArchive.link"
+                :dense="true"
+                maxlength="100"
+                outlined
+              />
             </td>
           </tr>
         </tbody>
@@ -166,17 +251,17 @@
     </div>
 
     <div>
-      <div class='con_tit'>
+      <div class="con_tit">
         <h6>카페 목록</h6>
-        <p class='num'>[총 {{ total }} 건]</p>
+        <p class="num">[총 {{ total }} 건]</p>
       </div>
-      <div id='grdMstArea' class="grid_edge">
-        <div class='default-list'>
+      <div id="grdMstArea" class="grid_edge">
+        <div class="default-list">
           <AgGridVue
-            id='grdMst'
-            ref='grdMst'
-            v-bind='grdMstProps'
-            class='ag-theme-balham'
+            id="grdMst"
+            ref="grdMst"
+            v-bind="grdMstProps"
+            class="ag-theme-balham"
             @grid-ready="onGridReady"
             @pagination-changed="onPaginationChanged"
             @cell-focused="onCellFocused"
@@ -186,9 +271,15 @@
     </div>
   </div>
 
-  <FindAddressDialog :show="isOpenFindAddressDialog"
+  <FindAddressDialog
+    :show="isOpenFindAddressDialog"
     @done="onSelectAddress"
-    @close="() => { isOpenFindAddressDialog = false; }" />
+    @close="
+      () => {
+        isOpenFindAddressDialog = false;
+      }
+    "
+  />
 </template>
 
 <script setup lang="ts">
@@ -229,7 +320,7 @@ import FindAddressDialog from '@/dialogs/FindAddressDialog.vue';
 
 const isOpenFindAddressDialog: Ref<boolean> = ref(false);
 
-const gridFields: { key: string, text: string }[] = [
+const gridFields: { key: string; text: string }[] = [
   { key: 'name', text: '카페명' },
   { key: 'themeName', text: '카페테마명' },
 ];
@@ -244,13 +335,18 @@ const lastActionId: Ref<string | undefined> = ref(); // 마지막으로 생성/�
 
 // Archive List Table View 관련 변수
 const total: ComputedRef<number> = computed(() => archiveStroe.total);
-watch(() => archiveStroe.archives, () => {
-  grdApi.value.setRowData(archiveStroe.archives);
-  const rowIndex: number = lastActionId.value ? archiveStroe.archives.findIndex((archive) => {
-    return archive[grdMstKey.value] === lastActionId.value;
-  }) : 0;
-  grdApi.value.setFocusedCell(rowIndex, grdMstKey.value);
-});
+watch(
+  () => archiveStroe.archives,
+  () => {
+    grdApi.value.setRowData(archiveStroe.archives);
+    const rowIndex: number = lastActionId.value
+      ? archiveStroe.archives.findIndex(archive => {
+          return archive[grdMstKey.value] === lastActionId.value;
+        })
+      : 0;
+    grdApi.value.setFocusedCell(rowIndex, grdMstKey.value);
+  },
+);
 
 const isLoading: Ref<boolean> = ref(false);
 
@@ -272,22 +368,26 @@ onBeforeMount(() => {
   getGroups();
 });
 
-async function getArtists () {
+async function getArtists() {
   try {
     const result = await artistStore.getArtistsQuery();
     artists.value = (result.data.value.artist.data || []).map((artist: Artist) => {
       return { id: artist._id, name: artist.name, unavailable: false } as ComboBoxModel;
     });
-  } catch (error) { console.error(error); }
+  } catch (error) {
+    console.error(error);
+  }
 }
 
-async function getGroups () {
+async function getGroups() {
   try {
     const result = await groupStore.getGroupsQuery();
     groups.value = (result.data.value.groups.data || []).map((group: Group) => {
       return { id: group._id, name: group.name, unavailable: false } as ComboBoxModel;
     });
-  } catch (error) { console.error(error); }
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 function setInputArchive(value: Archive) {
@@ -309,16 +409,17 @@ function setInputArchive(value: Archive) {
  * Input Box 내 Action 관련 함수
  */
 // 주소 찾기 버튼 클릭 시
-function onClickFindAddressButton () {
+function onClickFindAddressButton() {
   isOpenFindAddressDialog.value = true;
 }
 
-function onSelectAddress (address: string) {
+function onSelectAddress({ address, sido }: VueDaumPostcodeCompleteResult) {
   inputArchive.value.address = address;
+  inputArchive.value.sido = sido;
   isOpenFindAddressDialog.value = false;
 }
 
-function onChangeTimeCheckbox (type: string, event: Event) {
+function onChangeTimeCheckbox(type: string, event: Event) {
   inputArchive.value[type] = (event.target as HTMLInputElement).checked ? undefined : { hour: 0, minute: 0 };
 }
 
@@ -330,22 +431,28 @@ function onChangeTimeCheckbox (type: string, event: Event) {
 const fnCallFunc = (id: string) => {
   switch (id) {
     // 조회
-    case 'inquire': return fnInquire();
+    case 'inquire':
+      return fnInquire();
     // 신규
-    case 'create': return resetInputBox();
+    case 'create':
+      return resetInputBox();
     // 삭제
-    case 'delete': return deleteSelectedArchive();
+    case 'delete':
+      return deleteSelectedArchive();
     // 저장
-    case 'save': return onClickSaveBtn();
+    case 'save':
+      return onClickSaveBtn();
   }
-}
+};
 
 // 신규 버튼 클릭 시
 async function resetInputBox() {
   try {
     const checked: boolean = await confirmDiffData();
-    if (!checked) { return; }
-  } catch (error) { console.error(error); }
+    if (!checked) return;
+  } catch (error) {
+    console.error(error);
+  }
 
   archiveGroup.value = archiveArtist.value = undefined;
   setInputArchive(cinitial.$inItData('', ArchiveType) as Archive);
@@ -353,15 +460,19 @@ async function resetInputBox() {
   // 그리드 선택 해제 (포커스 먹으려면 await)
   try {
     await grdApi.value.deselectAll();
-  } catch (error) { console.error(error); }
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 // Archive 리스트 조회(Server call)
 async function fnInquire() {
   try {
     const checked: boolean = await confirmDiffData();
-    if (!checked) { return; }
-  } catch (error) { console.error(error); }
+    if (!checked) return;
+  } catch (error) {
+    console.error(error);
+  }
   archiveStroe.getArchives({});
 }
 
@@ -382,7 +493,8 @@ async function checkDiffData(): Promise<boolean> {
   // 이미지가 변경됐는 지 확인
   const imageDiff = (() => {
     const currentImage = inputArchive.value.mainImage;
-    const current = currentImage && (currentImage.hasOwnProperty('_id') ? (currentImage as Image)._id : currentImage.name);
+    const current =
+      currentImage && (currentImage.hasOwnProperty('_id') ? (currentImage as Image)._id : currentImage.name);
     const orgImage = inputArchiveOrg.value.mainImage;
     const org = orgImage && (orgImage.hasOwnProperty('_id') ? (orgImage as Image)._id : orgImage.name);
     return current !== org;
@@ -443,11 +555,13 @@ async function onClickSaveBtn() {
         alert('변경 사항이 없습니다.');
         return;
       }
-    } catch (_) { return; }
+    } catch (_) {
+      return;
+    }
   }
 
   // 필수값 모두 입력됐는지 확인
-  if (!isMstValid()) { return; }
+  if (!isMstValid()) return;
 
   isLoading.value = true;
   let result: string | boolean = false;
@@ -457,7 +571,9 @@ async function onClickSaveBtn() {
     } else {
       result = await createArchive();
     }
-  } catch (error) { console.error(error); }
+  } catch (error) {
+    console.error(error);
+  }
 
   isLoading.value = false;
   if (result !== true) {
@@ -468,15 +584,18 @@ async function onClickSaveBtn() {
   if (archiveArtist.value) {
     const { id, name } = archiveArtist.value;
     inputArchive.value.artist = { _id: id, name };
-  } else { inputArchive.value.artist = undefined; }
+  } else {
+    inputArchive.value.artist = undefined;
+  }
   if (archiveGroup.value) {
     const { id, name } = archiveGroup.value;
     inputArchive.value.group = { _id: id, name };
-  } else { inputArchive.value.group = undefined; }
+  } else {
+    inputArchive.value.group = undefined;
+  }
   setInputArchive(inputArchive.value);
   alert('저장 완료했습니다!');
 }
-
 
 // 생성 / 수정 시 mutation에 넘길 input을 만들어서 반환하는 함수
 async function getInput(): Promise<Record<string, any> | undefined> {
@@ -484,25 +603,28 @@ async function getInput(): Promise<Record<string, any> | undefined> {
   input.artist = archiveArtist.value?.id;
   input.group = archiveGroup.value?.id;
   for (const field of ['startDate', 'endDate']) {
-    if (!input[field]) { continue; }
+    if (!input[field]) continue;
     input[field] = new Date(input[field]);
   }
 
   try {
     let success: boolean = await uploadFile();
-    if (!success) { return undefined; }
+    if (!success) return undefined;
     success = await uploadImages();
-    if (!success) { return undefined; }
+    if (!success) return undefined;
   } catch (error) {
     console.error(error);
     return undefined;
   } finally {
     const { mainImage } = inputArchive.value;
     input.mainImage = mainImage?.hasOwnProperty('_id') && (mainImage as Image)._id;
-    input.images = inputArchive.value.images.map((image) => image._id);
+    input.images = inputArchive.value.images.map(image => image._id);
   }
   delete input._id;
   delete input.favorite;
+  delete input.favoriteGroup;
+
+  if (!input.sido && input.district?.name) input.sido = input.district.name;
 
   if (inputArchive.value.address !== inputArchiveOrg.value.address) {
     try {
@@ -518,18 +640,21 @@ async function getInput(): Promise<Record<string, any> | undefined> {
 async function createArchive(): Promise<boolean | string> {
   try {
     const input = await getInput();
-    if (!input) { return false; }
+    if (!input) return false;
     const result = await archiveStroe.createArchive(input);
     if (result) {
       const { id, error } = result;
       lastActionId.value = id;
       const code: number = Number(error?.graphqlErrors && error?.graphqlErrors[0]?.extensions?.code);
       switch (code) {
-        case 1002: return '그룹 혹은 아티스트를 넣어주셔야 합니다.';
+        case 1002:
+          return '그룹 혹은 아티스트를 넣어주셔야 합니다.';
       }
       return !!id;
     }
-  } catch (error) { console.error(error); }
+  } catch (error) {
+    console.error(error);
+  }
   return false;
 }
 
@@ -537,54 +662,61 @@ async function createArchive(): Promise<boolean | string> {
 async function updateArchive(): Promise<boolean> {
   try {
     const input = await getInput();
-    if (!inputArchive.value._id || !input) { return false; }
+    if (!inputArchive.value._id || !input) return false;
     const success: boolean = await archiveStroe.updateArchive(inputArchive.value._id, input);
-    if (success) { lastActionId.value = inputArchive.value._id; }
+    if (success) {
+      lastActionId.value = inputArchive.value._id;
+    }
     return success;
-  } catch (error) { console.error(error); }
+  } catch (error) {
+    console.error(error);
+  }
   return false;
 }
 
 // 선택한 Archive를 반환하는 함수, 없으면 undefined를 반환한다.
-function getSelectedArchive (required: boolean = false): Archive | undefined {
+function getSelectedArchive(required: boolean = false): Archive | undefined {
   const selectedRows = grdApi.value.getSelectedRows();
   // 선택한 아티스트가 없는 경우
   if (!selectedRows.length) {
-    if (required) { alert('아티스트를 선택해주세요!'); }
+    if (required) {
+      alert('아티스트를 선택해주세요!');
+    }
     return;
   }
   return selectedRows[0];
 }
 
 // Grid에서 선택된 Archive를 삭제하는 함수
-async function deleteSelectedArchive () {
+async function deleteSelectedArchive() {
   const archive: Archive | undefined = getSelectedArchive(true);
-  if (!archive || !archive._id) { return; }
+  if (!archive || !archive._id) return;
   const confirmResult: boolean = confirm('정말 삭제하시겠습니까?');
-  if (!confirmResult) { return; }
+  if (!confirmResult) return;
   try {
     const success: boolean = await archiveStroe.removeArchive(archive._id);
-    if (success) { setInputArchive(cinitial.$inItData('', ArchiveType) as Archive); }
+    if (success) {
+      setInputArchive(cinitial.$inItData('', ArchiveType) as Archive);
+    }
   } catch (_) {}
 }
 
-const onRejected = () => {
-}
+const onRejected = () => {};
 
 /**
  * =================================
  * 파일 관련 로직
  * =================================
  */
-function onClickAddImage (): void {
+function onClickAddImage(): void {
   document.getElementById('inputImages')?.click();
 }
 
-function onChangeImage (event: Event) {
+function onChangeImage(event: Event) {
   const target: HTMLInputElement = event.target as HTMLInputElement;
-  if (!target.files || !target.files[0]) { return; }
+  if (!target.files || !target.files[0]) return;
   const file = target.files[0];
-  convertFile(file).then((result) => {
+  convertFile(file).then(result => {
     const image: Blob = (result.file || file) as Blob;
     inputArchive.value.images.push({
       file: image,
@@ -597,40 +729,53 @@ function onChangeImage (event: Event) {
 
 function uploadFile(): Promise<boolean> {
   const { mainImage } = inputArchive.value;
-  if (!mainImage || mainImage.hasOwnProperty('_id')) { return Promise.resolve(true); }
+  if (!mainImage || mainImage.hasOwnProperty('_id')) {
+    return Promise.resolve(true);
+  }
   const formData: FormData = new FormData();
   formData.append('file', mainImage as Blob);
 
   return new Promise((rejolve, reject) => {
-    axios.post(`${import.meta.env.VITE_API_URL}/file`, formData, {}).then((response) => {
-      const image = response.data?.data && response.data.data;
-      if (!image) { return rejolve(false); }
-      inputArchive.value.mainImage = image;
-      return rejolve(true);
-    }).catch((error) => reject(error));
+    axios
+      .post(`${import.meta.env.VITE_API_URL}/file`, formData, {})
+      .then(response => {
+        const image = response.data?.data && response.data.data;
+        if (!image) {
+          return rejolve(false);
+        }
+        inputArchive.value.mainImage = image;
+        return rejolve(true);
+      })
+      .catch(error => reject(error));
   });
 }
 
 async function uploadImages(): Promise<boolean> {
   const promises = [];
-  for (let index = 0; index < inputArchive.value.images.length; index ++) {
+  for (let index = 0; index < inputArchive.value.images.length; index++) {
     const image = inputArchive.value.images[index];
-    if (image.hasOwnProperty('_id') || !image.file) { continue; }
+    if (image.hasOwnProperty('_id') || !image.file) continue;
     const formData: FormData = new FormData();
     formData.append('file', image.file);
-    promises.push(axios.post(`${import.meta.env.VITE_API_URL}/file`, formData, {}).then((response) => {
-      const data = response.data?.data && response.data.data;
-      if (!data) { return false; }
-      inputArchive.value.images[index] = data;
-      return true;
-    }));
+    promises.push(
+      axios.post(`${import.meta.env.VITE_API_URL}/file`, formData, {}).then(response => {
+        const data = response.data?.data && response.data.data;
+        if (!data) {
+          return false;
+        }
+        inputArchive.value.images[index] = data;
+        return true;
+      }),
+    );
   }
 
-  if (!promises.length) { return true; }
+  if (!promises.length) return true;
   try {
     const results = await Promise.all(promises);
-    return !results.some((result) => !result);
-  } catch (error) { console.error(error); }
+    return !results.some(result => !result);
+  } catch (error) {
+    console.error(error);
+  }
   return false;
 }
 
@@ -644,7 +789,7 @@ async function confirmDiffData(): Promise<boolean> {
   try {
     const diff = await checkDiffData();
     const msg = '변경된 내용이 있습니다. 신규 작성시 변경 내용이 사라집니다.계속 하시겠습니까?';
-    if (diff && !confirm(msg)) { return false; }
+    if (diff && !confirm(msg)) return false;
   } catch (_) {}
   return true;
 }
@@ -659,19 +804,19 @@ async function onCellFocused(event: CellFocusedEvent) {
   // 변경사항 체크
   try {
     const confirm: boolean = await confirmDiffData();
-    if (!confirm) { return; }
+    if (!confirm) return;
   } catch (_) {}
 
-  if (!cscript.$isEmpty(focusNode)){
+  if (!cscript.$isEmpty(focusNode)) {
     focusNode!.setSelected(true, true);
   }
 
   const archive: Archive | undefined = getSelectedArchive();
-  if (!archive) { return; }
+  if (!archive) return;
   setInputArchive(archive);
 }
 
-function initGrid () {
+function initGrid() {
   const {
     grdApi,
     grdColKey: grdMstKey,
@@ -683,15 +828,21 @@ function initGrid () {
   grdMstKey.value = '_id';
   const columnDefs = [
     { headerName: 'No', valueGetter: 'node.rowIndex + 1', width: 60, sortable: true },
-    ... gridFields.map((field) => {
-      const def: Record<string, any> = { headerName: field.text, field: field.key, width: 150, cellStyle : {textAlign: 'left'}, flex: 1 };
+    ...gridFields.map(field => {
+      const def: Record<string, any> = {
+        headerName: field.text,
+        field: field.key,
+        width: 150,
+        cellStyle: { textAlign: 'left' },
+        flex: 1,
+      };
       if (field.key === 'startDate' || field.key === 'endDate') {
         def.valueFormatter = DateFormatter;
       }
       return def;
     }),
     { headerName: 'ID', field: '_id', hide: true },
-  ]
+  ];
 
   grdMstProps.value = Object.assign({}, cinitial.$comGridOption, {
     name: 'grdMstProps',
