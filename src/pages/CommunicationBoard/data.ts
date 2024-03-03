@@ -10,7 +10,8 @@ export const TABLE_COLUMNS: QTableProps['columns'] = [
     align: 'center',
     field: (row: any) => row.seq,
     format: (val: any) => `${val}`,
-  }, {
+  },
+  {
     name: 'division',
     required: true,
     label: '분류',
@@ -18,33 +19,41 @@ export const TABLE_COLUMNS: QTableProps['columns'] = [
     field: (row: any) => DIVISION_LABEL[row.division as CommunicationBoardDivision],
     classes: (row: any) => {
       let style = 'font-extrabold';
-      if (row.fixed) { style += ' text-primary'; }
+      if (row.fixed) {
+        style += ' text-primary';
+      }
       return style;
     },
-  }, {
+  },
+  {
     name: 'title',
     required: true,
     label: '제목',
     align: 'center',
     field: (row: any) => row.title,
     classes: (row: any) => {
-      if (row.fixed) { return 'font-extrabold text-primary'; }
+      if (row.fixed) {
+        return 'font-extrabold text-primary';
+      }
       return '';
     },
-  }, {
+  },
+  {
     name: 'createdAt',
     required: true,
     label: '날짜',
     align: 'center',
     field: (row: any) => row.createdAt,
     format: (val: string) => formatDate(val, 'YYYY.MM.DD'),
-  }, {
+  },
+  {
     name: 'author',
     required: true,
     label: '작성자',
     align: 'center',
     field: (row: any) => row.author?.name,
-  }, {
+  },
+  {
     name: 'status',
     required: false,
     label: '상태',
@@ -59,16 +68,18 @@ export const DIVISION_LABEL: Record<CommunicationBoardDivision, string> = {
   artist: '아티스트 제안',
   archive: '카페 제안',
   improvement: '기능 개선',
-  error: '에러'
+  error: '에러',
 };
 
-export const DIVISION_OPTIONS: CommunicationBoardDivision[] = Object.keys(DIVISION_LABEL) as CommunicationBoardDivision[];
+export const DIVISION_OPTIONS: CommunicationBoardDivision[] = Object.keys(
+  DIVISION_LABEL,
+) as CommunicationBoardDivision[];
 
 export const STATUS_LABEL: Record<string, string> = {
   none: '',
   request: '제안',
   accept: '승인',
-  reject: '거절'
+  reject: '거절',
 };
 
 export interface Field {
@@ -126,5 +137,5 @@ const ARCHIVE_FORM: Field[] = [
 export const DATA_FORM: Record<string, Field[]> = {
   group: GROUP_FROM,
   artist: ARTIST_FORM,
-  archive: ARCHIVE_FORM
+  archive: ARCHIVE_FORM,
 };
