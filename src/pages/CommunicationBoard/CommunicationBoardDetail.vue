@@ -86,20 +86,22 @@
           :class="editMode ? '' : 'overflow-y-scroll'"
         >
           <div v-for="field in formFields" class="mb-2">
-            <div class="mb-1 font-bold">
-              {{ field.label }}
-              <span v-if="field.type === 'objectList'"> ({{ proposalData[field.key]?.length || 0 }}) </span>
-              <span v-if="editMode && field.required" class="ml-2 text-red-700">*</span>
-            </div>
+            <template v-if="!field.hidden">
+              <div class="mb-1 font-bold">
+                {{ field.label }}
+                <span v-if="field.type === 'objectList'"> ({{ proposalData[field.key]?.length || 0 }}) </span>
+                <span v-if="editMode && field.required" class="ml-2 text-red-700">*</span>
+              </div>
 
-            <template v-if="!field.parent || proposalData[field.parent]">
-              <CustomInput
-                v-model="proposalData[field.key]"
-                :field="field"
-                :disabled="!editMode"
-                :parent="field.parent && proposalData[field.parent]"
-                @updateAddress="onUpdateAddress"
-              />
+              <template v-if="!field.parent || proposalData[field.parent]">
+                <CustomInput
+                  v-model="proposalData[field.key]"
+                  :field="field"
+                  :disabled="!editMode"
+                  :parent="field.parent && proposalData[field.parent]"
+                  @updateAddress="onUpdateAddress"
+                />
+              </template>
             </template>
           </div>
         </div>
