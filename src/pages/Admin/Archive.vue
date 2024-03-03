@@ -801,6 +801,8 @@ async function onCellFocused(event: CellFocusedEvent) {
     return node.childIndex === event.rowIndex;
   });
 
+  if (focusNode?.data._id === getSelectedArchive()?._id) return;
+
   // 변경사항 체크
   try {
     const confirm: boolean = await confirmDiffData();
