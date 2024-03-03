@@ -415,7 +415,7 @@ function onClickFindAddressButton() {
 
 function onSelectAddress({ address, sido }: VueDaumPostcodeCompleteResult) {
   inputArchive.value.address = address;
-  inputArchive.value.sido = sido;
+  inputArchive.value.districtName = sido;
   isOpenFindAddressDialog.value = false;
 }
 
@@ -624,7 +624,7 @@ async function getInput(): Promise<Record<string, any> | undefined> {
   delete input.favorite;
   delete input.favoriteGroup;
 
-  if (!input.sido && input.district?.name) input.sido = input.district.name;
+  if (!input.districtName && input.district?.name) input.districtName = input.district.name;
 
   if (inputArchive.value.address !== inputArchiveOrg.value.address) {
     try {

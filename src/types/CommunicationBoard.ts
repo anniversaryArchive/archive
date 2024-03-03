@@ -17,5 +17,5 @@ export interface CommunicationBoard {
   status: 'none' | 'request' | 'accept' | 'reject';
   message?: string;
   address?: string;
-  sido?: string;
+  districtName?: string;
 }

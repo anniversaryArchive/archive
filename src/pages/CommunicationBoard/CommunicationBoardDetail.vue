@@ -254,7 +254,7 @@ function onChangeDivision(event: CommunicationBoardDivision) {
 // 주소 변경 시
 function onUpdateAddress({ address, sido }: VueDaumPostcodeCompleteResult) {
   proposalData.value!.address = address;
-  proposalData.value!.sido = sido;
+  proposalData.value!.districtName = sido;
 }
 
 // 소통창구 테이블 화면으로 되돌아가기
