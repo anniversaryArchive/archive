@@ -13,18 +13,16 @@ interface Props {
   show: boolean;
 }
 
-const props = withDefaults(defineProps<Props>(), { });
+const props = withDefaults(defineProps<Props>(), {});
 const emit = defineEmits(['done', 'close']);
 
-function onCompleteAddress (result: VueDaumPostcodeCompleteResult) {
+function onCompleteAddress(result: VueDaumPostcodeCompleteResult) {
   emit('done', result.address);
 }
 
-function closeDialog () {
-  emit('close')
+function closeDialog() {
+  emit('close');
 }
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>
