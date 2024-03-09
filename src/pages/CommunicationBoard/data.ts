@@ -18,11 +18,8 @@ export const TABLE_COLUMNS: QTableProps['columns'] = [
     align: 'center',
     field: (row: any) => DIVISION_LABEL[row.division as CommunicationBoardDivision],
     classes: (row: any) => {
-      let style = 'font-extrabold';
-      if (row.fixed) {
-        style += ' text-primary';
-      }
-      return style;
+      if (row.fixed) return ' text-primary font-bold';
+      return '';
     },
   },
   {
@@ -33,7 +30,7 @@ export const TABLE_COLUMNS: QTableProps['columns'] = [
     field: (row: any) => row.title,
     classes: (row: any) => {
       if (row.fixed) {
-        return 'font-extrabold text-primary';
+        return 'font-bold text-primary';
       }
       return '';
     },
@@ -45,6 +42,10 @@ export const TABLE_COLUMNS: QTableProps['columns'] = [
     align: 'center',
     field: (row: any) => row.createdAt,
     format: (val: string) => formatDate(val, 'YYYY.MM.DD'),
+    classes: (row: any) => {
+      if (row.fixed) return ' font-bold';
+      return '';
+    },
   },
   {
     name: 'author',
@@ -52,6 +53,10 @@ export const TABLE_COLUMNS: QTableProps['columns'] = [
     label: '작성자',
     align: 'center',
     field: (row: any) => row.author?.name,
+    classes: (row: any) => {
+      if (row.fixed) return ' font-bold';
+      return '';
+    },
   },
   {
     name: 'status',
@@ -59,6 +64,51 @@ export const TABLE_COLUMNS: QTableProps['columns'] = [
     label: '상태',
     align: 'center',
     field: (row: any) => STATUS_LABEL[row.status] || '-',
+    classes: (row: any) => {
+      if (row.fixed) return ' font-bold';
+      return '';
+    },
+  },
+];
+
+export const MOBILE_TABLE_COLUMNS: QTableProps['columns'] = [
+  {
+    name: 'title',
+    required: true,
+    label: '제목',
+    align: 'left',
+    field: (row: any) => row,
+    format: (row: any) => `${row.title}<div class="text-[0.65rem]">${formatDate(row.createdAt, 'YYYY.MM.DD')}</div>`,
+    classes: (row: any) => {
+      let customClass = '';
+      if (row.fixed) {
+        customClass += 'font-bold text-primary';
+      }
+      return customClass;
+    },
+  },
+
+  {
+    name: 'division',
+    required: true,
+    label: '분류',
+    align: 'left',
+    field: (row: any) => DIVISION_LABEL[row.division as CommunicationBoardDivision],
+    classes: (row: any) => {
+      if (row.fixed) return ' text-primary font-bold';
+      return '';
+    },
+  },
+  {
+    name: 'status',
+    required: false,
+    label: '상태',
+    align: 'center',
+    field: (row: any) => STATUS_LABEL[row.status] || '-',
+    classes: (row: any) => {
+      if (row.fixed) return ' font-bold';
+      return '';
+    },
   },
 ];
 
@@ -89,6 +139,7 @@ export interface Field {
   required: boolean;
   parent?: string;
   objectFields?: Field[];
+  hidden?: boolean;
 }
 
 const GROUP_FROM: Field[] = [
@@ -120,6 +171,7 @@ const ARCHIVE_FORM: Field[] = [
   { label: '아티스트', key: 'artist', required: false, type: 'select', parent: 'group' },
   { label: '카페 테마 이름', key: 'themeName', required: true, type: 'text' },
   { label: '카페 이름', key: 'name', required: true, type: 'text' },
+  { label: '시도', key: 'districtName', type: 'text', required: false, hidden: true },
   { label: '주소', key: 'address', required: true, type: 'address' },
   { label: '상세 주소', key: 'detailAddress', required: false, type: 'text', parent: 'address' },
   { label: '주최자 (트위터 ID)', key: 'organizer', required: true, type: 'text' },

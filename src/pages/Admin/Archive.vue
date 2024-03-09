@@ -413,8 +413,9 @@ function onClickFindAddressButton() {
   isOpenFindAddressDialog.value = true;
 }
 
-function onSelectAddress(address: string) {
+function onSelectAddress({ address, sido }: VueDaumPostcodeCompleteResult) {
   inputArchive.value.address = address;
+  inputArchive.value.districtName = sido;
   isOpenFindAddressDialog.value = false;
 }
 
@@ -448,9 +449,7 @@ const fnCallFunc = (id: string) => {
 async function resetInputBox() {
   try {
     const checked: boolean = await confirmDiffData();
-    if (!checked) {
-      return;
-    }
+    if (!checked) return;
   } catch (error) {
     console.error(error);
   }
@@ -470,9 +469,7 @@ async function resetInputBox() {
 async function fnInquire() {
   try {
     const checked: boolean = await confirmDiffData();
-    if (!checked) {
-      return;
-    }
+    if (!checked) return;
   } catch (error) {
     console.error(error);
   }
@@ -564,9 +561,7 @@ async function onClickSaveBtn() {
   }
 
   // 필수값 모두 입력됐는지 확인
-  if (!isMstValid()) {
-    return;
-  }
+  if (!isMstValid()) return;
 
   isLoading.value = true;
   let result: string | boolean = false;
@@ -608,21 +603,15 @@ async function getInput(): Promise<Record<string, any> | undefined> {
   input.artist = archiveArtist.value?.id;
   input.group = archiveGroup.value?.id;
   for (const field of ['startDate', 'endDate']) {
-    if (!input[field]) {
-      continue;
-    }
+    if (!input[field]) continue;
     input[field] = new Date(input[field]);
   }
 
   try {
     let success: boolean = await uploadFile();
-    if (!success) {
-      return undefined;
-    }
+    if (!success) return undefined;
     success = await uploadImages();
-    if (!success) {
-      return undefined;
-    }
+    if (!success) return undefined;
   } catch (error) {
     console.error(error);
     return undefined;
@@ -633,6 +622,9 @@ async function getInput(): Promise<Record<string, any> | undefined> {
   }
   delete input._id;
   delete input.favorite;
+  delete input.favoriteGroup;
+
+  if (!input.districtName && input.district?.name) input.districtName = input.district.name;
 
   if (inputArchive.value.address !== inputArchiveOrg.value.address) {
     try {
@@ -648,9 +640,7 @@ async function getInput(): Promise<Record<string, any> | undefined> {
 async function createArchive(): Promise<boolean | string> {
   try {
     const input = await getInput();
-    if (!input) {
-      return false;
-    }
+    if (!input) return false;
     const result = await archiveStroe.createArchive(input);
     if (result) {
       const { id, error } = result;
@@ -672,9 +662,7 @@ async function createArchive(): Promise<boolean | string> {
 async function updateArchive(): Promise<boolean> {
   try {
     const input = await getInput();
-    if (!inputArchive.value._id || !input) {
-      return false;
-    }
+    if (!inputArchive.value._id || !input) return false;
     const success: boolean = await archiveStroe.updateArchive(inputArchive.value._id, input);
     if (success) {
       lastActionId.value = inputArchive.value._id;
@@ -702,13 +690,9 @@ function getSelectedArchive(required: boolean = false): Archive | undefined {
 // Grid에서 선택된 Archive를 삭제하는 함수
 async function deleteSelectedArchive() {
   const archive: Archive | undefined = getSelectedArchive(true);
-  if (!archive || !archive._id) {
-    return;
-  }
+  if (!archive || !archive._id) return;
   const confirmResult: boolean = confirm('정말 삭제하시겠습니까?');
-  if (!confirmResult) {
-    return;
-  }
+  if (!confirmResult) return;
   try {
     const success: boolean = await archiveStroe.removeArchive(archive._id);
     if (success) {
@@ -730,9 +714,7 @@ function onClickAddImage(): void {
 
 function onChangeImage(event: Event) {
   const target: HTMLInputElement = event.target as HTMLInputElement;
-  if (!target.files || !target.files[0]) {
-    return;
-  }
+  if (!target.files || !target.files[0]) return;
   const file = target.files[0];
   convertFile(file).then(result => {
     const image: Blob = (result.file || file) as Blob;
@@ -772,9 +754,7 @@ async function uploadImages(): Promise<boolean> {
   const promises = [];
   for (let index = 0; index < inputArchive.value.images.length; index++) {
     const image = inputArchive.value.images[index];
-    if (image.hasOwnProperty('_id') || !image.file) {
-      continue;
-    }
+    if (image.hasOwnProperty('_id') || !image.file) continue;
     const formData: FormData = new FormData();
     formData.append('file', image.file);
     promises.push(
@@ -789,9 +769,7 @@ async function uploadImages(): Promise<boolean> {
     );
   }
 
-  if (!promises.length) {
-    return true;
-  }
+  if (!promises.length) return true;
   try {
     const results = await Promise.all(promises);
     return !results.some(result => !result);
@@ -811,9 +789,7 @@ async function confirmDiffData(): Promise<boolean> {
   try {
     const diff = await checkDiffData();
     const msg = '변경된 내용이 있습니다. 신규 작성시 변경 내용이 사라집니다.계속 하시겠습니까?';
-    if (diff && !confirm(msg)) {
-      return false;
-    }
+    if (diff && !confirm(msg)) return false;
   } catch (_) {}
   return true;
 }
@@ -825,12 +801,12 @@ async function onCellFocused(event: CellFocusedEvent) {
     return node.childIndex === event.rowIndex;
   });
 
+  if (focusNode?.data._id === getSelectedArchive()?._id) return;
+
   // 변경사항 체크
   try {
     const confirm: boolean = await confirmDiffData();
-    if (!confirm) {
-      return;
-    }
+    if (!confirm) return;
   } catch (_) {}
 
   if (!cscript.$isEmpty(focusNode)) {
@@ -838,9 +814,7 @@ async function onCellFocused(event: CellFocusedEvent) {
   }
 
   const archive: Archive | undefined = getSelectedArchive();
-  if (!archive) {
-    return;
-  }
+  if (!archive) return;
   setInputArchive(archive);
 }
 
