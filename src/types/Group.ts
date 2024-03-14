@@ -5,7 +5,7 @@ export interface Group {
     name: string,
     _id: string,
     debutDate: string,
-    logo?: Image | Blob,
+    logo?: Image | undefined, // Blob,
     englishName?: string,
     createdAt?: string,
     updatedAt?: string,

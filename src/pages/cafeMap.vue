@@ -2,10 +2,10 @@
   <div class="h-screen">
     <div class="search-box">
       <!-- 선택한 그룹 Input -->
-      <q-input outlined v-model="groupData.name" readonly>
+      <q-input v-if="groupData" outlined v-model="groupData.name" readonly>
         <template v-slot:prepend>
           <q-avatar>
-            <img :src="groupData.logo.path" alt="logo">
+            <img :src="groupData.logo?.path" alt="logo">
           </q-avatar>
         </template>
       </q-input>
