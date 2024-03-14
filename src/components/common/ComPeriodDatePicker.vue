@@ -96,6 +96,8 @@ export default defineComponent({
 <style scoped>
 .date-period {
   padding-top: 10px;
+  display: flex;
+  justify-content: space-between;
 }
 
 .date-btn button {
