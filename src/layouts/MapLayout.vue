@@ -32,7 +32,8 @@
       <q-page>
         <div id="troublemaker" class="bg-[#fff] h-screen mt-[-3.5rem] pt-14">
           <div class="h-screen">
-            <q-card class="relative h-screen py-4 my-card overflow-y-hidden"> <slot /> </q-card>
+            <!--overflow-y-hidden-->
+            <q-card class="relative h-screen py-4 my-card"> <slot /> </q-card>
 
             <Map />
           </div>
