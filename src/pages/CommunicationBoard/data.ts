@@ -89,6 +89,7 @@ export interface Field {
   required: boolean;
   parent?: string;
   objectFields?: Field[];
+  hidden?: boolean;
 }
 
 const GROUP_FROM: Field[] = [
@@ -120,6 +121,7 @@ const ARCHIVE_FORM: Field[] = [
   { label: '아티스트', key: 'artist', required: false, type: 'select', parent: 'group' },
   { label: '카페 테마 이름', key: 'themeName', required: true, type: 'text' },
   { label: '카페 이름', key: 'name', required: true, type: 'text' },
+  { label: '시도', key: 'districtName', type: 'text', required: false, hidden: true },
   { label: '주소', key: 'address', required: true, type: 'address' },
   { label: '상세 주소', key: 'detailAddress', required: false, type: 'text', parent: 'address' },
   { label: '주최자 (트위터 ID)', key: 'organizer', required: true, type: 'text' },

@@ -86,19 +86,22 @@
           :class="editMode ? '' : 'overflow-y-scroll'"
         >
           <div v-for="field in formFields" class="mb-2">
-            <div class="mb-1 font-bold">
-              {{ field.label }}
-              <span v-if="field.type === 'objectList'"> ({{ proposalData[field.key]?.length || 0 }}) </span>
-              <span v-if="editMode && field.required" class="ml-2 text-red-700">*</span>
-            </div>
+            <template v-if="!field.hidden">
+              <div class="mb-1 font-bold">
+                {{ field.label }}
+                <span v-if="field.type === 'objectList'"> ({{ proposalData[field.key]?.length || 0 }}) </span>
+                <span v-if="editMode && field.required" class="ml-2 text-red-700">*</span>
+              </div>
 
-            <template v-if="!field.parent || proposalData[field.parent]">
-              <CustomInput
-                v-model="proposalData[field.key]"
-                :field="field"
-                :disabled="!editMode"
-                :parent="field.parent && proposalData[field.parent]"
-              />
+              <template v-if="!field.parent || proposalData[field.parent]">
+                <CustomInput
+                  v-model="proposalData[field.key]"
+                  :field="field"
+                  :disabled="!editMode"
+                  :parent="field.parent && proposalData[field.parent]"
+                  @updateAddress="onUpdateAddress"
+                />
+              </template>
             </template>
           </div>
         </div>
@@ -183,13 +186,13 @@ import removeCommunicationBoard from '@/graphql/removeCommunicationBoard.mutate.
 import acceptCommunicationBoard from '@/graphql/acceptCommunicationBoard.mutate.gql';
 import rejectCommunicationBoard from '@/graphql/rejectCommunicationBoard.mutate.gql';
 import reRequestCommunicationBoard from '@/graphql/reRequestCommunicationBoard.mutate.gql';
+import { VueDaumPostcodeCompleteResult } from 'vue-daum-postcode';
 
 const router = useRouter();
 const route = useRoute();
 const $q = useQuasar();
 const userStore = useUserStore();
 
-const userId: ComputedRef<string | undefined> = computed(() => userStore.id);
 const isAdmin: ComputedRef<boolean> = computed(() => userStore.isAdmin);
 const isAuthor: ComputedRef<boolean> = computed(() => communicaitonBoard.value?.author?._id === userStore.id);
 
@@ -227,8 +230,8 @@ function setCommunicationBoardData(data: CommunicationBoard | undefined) {
 
 // 소통창구 게시글 가져오는 함수
 function getData(id: string) {
+  // 생성인 경우
   if (id === 'create') {
-    // 생성인 경우
     createMode.value = editMode.value = true;
     setCommunicationBoardData({ division: 'notice' } as CommunicationBoard);
     return;
@@ -250,6 +253,12 @@ function onChangeDivision(event: CommunicationBoardDivision) {
   communicaitonBoard.value!.division = event;
 }
 
+// 주소 변경 시
+function onUpdateAddress({ address, sido }: VueDaumPostcodeCompleteResult) {
+  proposalData.value!.address = address;
+  proposalData.value!.districtName = sido;
+}
+
 // 소통창구 테이블 화면으로 되돌아가기
 function goToTableView() {
   const lastPath = router.options.history.state.back;
@@ -267,13 +276,9 @@ function onClickEditBtn() {
 
 // 삭제 버튼 클릭 시
 function onClickDeleteBtn() {
-  if (!communicaitonBoard.value) {
-    return;
-  }
+  if (!communicaitonBoard.value) return;
   const value: boolean = confirm('정말 삭제하시겠습니까?');
-  if (!value) {
-    return;
-  }
+  if (!value) return;
   mutate(removeCommunicationBoard, { id: communicaitonBoard.value._id }).then(resp => {
     if (resp.data.success) {
       goToTableView();
@@ -285,9 +290,7 @@ function onClickDeleteBtn() {
 
 // 취소 버튼 클릭 시
 function onClickCancel() {
-  if (createMode.value) {
-    return goToTableView();
-  }
+  if (createMode.value) return goToTableView();
   communicaitonBoard.value = _.cloneDeep(communicaitonBoardOrg.value);
   editMode.value = false;
 }
@@ -295,9 +298,7 @@ function onClickCancel() {
 function checkRequiredFields(fields: any, data: any): boolean {
   for (const field of fields) {
     if (field.type === 'objectList') {
-      if (!data[field.key]) {
-        return !field.required;
-      }
+      if (!data[field.key]) return !field.required;
       for (const object of data[field.key]) {
         if (!checkRequiredFields(field.objectFields, object)) {
           return false;
@@ -320,13 +321,8 @@ function checkRequired(): boolean {
     $q.notify('제목은 필수입니다.');
     return false;
   }
-  if (!formFields.value) {
-    return true;
-  }
-  if (!proposalData.value) {
-    return false;
-  }
-
+  if (!formFields.value) return true;
+  if (!proposalData.value) return false;
   return checkRequiredFields(formFields.value, proposalData.value);
 }
 
@@ -349,37 +345,28 @@ function uploadImage(field: Field, file: any, index?: number): Promise<boolean> 
 
 // 파일 업로드
 async function uploadFiles(): Promise<boolean> {
-  if (!proposalData.value || !formFields.value) {
-    return true;
-  }
+  if (!proposalData.value || !formFields.value) return true;
   try {
     const promises: Promise<boolean>[] = formFields.value.reduce((acc: Promise<boolean>[], field: Field) => {
       if (field.type === 'images' && proposalData.value![field.key]) {
         for (let index = 0; index < proposalData.value![field.key].length; index++) {
           const file = proposalData.value![field.key][index];
-          if (!file || file._id) {
-            continue;
-          }
+          if (!file || file._id) continue;
           acc.push(uploadImage(field, file, index));
         }
       }
-      if (field.type !== 'image') {
-        return acc;
-      }
+      if (field.type !== 'image') return acc;
+
       const file = proposalData.value![field.key];
-      if (!file || file._id) {
-        return acc;
-      }
+      if (!file || file._id) return acc;
       acc.push(uploadImage(field, file));
       return acc;
     }, []);
-
-    const result = await Promise.all(promises);
+    await Promise.all(promises);
     return true;
   } catch (error) {
     throw error;
   }
-  return false;
 }
 
 function getInputFields(fields: any, data: any) {
@@ -387,9 +374,7 @@ function getInputFields(fields: any, data: any) {
 
   for (const field of fields) {
     const { key } = field;
-    if (!data[key]) {
-      continue;
-    }
+    if (!data[key]) continue;
 
     switch (field.type) {
       case 'image':
@@ -414,9 +399,7 @@ function getInputFields(fields: any, data: any) {
 
 // mutation varialbes로 보낼 input 반환하는 함수
 function getInput(): Record<string, any> {
-  if (!communicaitonBoard.value) {
-    return {};
-  }
+  if (!communicaitonBoard.value) return {};
   const fields: string[] = ['division', 'title', 'content'];
   const input: Record<string, any> = {};
   for (const field of fields) {
@@ -434,9 +417,7 @@ function getInput(): Record<string, any> {
 
 // 저장 버튼 클릭 시
 async function onClickSave() {
-  if (!communicaitonBoard.value || !checkRequired()) {
-    return;
-  }
+  if (!communicaitonBoard.value || !checkRequired()) return;
 
   try {
     await uploadFiles();
@@ -444,7 +425,6 @@ async function onClickSave() {
     console.error('error : ', error);
   }
 
-  const fields: string[] = ['division', 'title', 'content'];
   const input: Record<string, any> = getInput();
 
   // 아카이브인 경우 address의 lat, lng 계산을 해줘야한다.
@@ -473,9 +453,7 @@ async function onClickSave() {
 
 // 재요청 버튼 클릭 시
 function onClickReRequestBtn() {
-  if (!communicaitonBoard.value) {
-    return;
-  }
+  if (!communicaitonBoard.value) return;
   mutate(reRequestCommunicationBoard, { id: communicaitonBoard.value._id }).then(({ data }) => {
     const success = !!data?.success;
     if (!success) {
@@ -487,9 +465,7 @@ function onClickReRequestBtn() {
 
 // 관리자 계정 - 승인
 function onClickAcceptBtn() {
-  if (!communicaitonBoard.value) {
-    return;
-  }
+  if (!communicaitonBoard.value) return;
   const { _id, message } = communicaitonBoard.value;
   mutate(acceptCommunicationBoard, { id: _id, message }).then(({ data }) => {
     const success = !!data?.success;
@@ -502,9 +478,7 @@ function onClickAcceptBtn() {
 
 // 관리자 계절 - 거절
 function onClickRejectBtn() {
-  if (!communicaitonBoard.value) {
-    return;
-  }
+  if (!communicaitonBoard.value) return;
   const { _id, message } = communicaitonBoard.value;
   if (!message) {
     return $q.notify('거절 시에는 메세지가 필수입니다!');

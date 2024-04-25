@@ -103,7 +103,7 @@
 
   <FindAddressDialog
     :show="isOpenFindAddressDialog"
-    @done="onUpdate"
+    @done="onUpdateAddress"
     @close="
       () => {
         isOpenFindAddressDialog = false;
@@ -126,6 +126,7 @@ import { Field } from '../data';
 
 // Dialogs
 import FindAddressDialog from '@/dialogs/FindAddressDialog.vue';
+import { VueDaumPostcodeCompleteResult } from 'vue-daum-postcode';
 
 interface Props {
   modelValue: any;
@@ -135,7 +136,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {});
-const emit = defineEmits(['update:modelValue']);
+const emit = defineEmits(['update:modelValue', 'updateAddress']);
 
 const groupStore = useGroupStore();
 const aritstStore = useArtistStore();
@@ -182,8 +183,12 @@ function removeObject(index: number) {
 }
 
 function onUpdate(event: string | number | null) {
-  isOpenFindAddressDialog.value = false;
   emit('update:modelValue', event);
+}
+
+function onUpdateAddress(data: VueDaumPostcodeCompleteResult) {
+  isOpenFindAddressDialog.value = false;
+  emit('updateAddress', data);
 }
 </script>
 

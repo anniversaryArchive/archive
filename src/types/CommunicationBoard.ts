@@ -16,4 +16,6 @@ export interface CommunicationBoard {
   fixed: boolean;
   status: 'none' | 'request' | 'accept' | 'reject';
   message?: string;
+  address?: string;
+  districtName?: string;
 }
