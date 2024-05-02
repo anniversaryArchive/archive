@@ -53,7 +53,7 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeMount, ComputedRef, computed, ref, Ref } from 'vue';
+import { ComputedRef, computed, ref, Ref } from 'vue';
 import { useQuasar } from 'quasar';
 import { useUserStore } from '@/stores/user';
 import SignInDialog from '@/dialogs/SignInDialog.vue';
