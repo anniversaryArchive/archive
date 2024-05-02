@@ -170,7 +170,6 @@ export default defineComponent({
       getArchives();
       favoriteGroupStore.getFavoriteGroupList();
       groupData.value = archiveStore.group;
-      console.log(groupData.value?.logo);
     };
 
     watch(
