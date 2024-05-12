@@ -77,6 +77,16 @@
             beginDeNm="schBeginDe"
             endDeNm="schEndDe"
           />
+          <h1 class="search-text mb-2">지역 선택</h1>
+          <div class="district-container">
+            <div v-for="item in districtCode()"
+                 :key="item"
+                 class="box"
+                 :class="{ 'selected': isSelected(item) }"
+                 @click="selectItem(item)">
+              {{item.name}}
+            </div>
+          </div>
         </div>
       </template>
       <template v-slot:footer>
@@ -92,7 +102,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onBeforeMount, ref, Ref, computed, watch } from 'vue';
+import { defineComponent, onBeforeMount, ref, Ref, computed, watch, reactive, toRefs } from 'vue';
 import { NaverInfoWindow, NaverMap, NaverMarker } from 'vue3-naver-maps';
 import mixinPageCommon from '@/pages/mixin/mixinPageCommon';
 import ccobject from '@/composables/createComObject';
@@ -110,9 +120,15 @@ import CafeItem from '@/components/CafeItem.vue';
 import BottomDialog from '@/dialogs/BottomDialog.vue';
 import FavoriteGroupList from '@/components/FavoriteGroupList.vue';
 import { Group } from '@/types/Group';
+import districtCode from '@/lib/districtCode.js'
 
 export default defineComponent({
   name: 'cafeMap',
+  methods: {
+    districtCode() {
+      return districtCode
+    }
+  },
   components: { NaverMap, NaverMarker, NaverInfoWindow, CafeItem, BottomDialog, FavoriteGroupList },
   mixins: [mixinPageCommon],
   setup() {
@@ -157,6 +173,30 @@ export default defineComponent({
     const groupData: Ref<Group | undefined> = ref();
     const artistNameList = ref([] as string[]);
     const isShowSearchBottomDialog: Ref<boolean> = ref(false);
+
+    const state = reactive({
+      selectedItems: [] as Object[],
+    });
+    const selectItem = (item: any) => {
+      const index = state.selectedItems.findIndex((selectedItem: any) => selectedItem === item.code);
+      if (index !== -1) {
+        state.selectedItems.splice(index, 1);
+      } else {
+        /*const row = {
+          code: item.code,
+          name: item.name
+        };
+        state.selectedItems.push(row);*/
+        state.selectedItems.push(item.code);
+      }
+    };
+
+    const isSelected = (item: any) => {
+      return state.selectedItems.some((selectedItem: any) => {
+        // return selectedItem.code === item.code;
+        return selectedItem === item.code;
+      });
+    };
 
     onBeforeMount(() => {
       initialize();
@@ -221,7 +261,12 @@ export default defineComponent({
       archiveStore.getArchives({
         page: paginationData.value.current - 1,
         perPage: paginationData.value.perPage,
-        filter: { flds: { artist: Array.from(artistList.value) } },
+        filter: {
+          flds: {
+            artist: Array.from(artistList.value),
+            districtCode: state.selectedItems
+          }
+        },
         search: {
           start: schBeginDe ? moment(schBeginDe).format('YYYY-MM-DD') : '',
           end: schEndDe ? moment(schEndDe).format('YYYY-MM-DD') : '',
@@ -363,7 +408,10 @@ export default defineComponent({
       selectFavoriteGroupList,
       isShowSearchBottomDialog,
       groupData,
-      artistNameList
+      artistNameList,
+      ...toRefs(state),
+      selectItem,
+      isSelected
     };
   },
 });
@@ -441,4 +489,27 @@ export default defineComponent({
     }
   }
 }
+
+/* 검색필터 : 지역 선택 */
+.district-container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  .box {
+    border-radius: 5px;
+    border: 1px solid #CCCCCC;
+    padding: 12px 0;
+    color: #767676;
+    font-size: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+  }
+  .selected {
+    background-color: #4D8CF4;
+    color: #fff;
+  }
+}
+
 </style>
