@@ -59,8 +59,7 @@ body {
 }
 
 .menu-ul li .q-hoverable:hover > .q-focus-helper {
-  background: none !important;
-  background-color: transparent !important;
+  background : transparent none !important;
 }
 
 /* End Layout */
@@ -71,6 +70,12 @@ body {
   float: left;
 }
 
+/* 지도 정보창 크기 조정 */
+.info-window-parent {
+  width: max-content !important;
+  height: max-content !important;
+}
+
 .infowindow-style {
   color: black;
   background-color: white;
@@ -79,7 +84,8 @@ body {
 
 .infowindow-btn-box {
   text-align: center;
-  padding-bottom: 5px;
+  padding-bottom: 0;
+  margin: 0;
 }
 
 .infowindow-btn-box button {
@@ -87,6 +93,9 @@ body {
   font-size: 12px;
   font-weight: 400;
   color: #000000;
+  width: 115px;
+  margin-top: 15px;
+  margin-bottom: 0 !important;
 }
 
 .search-box {
@@ -116,6 +125,19 @@ body {
   width: 300px;
 }
 
+.info-window-img {
+  height: 160px;
+  object-fit: cover;
+}
+
+.q-item__section--main + .q-item__section--main {
+  margin-left: 15px !important;
+}
+
+.info-window-text {
+  min-width: max-content !important;
+}
+
 .archive-title {
   font-weight: 400;
   font-size: 16px;
@@ -137,6 +159,16 @@ body {
   font-size: 14px;
   line-height: 25px;
   color: #767676;
+}
+
+.archive-artist {
+  color: #767676;
+  font-size: 14px;
+  font-weight: 400;
+  border-radius: 50px;
+  background: #D9D9D9;
+  padding: 5px 8px;
+  width: fit-content;
 }
 
 .btn-box {
@@ -219,6 +251,64 @@ body {
 }
 
 /* End favorite.vue */
+
+/* 카페 맵 : 지역번호 필터  */
+.district-container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.district-container .box {
+  border-radius: 5px;
+  border: 1px solid #CCCCCC;
+  padding: 12px 0;
+  color: #767676;
+  font-size: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.district-container .selected {
+  background-color: #4D8CF4;
+  color: #fff;
+}
+/* 카페 맵 : 오더링 + 아티스트 영역  */
+.list-order {
+  display: flex;
+}
+.list-order .order-select {
+  width: 30%;
+}
+.list-order .artist-list {
+  white-space: nowrap;
+  padding: 15px;
+  overflow-y: auto;
+}
+.list-order .artist-list label {
+  color: #767676;
+  font-size: 14px;
+  font-weight: 400;
+  border-radius: 50px;
+  background: #D9D9D9;
+  padding: 5px 8px;
+  margin: 0 3px;
+}
+.list-order .artist-list::-webkit-scrollbar {
+  width: 10px;
+}
+.list-order .artist-list::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 10px 10px #F6F6F6;
+  border-radius: 10px;
+  border: solid 6px transparent;
+}
+.list-order .artist-list::-webkit-scrollbar-thumb {
+  box-shadow: inset 0 0 10px 10px #DDD;
+  border-radius: 10px;
+  border: solid 6px transparent;
+}
 
 /* 모바일 화면 */
 @media screen and (max-width: 767px) {

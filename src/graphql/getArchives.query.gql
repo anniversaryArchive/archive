@@ -25,6 +25,10 @@ query (
       detailAddress
       lat
       lng
+      district {
+        code
+        name
+      }
       openTime {
         hour
         minute

@@ -15,7 +15,7 @@ export interface Archive {
   endDate: string; // 종료일
   openTime?: Time; // 영업 시작 시간
   closeTime?: Time; // 영업 종료 시간
-  mainImage: Image | Blob; // 메인 이미지
+  mainImage: Image | undefined; // 메인 이미지 | Blob
   images: [Image]; // 이미지 리스트
   favorite: boolean; // 즐겨찾기
   phoneNumber?: string; // 전화번호

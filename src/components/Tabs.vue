@@ -31,7 +31,7 @@
 </template>
 
 <script setup lang="ts">
-import { ComputedRef, computed, ref } from "vue";
+import { ComputedRef, computed } from "vue";
 import { useRoute } from "vue-router";
 import { useQuasar } from "quasar";
 import { useUserStore } from "@/stores/user";

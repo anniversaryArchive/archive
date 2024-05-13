@@ -1,12 +1,12 @@
 <template>
   <div class="absolute top-0 left-0 w-full h-full dialog" :class="{ hide: !show }">
-    <div class="w-full h-full bg-black backdrop" @click="hide"></div>
+    <div class="w-full h-full bg-black backdrop" @click="hide" :class="{'display-none' : props.backdropNone}"></div>
     <div
       class="absolute bottom-0 flex flex-col w-full bg-white !rounded-t-2xl dialog-content h-5/6"
       :style="`height: ${height}`"
     >
       <!-- Title 영역 -->
-      <div class="relative p-4">
+      <div class="relative p-4" :class="{'display-none' : props.titleNone}">
         <div class="px-8 text-lg font-extrabold text-center">
           <slot name="title"></slot>
         </div>
@@ -32,6 +32,8 @@ import { computed, ComputedRef } from 'vue';
 interface Props {
   show: boolean;
   height?: string;
+  backdropNone?: boolean;
+  titleNone?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {});
@@ -72,5 +74,9 @@ function hide() {
       opacity: 0;
     }
   }
+}
+
+.display-none {
+  display: none;
 }
 </style>

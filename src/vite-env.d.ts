@@ -5,6 +5,8 @@ declare module '*.vue' {
     export default component
 }
 
+declare module '*.js';
+
 declare module "*.gql" {
     const content: any;
     export default content;
