@@ -10,7 +10,9 @@
       class="flex flex-col shadow-lg"
     >
       <div class="logo-div">
-        <img src="@/assets/images/svgs/logo.svg" alt="로고" />
+        <router-link to="/">
+          <img src="@/assets/images/svgs/logo.svg" alt="로고" />
+        </router-link>
       </div>
 
       <div class="flex-1">
@@ -33,7 +35,9 @@
         <div id="troublemaker" class="bg-[#fff] h-screen mt-[-3.5rem] pt-14">
           <div class="h-screen">
             <!--overflow-y-hidden-->
-            <q-card class="relative h-screen py-4 my-card"> <slot /> </q-card>
+            <q-card :class="!isMobile ? 'relative h-screen py-4 my-card': ''">
+              <slot />
+            </q-card>
 
             <Map />
           </div>
@@ -51,7 +55,7 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeMount, ComputedRef, computed, ref, Ref } from 'vue';
+import { ComputedRef, computed, ref, Ref } from 'vue';
 import { useQuasar } from 'quasar';
 import { useUserStore } from '@/stores/user';
 import SignInDialog from '@/dialogs/SignInDialog.vue';

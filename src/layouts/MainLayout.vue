@@ -4,7 +4,9 @@
     <q-drawer v-if="!isMobile" :modelValue="true" :width="80"
       :breakpoint="700" side="left" class="flex flex-col shadow-lg">
       <div class="logo-div">
-        <img src="@/assets/images/svgs/logo.svg" alt="로고" />
+        <router-link to="/">
+          <img src="@/assets/images/svgs/logo.svg" alt="로고" />
+        </router-link>
       </div>
 
       <div class="flex-1">
